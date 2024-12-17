@@ -1,0 +1,46 @@
+% BOARD_INFO(5) 0.5.1 | dno Configuration Files
+% Marc Munro
+% December 2024
+
+# NAME
+
+BOARD_INFO - file of Arduino properties in make(1) syntax
+
+# DESCRIPTION
+BOARD_INFO files are used by **dno**(1) to define all of the various
+properties required in order to compile and build code for an Arduino
+board, in make format.  This means that BOARD_INFO files can be
+included into makefiles, which is exactly what **dno** does.
+
+BOARD_INFO files are derived, primarily, from the Arduino
+platform.txt and boards.txt files that are supplied with Arduino
+software, though may also contain entries derived from a local
+platform.local.txt file.
+
+BOARD_INFO files are created by **dno_bpp**, which performs the
+following operations on the incoming files:
+
+  - header definitions are added to identify the source files, the
+    host OS, and the dno version;
+
+  - properties appearing on the right hand side of definitions are
+    converted into makefile variables;
+
+  - unused board definitions are filtered out;
+
+  - default menu entries are identified;
+
+  - undefined build paths are discovered and defined;
+
+  - quotes appearing in quoted strings are escaped.
+
+Note 
+
+FILES
+platform.txt
+boards.txt
+platform.local.txt
+
+# SEE ALSO
+  **make**(1) **dno**(1) **dno_bpp** **BOARD_TYPE**(5)
+

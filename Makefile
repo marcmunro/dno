@@ -251,7 +251,7 @@ uninstall:
 # Release targets
 # 
 
-.PHONY: release tarball check_tag check_commit check_origin\
+.PHONY: release check_tag check_commit check_origin\
 	check_remote check_history
 
 release: check_tag check_commit check_origin\
@@ -265,9 +265,6 @@ check_tag:
 	    echo "    NO GIT TAG IN PLACE"; \
 	    exit 2; \
 	fi
-
-tarball: release
-	make clean; make
 
 
 ################################################################

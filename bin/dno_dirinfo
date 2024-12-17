@@ -1,0 +1,269 @@
+#! /usr/bin/env bash
+#
+#       dno_dirinfo - identify the directory type for dno
+# 
+#       Copyright (c) 2024 Marc Munro
+#       Author:  Marc Munro
+# 	License: GPL-3.0
+#  
+
+DNO_VERSION=0.5.1
+
+##
+# usage
+#
+# Print a usage message.
+#
+usage()
+{
+    echo "dno_dirinfo [options]... [directory]
+  Directory type discovery for dno.
+
+  The type of directory will be printed to stdout and will be one of:
+    - root
+      This is the root directory for a dno directory system.  It does
+      not contain any code of its own.
+    - root_code
+      This is the root directory for a dno directory system and
+      contains code.
+    - root_board
+      This is the root directory for a dno directory system and is set
+      up for a specific board.  A dno build can be performed here,
+      which will attempt by defauly to compile and build for the
+      directory's  identified board type.
+    - lib
+      This directory contains library code.  Running a dno build in
+      this directory will attempt by default to build and run any
+      defined unit tests.
+    - test
+      This directory contains unit tests.
+    - test_container
+      TODO: explain this.
+    - docs
+      This is a documentation directory.  Running dno here will
+      attempt by default to build project documentation using
+      Doxygen. 
+
+  Options:
+  --dir, -d dir      
+  	      Specify a directory to search for boards.txt  This may
+              be specified multiple times.  This will be passed to
+  	      dno_bpp when we are trying to establish whether our
+  	      directory is a board directory.
+  --help, -h  Help
+  --no, --nodefaults, -n
+  	      Do not use the system default dno paths for the boards.txt
+  	      files.  You must provide at least one explicit --dir
+  	      option in this case.  This will be passed to
+  	      dno_bpp when we are trying to establish whether our
+  	      directory is a board directory.
+  --version, -v	      
+  	      Print version information and exit.
+"
+}
+
+##
+# version
+#
+# Print version information and exit.
+#
+version()
+{
+    echo "`basename $0`: version ${DNO_VERSION} (part of the dno toolset)"
+    exit
+}
+
+##
+# Does the supplied path look like a unit test directory?
+#
+is_testdirname() {
+    (
+	cd $1
+	name=`pwd`
+	dirname=`basename "${name}"`
+	[ "x${dirname}" = "xtest" -o \
+	  "x${dirname}" = "xtests" -o \
+	  "x${dirname}" = "unit" ]
+    )
+}
+
+##
+# Check whether current directory looks like a board directory.  It
+# does if it contains a BOARD_TYPE or BOARD_INFO file, or if it
+# has the name of a board.
+#
+is_board_dir() {
+    if [ -r "BOARD_TYPE" -o -r "BOARD_INFO" ]; then
+	return 0
+    fi
+    # Let's see if the directory name itself specifies a board name.
+    dir=`pwd`
+    dirname=`basename "${dir}"`
+    board="-b ${dirname}"
+
+    if dno_bpp ${bpp_params} ${board} ${cpu} >/dev/null; then
+	# Our directory is named for a board: return success
+        return 0
+    fi
+    false
+}
+
+##
+# True if the directory contains any source files.
+#
+is_code_dir() {
+    # Look for any file named *.c, *.cpp, *.h, *.S, or *.ino
+    find . -maxdepth 1 -mindepth 1 -name '*.cpp' -o \
+	 -name '*.c' -o -name '*.S' -o \
+	 -name '*.h' -o -name '*.ino' | grep -q .
+}
+
+##
+# True if the directory contains board directories other than $1
+#
+is_container_dir() {
+    find . -maxdepth 1 -mindepth 1 -type d | while read dir; do
+	if [ x`basename ${dir}` != x$1 ]; then
+	    if (cd "${dir}"; is_board_dir); then
+	        echo yep
+	        break
+	    fi
+	    if (cd "${dir}"; is_code_dir); then
+	        echo yep
+	        break
+	    fi
+	fi
+    done | grep -q yep
+}
+
+##
+# True if the directory contains a header with the same root as the
+# directory name.
+#
+is_lib_dir() {
+    path=`pwd`
+    dirname=`basename "${path}"`
+    [ -f "${dirname}.h" ]
+}
+
+##
+# Check whether current directory looks like a documentation directory
+#
+is_docs_dir() {
+    (
+	name=`pwd`
+	dirname=`basename "${name}"`
+	[ "x${dirname}" = "xdocs" ]
+    )
+}
+
+bpp_params=""
+
+while getopts "d:hnv-:" opt; do
+    case "${opt}" in
+	-)
+	    case "${OPTARG}" in
+		dir)
+		    bpp_params="${bpp_params} -d ${!OPTIND}"
+		    OPTIND=$(( $OPTIND + 1 ))
+		    ;;
+		dir=*)
+	            bpp_params="${bpp_params} -d ${OPTARG#*=}"
+		    ;;
+		help)
+		    usage
+		    exit 0
+		    ;;
+		no | nodefaults)
+		    bpp_params="${bpp_params} -n"
+		    ;;
+		version)
+		    version
+		    ;;
+		*)
+		    if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
+                        echo "`basename $0`: Unknown option --${OPTARG}" 1>&2
+			exit 2
+                    fi
+		    ;;
+	    esac
+	    ;;
+	d)
+	    bpp_params="${bpp_params} -d ${OPTARG}"
+	    ;;
+	h)
+	    usage
+	    exit 0
+	    ;;
+	n)
+	    bpp_params="${bpp_params} -n"
+	    ;;
+	v)
+	    version
+	    ;;
+	*)
+	    echo "`basename $0`: Unexpected option: -${OPTARG}" 1>&2
+	    exit 1
+	    ;;
+    esac
+done
+shift $((OPTIND-1))
+
+
+# If we have been given a directory as a parameter, go there before
+# doing anything else.
+#
+if [ -d "$1" ]; then
+    cd "$1"
+    shift
+fi
+
+# If we have a .dno_dirtype file, then use it unless the -n flag has
+# been given.
+#
+if [ "x$1" != "x-n" ]; then
+    if [ -r .dno_dirtype ]; then
+	dirtype=`cut -f2 -d= <.dno_dirtype`
+	echo ${dirtype}
+	exit
+        shift
+    fi
+ fi
+
+basename `pwd` | (
+    read thisdir
+    if is_testdirname .; then
+        if [ "x`echo test_*.cpp`" = "xtest_*.cpp" ]; then
+    	    # No file found named test_*.cpp
+    	    echo test_container
+        else
+            echo test
+        fi
+    elif is_testdirname ..; then
+        echo test
+    elif is_board_dir; then
+        if (cd ..; is_code_dir); then
+    	    echo sub_board
+        elif (cd ..; is_container_dir ${thisdir}); then
+    	    echo sub_board
+        else
+            echo root_board
+        fi
+    elif is_code_dir; then
+        # This could be a root code directory, or a lib directory.
+        # If it's a lib directory, there will be a header with the same
+        # name as the directory.
+        if is_lib_dir; then
+    	echo lib
+        else
+            echo root_code
+        fi
+    elif is_container_dir; then
+        echo root
+    elif is_docs_dir; then
+	echo docs
+    else
+        echo unknown
+    fi
+)
+

@@ -1,0 +1,462 @@
+% DNO(1) dno 0.5.1 | User Commands
+% Marc Munro
+% December 2024
+
+# NAME
+
+dno - Arduino software build system
+
+# SYNOPSIS
+ **dno** [OPTIONS]... [[TARGET] [VARIABLE=VALUE]]...
+
+# DESCRIPTION
+
+Build Arduino software with as little fuss and effort as possible.
+
+In addition to building and uploading Arduino code, dno supports
+automatic linking to, and unit testing of, libraries; generation of
+Doxygen-based documentation for both libraries and your main source
+code; and builds for multiple board types in the same directory tree.
+
+It is a build-system for those who do not need the training-wheels of
+the Arduino IDE, or who find its limitations frustrating.
+
+All code is built in sub-directories called build.  This is to keep the
+source-trees as clean as possible.
+
+This is part of the dno Arduino software builder package.
+
+# DIRECTORY STRUCTURE
+
+For a simple piece of Arduino code, **dno** will work in a single
+directory.
+
+If you require extra libraries, these need to be installed in their
+own sub-directories.  They may include unit test sub-directories, and
+may have a nested src directory for the code.
+
+In addition, if you want to compile your code for more than one board,
+you should create separate board directories.
+
+The following example project filesystem is for a project called panel,
+with a library called Button.  There are 2 board directories allowing
+Arduino images to be created for 2 distinct Arduino boards.
+
+    panel
+    ├── Button
+    │   ├── Button.cpp
+    │   ├── Button.h
+    │   └── tests
+    │       ├── Arduino.h
+    │       ├── cppunit.h
+    │       └── test_Button.cpp
+    ├── panel.ino
+    ├── pro.8MHzatmega328
+    │   └── BOARD_INFO
+    └── uno
+        └── BOARD_INFO
+
+Note the **BOARD_INFO**(5) files in the board directories.  These contain
+definitions derived from the platforms.txt and boards.txt for the
+Arduino boards that you are building for.  In these cases the type of
+board is given by the sub-directory name, eg pro.8MHzatmega328.  If you
+don't want to name your directory in this way, **dno** can create a
+**BOARD_TYPE**(5) file for you to identify the board.
+
+**dno** is implemented using **make**(1) and so takes all of make's options
+and follows make syntax for targets and variable assignments.  Being
+based on make means that **dno** will only compile and link those files
+that it needs to, and that any dependencies of the target you have
+asked for will automatically be built.  So, if you run the upload
+target in a fresh directory containing only your .ino file, **dno** will
+attempt to compile and link it, but will also attempt to create the
+**BOARD_TYPE**(5) and **BOARD_INFO**(5) files.  See the description of
+those targets below for more on this.
+
+As far as possible, running the **dno** command with no arguments or
+options will do the right thing.  Specifically, running **dno** in:
+
+a lib sub-directory
+
+    will result in unit tests for that library being run;
+
+the project root directory;
+
+    will result in the Arduino code in that directory being compiled
+    and linked to whatever user-provided and/or standard libraries are
+    required;
+
+a docs directory;
+
+    will result in Doxygen being run to create documentation for the
+    entire codebase including locally installed libraries. 
+
+a board directory;
+
+    will result in the Arduino code in that directory or its
+    parent being compiled and linked to whatever standard and included
+    libraries are required.  A board directory is a sub-directory of
+    the project's root directory which is used for building images for
+    a specific board.  Board directories may contain board-specific
+    code which will take precedence over code in files of the same
+    name in the parent directory.
+
+# OPTIONS
+
+All **make**(1) options are supported.  You should not need to use
+make options, so they are not documented here, but they should all work
+just fine.
+
+# DEFAULT TARGETS
+
+Default targets do not need to be specified, though they may be.  They
+represent dno's default action in a specific type of directory.  Note
+that in running a default target, any dependencies will also be
+automatically applied.  For instance, having a **BOARD_INFO**(5) file in a
+board directory is a dependency of the board, so running the default
+target in a board directory, will first ensure that the **BOARD_INFO**(5)
+file is created.
+
+**dno** has following default targets:
+
+**build**
+
+    This is the default target for the project's root directory if it
+    contains a **BOARD_TYPE**(5) file, and for board directories.  This
+    target will compile and link all of the Arduino code to provide an
+    uploadable executable.
+
+**lib**
+
+    The default target for a library directory that contains no unit
+    tests.  This just provides feedback to the user.
+
+**test**
+
+    The default target for a library directory that contains a unit,
+    test or tests sub-directory.  This compiles the code in the
+    sub-directory using the host computer's compiler and attempts to
+    run it.  This code should be unit tests to test the specific
+    library.  Note that because this runs on the host computer, any
+    Arduino-specific library functionality will have to be stubbed or
+    otherwise simulated.
+
+**docs**
+
+    The default target for a docs directory.  This may be within a
+    library or directly under the project directory.  The docs target
+    may also be used explicitly in a library directory.
+    
+# TARGETS
+
+These are the major targets for dno.  You will generally need very few
+of them.  Most Arduino development can be done using the default
+targets, as well as upload, eeprom and clean.
+
+**BOARD_TYPE**
+
+    Attempt to create a **BOARD_TYPE**(5) file in the current
+    directory.  Dno will need to establish board and cpu information
+    in order to do this.  This will usually need to be provided
+    explicitly on the command line, eg:
+
+        $ dno BOARD_TYPE BOARD=pro CPU=8MHzatmega328
+
+    Note that boards that do not come in a family, eg "uno" do not
+    need the CPU designator.  In a board directory below the project's
+    root, naming the directory <BOARD>.<CPU>, or possibly
+    <BOARD>, eliminates the need for a **BOARD_TYPE**(5) file.
+
+**BOARD_INFO**
+
+    Attempt to create a **BOARD_INFO**(5) file in the current directory.
+    This file is derived from the Arduino distribution's boards.txt
+    and platform.txt files and contains definitions to aid in the
+    compilation, etc of Arduino code.  If no **BOARD_TYPE**(5) file exists
+    and the directory name does not contain the board and cpu
+    information, you will need to define the BOARD, and possibly CPU
+    variables on the command line, just as for the BOARD_TYPE target.
+
+**build**
+
+    Attempt to compile and link your projects source code and
+    libraries into an uploadable image for the Arduino specified in
+    **BOARD_TYPE**(5), or the directory name, or explicitly using the
+    BOARD and CPU variables.  Note that this is the default target in
+    the project root directory if it contains a **BOARD_TYPE**(5)
+    file, and in any board directory.
+
+**clean**
+
+    Clean the current directory and its subordinates.  This will
+    remove any build files and build directories, as well as clearing
+    out emacs' backup and temp files.  If you have changed the name of
+    any headers or libraries, it is a good idea to invoke this target,
+    as make can get confused about its dependencies in this case.
+
+**devices**
+
+    Identify all connected devices that appear to be Arduinos.  This
+    is particularly useful when your host is connected to multiple
+    Arduino devices, as targets like upload will not be able to
+    guess which device you want to upload your image to.  This can be
+    used to confirm that your Arduino device has been seen by your
+    usb/serial subsystem.
+
+**ctags**
+
+    Build a ctags **tags** file from all sources.  Once created this will
+    automatically be kept up to date by default builds.
+
+**epprom**
+    
+    Upload an eeprom image to an Arduino.  Eeprom images provide
+    data values to your program for purposes such as configuration.
+    If the eeprom image has not been created, it will first create
+    it.  If you have multiple Arduino devices connected to your host
+    you need to identify the specific Arduino using DEVICE_PATH, like
+    this:
+
+        $ dno eeprom DEVICE_PATH=/dev/ttyUSB0
+
+    The value for DEVICE_PATH can be determined using the devices
+    target.
+
+**eprom_image**
+
+    Create an eeprom image that can subsequently be uploaded.
+
+**etags**
+
+    Build an etags **TAGS** file from all sources.  Once created this will
+    automatically be kept up to date by default builds.
+
+**info**
+
+    Provide a quick summary of what **dno** is and how to use it.
+
+**install_extra_boards**
+
+    Add another boards.txt for consideration.  This is used to tell
+    **dno** where alternate build tools have been installed, eg for
+    esp32.  Use the BOARD_PATH variable to provide the full path to
+    the appropriate boards.txt file.
+
+**list**
+
+    List all explicit, non-pattern based targets.  You shouldn't need
+    this, it's intended for debugging dno.
+
+**menu**
+
+    Allow the user to view and update select board-specific build
+    options through a terminal-based menu interface.
+
+**monitor**
+
+    Monitor the serial interface to the Arduino using the
+    screen(1) command.  You may need to define DEVICE_PATH.  The
+    baud rate is guessed by looking into the source code.  If the
+    guess is wrong, it can be explicitly set on the command line using
+    MONITOR_BAUD, eg:
+
+        $ dno monitor BAUD_RATE=14400 DEVICE_PATH=/dev/ttyUSB0
+
+**no_screen**, **noscreen**
+
+    Ensure that no screen is attached to our Arduino.  This is
+    primarily used as a pre-requisite before attempting uploads, but
+    can also be used to kill an attached screen (see monitor).  To
+    allow the kill define KILLSCREEN, eg:
+
+    $ dno no_screen KILLSCREEN=y
+
+    DEVICE_PATH may be provided if there is more than one attached
+    Arduino device.
+
+**pristine**
+
+    Like clean, but also removes **BOARD_TYPE**(5) and
+    **BOARD_INFO**(5) files.
+
+**reset**
+
+    Sends a reset command to an attached Arduino.  You may need to
+    define DEVICE_PATH.
+
+**show_boards**
+
+    List the set of supported boards.  Normally, this will be the set
+    provided by the Arduino IDE.  This should have been installed
+    prior to installing dno.
+
+**show_extra_boards**
+
+    This lists the set of extra, not part of the normal Arduino base
+    installation, boards.txt files that **dno** is aware of.  See the
+    install_extra_boards target for more.
+
+**test**, **unit**, **unit_test**
+	  
+    Run unit tests.  Note that this is the default target if you are
+    in a tests directory or lib directory that contains tests.
+
+**tidy**
+
+    This is like clean, but does not remove the build directory or
+    contents.  It is intended to just tidy-up backup files created by
+    emacs.
+
+**uninstall_extra_boards**
+
+    This removes the record of all extra installed boards.txt files.
+    See install_extra_boards.
+
+**upload**
+
+    Upload the built Arduino image to a connected Arduino.  This will
+    build the image first, if necessary.  You may need to define
+    DEVICE_PATH. 
+
+# VARIABLES
+
+The following variables can be defined on the command line to provide
+additional information to dno, or to modify its behaviour.
+
+**BOARD**
+
+    This is used to define the board family for which images are to be
+    built.  The list of supported boards can be found using:
+
+        $ dno show_boards
+
+    The first column of output is the board value.  Some types of
+    boards have no variants, eg uno and so no CPU definition will need
+    to be added to uniquely identify a target board.  The Arduino uno
+    is such a board.
+
+**BOARDS_PATH**
+
+    Used only by the install_extra_boards target, this provides
+    the full path to a boards.txt file.
+
+**CPU**
+
+    This is used to identify a board variant.  For example the Arduino
+    pro mini comes in a number of distinct cpu variants. 
+
+    eg:
+
+        $ dno BOARD_TYPE BOARD=pro CPU=8MHzatmega328
+
+**DEBUG**
+
+    This is used for debugging dno.  Setting this to Y, Yes, or All
+    will show the settings of many **dno** variables as they are defined.
+    Setting it to a grep style regexp will show only those variables
+    that match the regexp.
+
+**DEVICE_PATH**
+
+    Used to identify the serial device to which an Arduino board is
+    connected.  If you only have one Arduino connected, **dno** will
+    usually figure this out for itself.
+
+**VERBOSE**
+
+    Define this variable to see build action details, eg the full
+    compilation commands.
+
+**KILLSCREEN**
+
+    Define this in conjunction with the noscreen target, to cause
+    it to kill any connected screens.  Otherwise, the target just
+    confirms that no screen is attached.  See the screen target
+    for more.
+
+**MONITOR_BAUD**
+
+    Define the baud rate to use for connections to the Arduino.
+    Typically, this is discovered for itself by dno.
+
+**REPORT**
+
+    Identify each target that is built as the build progresses.  Note
+    that some targets will no nothing in some circumstances.
+
+**SHOW_RULES**
+
+    This is for debugging dno.  **dno** creates its compilation, etc rules
+    dynamically and recursively.  Setting this shows the rules as they
+    are created.
+
+# FILES
+
+You can create sketches using the .ino format, or code your own main
+function in a more standard .cpp file.
+
+Local copies of libraries take precedence over the system-installed
+ones.
+
+Files in board directories take precedence over files in the project's
+root directory.  This allows board-specific code to be easily created.
+
+The file:
+
+    ~/.dno_boards_paths
+
+contains paths to extra installed boards.txt files.
+
+# EXIT STATUS
+
+The program returns a success code unless there is a failure such as a
+compilation error.
+
+# EXAMPLES
+
+To get a list of all major targets:
+
+    $ dno help
+
+To create an uploadable Arduino image in a board directory:
+
+    $ dno
+
+To run unit tests in a lib directory:
+
+    $ dno unit
+
+or just:
+
+    $ dno
+
+To create a **BOARD_INFO**(5) file (may also create **BOARD_TYPE**(5)):
+
+    $ dno BOARD_INFO BOARD=pro CPU=8MHzatmega328
+
+To list the available board types:
+
+    $ dno show_boards
+
+To list the subset of boards for the "pro" series:
+
+    $ dno show_boards BOARD=cpu
+
+# SEE ALSO
+  **make**(1) **doxygen**(1) **screen**(1) **BOARD_TYPE**(5)
+  **BOARD_INFO**(5)
+
+# LICENSE
+
+**dno** is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+**dno** is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with dno. If not, see <https://www.gnu.org/licenses/>.
+
