@@ -1,0 +1,17 @@
+# Ignore backup and temp files
+*~
+\#*#
+\.\#*
+
+# Target/intermediate files in man
+man/*.1
+man/*.5
+
+# autotools crap
+autom4te.cache
+config.status
+
+
+# My notes
+NOTES
+TODO

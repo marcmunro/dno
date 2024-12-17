@@ -1,0 +1,43 @@
+#! /usr/bin/awk -f
+#
+#       dno_checksize - check Arduino images sizes for dno
+# 
+#       Copyright (c) 2024 Marc Munro
+#       Author:  Marc Munro
+# 	License: GPL-3.0
+#  
+#
+
+# Pipe the result of avr-size into this, with MAX_PROGRAM and MAX_DATA
+# defined as variables.
+
+/.data/	  {
+    data += $2
+    program += $2
+}
+/.text/	  {
+    program += $2
+}
+/.bootloader/	  {
+    program += $2
+}
+/.bss/	  {
+    data += $2
+}
+/.noinit/  {
+    data += $2
+}
+END {
+    printf("Program size: %6d out of %-6d (%d remaining)\n",
+	   program, MAX_UPLOAD, MAX_UPLOAD - program)
+    printf("   data size: %6d out of %-6d (%d remaining)\n",
+	   data, MAX_DATA, MAX_DATA - data)
+    if ((program > MAX_UPLOAD) || (data > MAX_DATA)) {
+	print "EXECUTABLE TOO LARGE" >>"/dev/stderr"
+	exit(2)
+    }
+}
+
+# Local Variables:
+# mode: awk
+# End:

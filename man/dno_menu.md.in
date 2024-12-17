@@ -1,0 +1,84 @@
+% DNO_MENU(1) dno @DNO_VERSION@ | User Commands
+% Marc Munro
+% @DNO_RELEASE_DATE@
+
+# NAME
+
+dno_menu - Manage Arduino board options for **dno**
+
+# SYNOPSIS
+ **dno_menu** [OPTIONS]
+
+# DESCRIPTION
+
+**dno_menu** allows a caller to change options for the currently
+selected Arduino board type in a dno board directory.
+
+With the **--menu** option (the default) selected **dno_menu**
+allows the user to select from various options for each of the
+optional build parameters for that board.  Any non-default values
+that are selected for any option are written to the BOARD_OPTIONS
+file.  If no non-default options are selected, this file will not be
+written and will be deleted if present.
+
+The **--list** option prints the currently selected options in a form
+suitable for use in the Arduino "fqbn" property (see the 
+Platform Specification for more details).
+
+Note that the "cpu" option, eg for Arduino promini boards, is handled
+separately and such options are not selectable through **dno_menu**.
+
+This is part of the dno Arduino software builder package.
+
+# OPTIONS
+
+**-h, --help**
+
+    Provide help.
+
+**-l, --list**
+
+    Generate a list of selected options in a format suitable for the
+    "fqbn" Arduino Platform Specification property.  Do not present
+    the user with any menus.
+
+**-m, --menu**
+
+    Interact with the user using menus, to allow them to choose
+    various platform properties.  This is the default option for
+    **dno_menu** so does not need to be explicitly provided.
+
+**-v, --version**
+
+    Print version information and exit
+
+# EXIT STATUS
+
+Returns success as long as nothing goes horribly wrong.
+
+# FILES
+
+The BOARD_INFO in the current directory is read and parsed in order
+to identify the set of options for the currently selected Arduino
+board.
+
+The BOARD_OPTIONS file will be written to with the set of non-default
+selected options.
+
+# SEE ALSO
+  **dno**(1) **BOARD_INFO**(5) **BOARD_OPTIONS**(5)
+
+# LICENSE
+
+**dno_menu** is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+**dno_menu** is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with dno. If not, see <https://www.gnu.org/licenses/>.
+

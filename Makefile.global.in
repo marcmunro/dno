@@ -1,0 +1,25 @@
+# ----------
+#  Makefile.global.in
+# 
+#       Autoconf input file for Makefile.global
+# 
+#       Copyright (c) 2024
+#       Author:  Marc Munro
+# 	License: GPL V3
+#  
+#  ----------
+#
+
+ARDUINO_DIR   = @ARDUINO_DIR@
+BOARDS_TXT    = @BOARDS_TXT@
+
+EXTRA_BOARDS_FILE = ${HOME}/.dno_boards_paths
+
+#location substitutions
+exec_prefix=	        @exec_prefix@
+prefix=	                @prefix@
+datarootdir=            @datarootdir@
+INSTALL_LIBDIR=	        @libdir@
+INSTALL_BINDIR=	        @bindir@
+INSTALL_MANDIR=		@mandir@
+

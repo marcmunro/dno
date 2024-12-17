@@ -1,0 +1,131 @@
+#! /usr/bin/env bash
+#
+#       dno_commands_for - retrieve hook commands from BOARD_INFO
+# 
+#       Copyright (c) 2024 Marc Munro
+#       Author:  Marc Munro
+# 	License: GPL-3.0
+#  
+#
+
+DNO_VERSION=@DNO_VERSION@
+
+##
+# usage
+#
+# Print a usage message.
+#
+usage()
+{
+    echo "dno_commands_for [option]
+dno_commands_for hook_name
+
+  Retrieve hook recipe commands from BOARD_INFO for a specified hook,
+  eg dno_commands_for objcopy.preobjcopy will retrieve the commands to
+  be executed for the preobjcopy hook.
+
+  Options:
+
+  --help, -h  Help
+  --version, -v	      
+  	      Print version information and exit.
+"
+}
+
+##
+# version
+#
+# Print version information and exit.
+#
+version()
+{
+    echo "`basename $0`: version ${DNO_VERSION} (part of the dno toolset)"
+    exit
+}
+
+
+##
+# recipe_filter
+# stdin:
+#   Raw recipe lines extracted from BOARD_INFO
+# stdout:
+#   recipe lines with left hand side of expression removed.
+#
+# Produces executable (bash) commands.
+#
+recipe_filter () {
+    awk '
+        BEGIN {
+	    max_idx = 0
+	}
+	function pattern_no(line) {
+	    return gensub(/^[^=]*\.([0-9]+)\.pattern[\.=].*$/,\
+			  "\\1", "1", line) + 0
+	}
+	function pattern(line) {
+	    return gensub(/^[^=]*= */, "", "1", line)
+	}
+	{
+	    idx = pattern_no($0)
+	    if (idx > max_idx) {
+	        max_idx = idx
+	    }
+	     patterns[idx] = pattern($0)
+	}
+	END {
+	    for (idx = 0; idx <= max_idx; idx++) {
+	        if (idx in patterns) {
+		    print patterns[idx] ";  "
+		}
+	    }
+	}'
+}
+
+##
+# patterns_for
+#   $1 the suffix for the recipe hooks we want to extract.
+#
+patterns_for () {
+    grep "^recipe\.hooks\.$1\.[^.]*\.pattern=" BOARD_INFO 2>/dev/null | \
+	recipe_filter
+}
+
+# Include configuration-specific definitions
+#
+. `dirname $0`/../lib/dno_defs.sh
+
+while getopts "hv-:" opt; do
+    case "${opt}" in
+	-)
+	    case "${OPTARG}" in
+		help)
+		    usage
+		    exit 0
+		    ;;
+		version)
+		    version
+		    ;;
+		*)
+		    if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
+                        echo "`basename $0`: Unknown option --${OPTARG}" 1>&2
+			exit 2
+                    fi
+		    ;;
+	    esac
+	    ;;
+	h)
+	    usage
+	    exit 0
+	    ;;
+	v)
+	    version
+	    ;;
+	*)
+	    echo "`basename $0`: Unexpected option: -${OPTARG}" 1>&2
+	    exit 1
+	    ;;
+    esac
+done
+shift $((OPTIND-1))
+
+patterns_for "$@"
