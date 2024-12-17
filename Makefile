@@ -124,7 +124,7 @@ CONFIGURE_TARGETS = $(ROOTDIR)/Makefile.global \
 ################################################################
 # Default target
 #
-.PHONY: DEFALT
+.PHONY: DEFAULT
 
 # Make the executables that are generated from configure executable
 # and unwritable.  This limits a developer's ability to edit the wrong
@@ -206,7 +206,6 @@ DNO_MANPAGES_1 = $(patsubst %,man/%.1, $(DNO_EXECUTABLES))
 DNO_MANPAGES_5 = man/BOARD_TYPE.5 man/BOARD_INFO.5 man/BOARD_OPTIONS.5
 DNO_MANPAGES = $(DNO_MANPAGES_1) $(DNO_MANPAGES_5)
 
-
 %.1: %.md
 	$(FEEDBACK) PANDOC $@
 	$(AT) pandoc  $< -s -t man | sed -e 's/<h1>/<h3>/' >$@
@@ -257,13 +256,12 @@ uninstall:
 # Release targets
 # 
 
-.PHONY: release check_commit check_origin check_tag \
-	check_remote 
+.PHONY: release tarball check_commit check_remote check_tag check_tarball
 
-release: check_commit check_origin check_remote \
-	 check_tag
+GIT_UPSTREAM = github origin
 
-GIT_UPSTREAM = github
+release: check_tarball check_commit check_remote check_tag \
+	 get_version
 
 # Check that there are no uncomitted changes.
 check_commit:
@@ -271,33 +269,38 @@ check_commit:
 	    (echo "    UNCOMMITTED CHANGES FOUND"; exit 2)
 
 # Check that we have pushed the latest changes
-check_origin:
-	@err=0; \
-	 for origin in $(GIT_UPSTREAM); do \
-	    git diff --quiet master $${origin}/master 2>/dev/null || \
-	    { echo "    UNPUSHED UPDATES FOR $${origin}"; \
-	      err=2; }; \
-	done; exit $$err
-
-# Check that we have pushed the latest changes
 check_remote:
 	@err=0; \
 	 for origin in $(GIT_UPSTREAM); do \
 	    git remote show $${origin} 2>/dev/null | \
-	    grep "^ *master.*up to date" >/dev/null || \
+	    grep "^ *main.*up to date" >/dev/null || \
 	    { echo "    UNPUSHED UPDATES FOR $${origin}"; \
 	      err=2; }; \
 	done; exit $$err
 
+get_version:
+	@#$(eval $(shell grep "DNO_VERSION[[:space:]]*=" bin/dno))
+
 # Check that head has been tagged.  We assume that if it has, then it
 # has been tagged correctly.
-check_tag:
+check_tag: get_version
+	@echo VERSION = $(DNO_VERSION)
 	@tag=`git tag --points-at HEAD`; \
 	if [ "x$${tag}" = "x" ]; then \
 	    echo "    NO GIT TAG IN PLACE"; \
 	    exit 2; \
 	fi
 
+check_tarball: get_version
+	@[ -f releases/dno_$(DNO_VERSION).tgz ] ||\
+	    (echo "Release for dno $(DNO_VERSION) does not exist" 1>&2; \
+	     false)
+
+tarball: get_version DEFAULT
+	@if [ -f releases/dno_$(DNO_VERSION).tgz ]; then \
+	    echo "Release already exists for dno $(DNO_VERSION)" 1>&2; \
+	    false; fi
+	tar czf releases/dno_$(DNO_VERSION).tgz --exclude releases .
 
 ################################################################
 # Cleanup targets
