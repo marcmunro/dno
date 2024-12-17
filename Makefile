@@ -222,6 +222,12 @@ docs:
 	@echo "UNABLE TO CREATE MAN PAGES; pandoc is not available." 1>&2
 endif
 
+# Create html from markdown.  This enables us to test formatting of
+# markdown files.
+#
+%.html: %.md
+	pandoc --shift-heading-level-by=-1 $*.md \
+	       --standalone --to=html >$*.html
 
 ################################################################
 # Install targets
@@ -251,11 +257,42 @@ uninstall:
 # Release targets
 # 
 
-.PHONY: release check_tag check_commit check_origin\
+.PHONY: release check_commit check_origin check_tag \
 	check_remote check_history
 
-release: check_tag check_commit check_origin\
-	check_remote check_history
+release: check_commit check_origin check_remote \
+	 check_history check_tag
+
+# Check that there are no uncomitted changes.
+check_commit:
+	@git status -s | wc -l | grep '^0$$' >/dev/null || \
+	    (echo "    UNCOMMITTED CHANGES FOUND"; exit 2)
+
+# Check that we have pushed the latest changes
+check_origin:
+	@err=0; \
+	 for origin in $(GIT_UPSTREAM); do \
+	    git diff --quiet master $${origin}/master 2>/dev/null || \
+	    { echo "    UNPUSHED UPDATES FOR $${origin}"; \
+	      err=2; }; \
+	done; exit $$err
+
+# Check that we have pushed the latest changes
+check_remote:
+	@err=0; \
+	 for origin in $(GIT_UPSTREAM); do \
+	    git remote show $${origin} 2>/dev/null | \
+	    grep "^ *master.*up to date" >/dev/null || \
+	    { echo "    UNPUSHED UPDATES FOR $${origin}"; \
+	      err=2; }; \
+	done; exit $$err
+
+# Check that this version appears in the change history
+check_history:
+	@grep "<entry>$(VERSION_NUMBER)" \
+	    docs/parts/change_history.xml >/dev/null || \
+	    (echo "    CURRENT VERSION NOT RECORDED IN CHANGE HISTORY"; \
+	     exit 2)
 
 # Check that head has been tagged.  We assume that if it has, then it
 # has been tagged correctly.
