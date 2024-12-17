@@ -263,6 +263,8 @@ uninstall:
 release: check_commit check_origin check_remote \
 	 check_tag
 
+GIT_UPSTREAM = github origin
+
 # Check that there are no uncomitted changes.
 check_commit:
 	@git status -s | wc -l | grep '^0$$' >/dev/null || \
