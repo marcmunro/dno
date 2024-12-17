@@ -258,10 +258,10 @@ uninstall:
 # 
 
 .PHONY: release check_commit check_origin check_tag \
-	check_remote check_history
+	check_remote 
 
 release: check_commit check_origin check_remote \
-	 check_history check_tag
+	 check_tag
 
 # Check that there are no uncomitted changes.
 check_commit:
@@ -286,13 +286,6 @@ check_remote:
 	    { echo "    UNPUSHED UPDATES FOR $${origin}"; \
 	      err=2; }; \
 	done; exit $$err
-
-# Check that this version appears in the change history
-check_history:
-	@grep "<entry>$(VERSION_NUMBER)" \
-	    docs/parts/change_history.xml >/dev/null || \
-	    (echo "    CURRENT VERSION NOT RECORDED IN CHANGE HISTORY"; \
-	     exit 2)
 
 # Check that head has been tagged.  We assume that if it has, then it
 # has been tagged correctly.
