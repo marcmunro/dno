@@ -11,6 +11,8 @@
 #
 
 # TODOs:
+# Make dependencies on platform.local.txt work properly
+# ensure there are deps to platform.txt and boards.txt from BOARD_INFO
 # test upload for esp32
 # docs
 # Compare ide build with our build
@@ -1050,6 +1052,7 @@ $(TARGET_BIN): $(TARGET_ELF)
 	@$$(and $$(COMMANDS),$$(FEEDBACK_RAW) Performing pre-objcopy...)
 	$$(AT) $$(and $$(COMMANDS),$$(call indent,$$(COMMANDS)))
 	$$(FEEDBACK) OBJCOPY "(bin)" $(notdir $$<)
+	$$(AT) $$(recipe.objcopy.bin.pattern)
 	@#$(foreach pattern,$(OBJCOPY_PATTERNS),$(call RECIPE_LINE,$(pattern)))
 	@# $$(eval COMMANDS2 = $$(shell dno_commands_for objcopy.postobjcopy))
 	@$$(and $$(COMMANDS2),$$(FEEDBACK_RAW) Performing post-objcopy...)
@@ -1058,6 +1061,11 @@ $(TARGET_BIN): $(TARGET_ELF)
 endef
 $(call feedback, BIN_TARGET_RECIPE $(call BIN_TARGET_RECIPE))
 $(eval $(call BIN_TARGET_RECIPE))
+
+x:
+	@echo recipe: $(recipe.objcopy.bin.pattern)
+	@echo path: $(tools.esptool_py.path)
+	@echo cmd: $(tools.esptool_py.cmd)
 
 # If files for ctags or etags are found, they become a dependency of
 # our elf target, so that they get automatically updated as needed.

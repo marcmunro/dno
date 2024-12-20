@@ -3,15 +3,15 @@
 # 
 #       Autoconf definitions for dno.
 # 
-#       Copyright (c) 2024
+#       Copyright (c) 2024,2025
 #       Author:  Marc Munro
 # 	License: GPL V3
 #  
 #  ----------
 #
-AC_INIT([dno], [0.5.1])
+AC_INIT([dno], [0.5.2])
 
-[DNO_RELEASE_DATE="December 2024"]
+[DNO_RELEASE_DATE="January 2025"]
 AC_SUBST([DNO_RELEASE_DATE])
 
 # Arduino dir.  From here we are going to find boards.txt and from
@@ -45,6 +45,15 @@ AC_PATH_PROG([WHIPTAIL], ['whiptail'])
 AS_IF([test x"${DIALOG}" = "x"],
       [DIALOG=${WHIPTAIL}])
 
+AC_MSG_CHECKING([Checking terminal-based menu command])
+if test -f "${DIALOG}"; then
+  AC_MSG_RESULT([${DIALOG}])
+else
+  AC_MSG_RESULT([not found])
+  AC_MSG_WARN([Unable to find menu command])
+fi
+
+
 # Convert the package version into DNO_IDE_VERSION.  This has 2 digits
 # per (non-major) part and has the dots removed.
 #
@@ -69,8 +78,84 @@ AC_PATH_PROG(PANDOC, ['pandoc'])
 test -f "${PANDOC}" || \
     AC_MSG_WARN([pandoc not found.  Man pages cannot be created]) 
 
-AC_PATH_PROG(DOXYGEN, ['doxygen']) 
-AC_PATH_PROG(DOT, ['dot']) 
+# Check for xslt - needed to build html docs
+AC_CHECK_PROGS(XSLTPROC, xsltproc)
+
+dnl Find docbook entities file
+AC_DEFUN([DNO_PATH_DOCBOOK_ENTITIES],
+[AC_ARG_VAR(DOCBOOKENT, [location of Docbook entities])
+AC_MSG_CHECKING([for DocBook entities])
+AC_CACHE_VAL([pgac_cv_path_entities],
+[if test -n "$DOCBOOKENT"; then
+  dno_path=$DOCBOOKENT
+else
+  for dno_prefix in /usr /usr/local /opt /sw; do
+    for dno_infix in share lib; do
+      for dno_postfix in \
+        xml/docbook/schema/dtd/4.5 \
+	sgml/docbook/dtd/4.5 \
+	sgml/docbook/xml-dtd-4.5
+      do
+        dno_candidate=$dno_prefix/$dno_infix/$dno_postfix
+        if test -r "$dno_candidate/dbcentx.mod" 
+        then
+          dno_path=$dno_candidate/dbcentx.mod
+          break 3
+        fi
+      done
+    done
+  done
+fi])
+
+DOCBOOKENT=$dno_path
+
+AC_SUBST([DOCBOOKENT])
+if test -n "$DOCBOOKENT"; then
+  AC_MSG_RESULT([$DOCBOOKENT])
+else
+  AC_MSG_RESULT(no)
+fi])
+
+dnl Find docbook fastchunk stylesheet
+AC_DEFUN([DNO_PATH_DOCBOOK_STYLESHEETS],
+[AC_ARG_VAR(DOCBOOKSS, [location of Docbook stylesheet])
+AC_MSG_CHECKING([for DocBook stylesheet])
+AC_CACHE_VAL([pgac_cv_path_entities],
+[if test -n "$DOCBOOKSS"; then
+  dno_path=$DOCBOOKSS
+else
+  for dno_prefix in /usr /usr/local /opt /sw; do
+    for dno_infix in share lib; do
+      for dno_postfix in \
+        xml/docbook/stylesheet/docbook-xsl \
+	sgml/docbook/stylesheet/docbook-xsl 
+      do
+        dno_candidate=$dno_prefix/$dno_infix/$dno_postfix
+        if test -r "$dno_candidate/xhtml/chunk.xsl" 
+        then
+          dno_path=$dno_candidate
+          break 3
+        fi
+      done
+    done
+  done
+fi])
+
+DOCBOOKSS=$dno_path
+
+AC_SUBST([DOCBOOKSS])
+if test -n "$DOCBOOKSS"; then
+  AC_MSG_RESULT([$DOCBOOKSS])
+else
+  AC_MSG_RESULT(no)
+fi])
+
+DNO_PATH_DOCBOOK_ENTITIES
+DNO_PATH_DOCBOOK_STYLESHEETS
+
+
+#AC_PATH_PROG(DOXYGEN, ['doxygen']) 
+#AC_PATH_PROG(DOT, ['dot']) 
 
 # Identify host OS.  Currently only linux and macos are supported, so
 # if it's not linux...
@@ -87,6 +172,7 @@ if test -d "${ARDUINO_DIR}"; then
   AC_MSG_RESULT([${ARDUINO_DIR}])
   AC_SUBST(ARDUINO_DIR)
 else
+  AC_MSG_RESULT([not found])
   AC_MSG_WARN([Unable to find installed arduinodir])
 fi
 

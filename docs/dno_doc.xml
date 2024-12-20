@@ -1,0 +1,47 @@
+<?xml version='1.0'?>
+
+<!DOCTYPE book [
+
+<!ENTITY % sgml.features "IGNORE">
+<!ENTITY % xml.features "INCLUDE">
+
+<!ENTITY % dbcent PUBLIC "-//OASIS//ENTITIES DocBook Character Entities V4.5//EN"
+   "docbook_entities.sgml">
+%dbcent;
+
+<!ENTITY appendix_dno	       		SYSTEM "dno.xml">
+<!ENTITY appendix_dno_bpp      		SYSTEM "dno_bpp.xml">
+<!ENTITY appendix_dno_checksize		SYSTEM "dno_checksize.xml">
+<!ENTITY appendix_dno_commands_for	SYSTEM "dno_commands_for.xml">
+<!ENTITY appendix_dno_dirinfo		SYSTEM "dno_dirinfo.xml">
+<!ENTITY appendix_dno_menu		SYSTEM "dno_menu.xml">
+<!ENTITY appendix_dno_requote		SYSTEM "dno_requote.xml">
+<!ENTITY appendix_BOARD_INFO		SYSTEM "BOARD_INFO.xml">
+<!ENTITY appendix_BOARD_TYPE		SYSTEM "BOARD_TYPE.xml">
+<!ENTITY appendix_BOARD_OPTIONS		SYSTEM "BOARD_OPTIONS.xml">
+         
+]>
+
+<book id="dno_user_guide">
+  <title>DNO USER GUIDE</title>
+  <subtitle>The dno command-line build system for Arduino software</subtitle>
+  <preface id="introduction">
+    <title>Introduction to dno</title>
+    <para/>
+  </preface>
+  <appendix id="man_pages">
+    <title><literal>dno</literal> man pages</title>
+    &appendix_dno;
+    &appendix_dno_bpp;
+    &appendix_dno_checksize;
+    &appendix_dno_checksize;
+    &appendix_dno_commands_for;
+    &appendix_dno_dirinfo;
+    &appendix_dno_menu;
+    &appendix_dno_requote;
+    &appendix_BOARD_INFO;
+    &appendix_BOARD_TYPE;
+    &appendix_BOARD_OPTIONS;
+  </appendix>
+</book>
+  
