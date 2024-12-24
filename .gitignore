@@ -14,11 +14,26 @@ docs/parts/
 # Tarballs in root dir
 *.tgz
 
+# generated bin files
+bin/dno
+bin/dno_bpp
+bin/dno_commands_for
+bin/dno_dirinfo
+bin/dno_menu
+bin/dno_requote
+
 # autotools crap
 autom4te.cache
 config.status
 config.log
 
+# generated root files
+Makefile.global
+
 # My notes
 NOTES
 TODO
+
+# html directory
+
+html/*

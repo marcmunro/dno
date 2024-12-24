@@ -305,7 +305,7 @@ garbage += \\\#*  .\\\#*  *~
 GENERATED_FILES = $(CONFIGURE_TARGETS) $(MAN_1_TARGETS) \
 		  $(MAN_5_TARGETS) $(DOC_MANPAGES) \
 		  $(DNO_CORE_STYLESHEET) $(SCRIPT_TARGETS) \
-		  $(wildcard dno*.tgz)
+		  $(wildcard dno*.tgz) bin/dno_requote
 clean:
 	$(AT) rm -f $(garbage) $(GENERATED_FILES)
 	$(AT) cd docs; rm -f $(garbage) 
@@ -351,15 +351,17 @@ uninstall:
 
 GIT_UPSTREAM = github origin
 
-release: check_tarball check_commit check_remote check_tag 
+release: check_commit check_tarball check_remote check_tag 
 
 # Check that there are no uncomitted changes.
 check_commit:
+	$(FEEDBACK) CHECKING COMMIT
 	@git status -s | wc -l | grep '^0$$' >/dev/null || \
 	    (echo "    UNCOMMITTED CHANGES FOUND"; exit 2)
 
 # Check that we have pushed the latest changes
 check_remote:
+	$(FEEDBACK) CHECKING REMOTE
 	@err=0; \
 	 for origin in $(GIT_UPSTREAM); do \
 	    git remote show $${origin} 2>/dev/null | \
@@ -373,6 +375,7 @@ $(eval $(shell grep "DNO_VERSION[[:space:]]*=" bin/dno))
 # Check that head has been tagged.  We assume that if it has, then it
 # has been tagged correctly.
 check_tag:
+	$(FEEDBACK) CHECKING TAG
 	@echo VERSION = $(DNO_VERSION)
 	@tag=`git tag --points-at HEAD`; \
 	if [ "x$${tag}" = "x" ]; then \
@@ -381,6 +384,7 @@ check_tag:
 	fi
 
 check_tarball: 
+	$(FEEDBACK) CHECKING TARBALL
 	$(AT) if [ ! -f releases/dno_$(DNO_VERSION).tgz ]; then \
 	    echo "TARBALL FOR DNO $(DNO_VERSION) DOES NOT EXIST" 1>&2; \
 	    echo "  try \"make release_tarball\"" 1>&2; \
@@ -391,17 +395,22 @@ release_tarball:
 	$(AT) if [ -f releases/dno_$(DNO_VERSION).tgz ]; then \
 	    (echo "Release for dno $(DNO_VERSION) already exists."); \
 	else \
+	    $(FEEDBACK_RAW) COPYING TARFILE; \
 	    $(MAKE) dno_$(DNO_VERSION).tgz; \
 	    cp dno_$(DNO_VERSION).tgz releases; \
 	fi
 
 tarball: 
+	$(FEEDBACK) CLEANING
 	@$(MAKE) clean
+	@$(MAKE) 
 	@$(MAKE) dno_$(DNO_VERSION).tgz
 
-dno_$(DNO_VERSION).tgz: $(EVERYTHING)
+dno_$(DNO_VERSION).tgz: 
+	$(FEEDBACK) TAR $@
+	$(AT) touch configure
 	$(AT) tar czf dno_$(DNO_VERSION).tgz --exclude releases \
-	          --exclude config.* --exclude dno_$(DNO_VERSION).tgz .
+	          --exclude config.log --exclude dno_$(DNO_VERSION).tgz *
 
 
 # Local Variables:
