@@ -11,11 +11,10 @@
 #
 AC_INIT([dno], [0.5.2])
 
-[DNO_RELEASE_DATE="January 2025"]
+[DNO_RELEASE_DATE="December 2024"]
 AC_SUBST([DNO_RELEASE_DATE])
 
-# Arduino dir.  From here we are going to find boards.txt and from
-# that we should be able to determine everything else.
+# Arduino dir.  Try to find an installed Arduino system.
 #
 AC_ARG_WITH([arduino-dir],
     AS_HELP_STRING([--with-arduino-dir], [Where to find arduino files]),
@@ -52,7 +51,6 @@ else
   AC_MSG_RESULT([not found])
   AC_MSG_WARN([Unable to find menu command])
 fi
-
 
 # Convert the package version into DNO_IDE_VERSION.  This has 2 digits
 # per (non-major) part and has the dots removed.

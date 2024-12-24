@@ -121,18 +121,18 @@ CONFIGURE_DEPENDENCIES += $(SCRIPT_SOURCES)
 
 bin: bin/dno_requote configure $(CONFIGURE_TARGETS)
 
+EVERYTHING := bin/dno_requote configure $(CONFIGURE_TARGETS)
+
 bin/dno_requote: src/dno_requote.c
 	$(FEEDBACK)  CC, LD [$(notdir $@)]
 	$(AT) $(CC) $(LDFLAGS) -o $@ $<
 
-x:
-	@echo $(CONFIGURE_TARGETS)
 
 ################################################################
 # man targets
 #
 
-.PHONY: man configure
+.PHONY: man
 
 MAN_DEPS = $(wildcard man/*.md.in)
 MAN_SOURCES = $(MAN_DEPS:%.md.in=%.md)
@@ -140,6 +140,8 @@ MAN_1_TARGETS = $(patsubst %.md.in,%.1,$(wildcard man/dno*.md.in))
 MAN_5_TARGETS = $(patsubst %.md.in,%.5,$(wildcard man/BOARD*.md.in))
 CONFIGURE_TARGETS += $(MAN_SOURCES)
 CONFIGURE_DEPENDENCIES += $(MAN_DEPS)
+
+EVERYTHING += $(MAN_1_TARGETS) $(MAN_5_TARGETS)
 
 ifneq "$(PANDOC)" ""
 man: $(MAN_1_TARGETS) $(MAN_5_TARGETS)
@@ -173,7 +175,7 @@ man: $(MAN_1_TARGETS) $(MAN_5_TARGETS)
 
 HTMLDIR = html
 DOC_SOURCES = docs/dno_doc.xml
-DOC_MANPAGES = $(patsubst man/%.md,docs/%.xml,$(wildcard man/*.md))
+DOC_MANPAGES = $(patsubst man/%.md,docs/parts/%.xml,$(wildcard man/*.md))
 BASE_STYLESHEET = $(DOCBOOK_STYLESHEETS)/html/chunkfast.xsl
 DNO_CORE_STYLESHEET = docs/core-stylesheet.xsl
 DNO_LOCAL_STYLESHEET =  docs/html_stylesheet.xsl
@@ -189,6 +191,8 @@ MISSING := $(if $(PANDOC),,.pandoc) \
 ifeq "$(strip $(MISSING))" ""
 
 docs: $(HTMLDIR)/index.html configure $(DNO_CORE_STYLESHEET)
+
+EVERYTHING += $(HTMLDIR)/index.html $(DNO_CORE_STYLESHEET)
 
 $(DNO_CORE_STYLESHEET): $(BASE_STYLESHEET) Makefile
 	@echo "Creating importer for system base stylesheet for docs..."
@@ -209,6 +213,7 @@ else
 			   -e 's/ \./, /')
     CONJ := $(if $(findstring and ,$(MISSING)),are,is)
 
+
 docs: 
 	@echo -e "Unable to build docs:\n"\
 	         "  $(strip $(MISSING)) $(CONJ) not available." 1>&2
@@ -218,7 +223,7 @@ endif
 
 # docbook version of manpage from markdown
 #
-docs/%.xml: man/%.md
+docs/parts/%.xml: man/%.md
 	$(FEEDBACK) PANDOC $@
 	$(AT) $(PANDOC) $< -s -t man --top-level-division=section \
 	    -w docbook4 | tail -n +4 >$@
@@ -252,8 +257,6 @@ $(HTMLDIR)/index.html: $(DOC_SOURCES) $(DOC_MANPAGES) \
 # targets" ("&:").  This tells make that running this recipe updates
 # *all* of the targets at once.
 #
-
-.PHONY: configure
 
 configure: $(CONFIGURE_TARGETS)
 
@@ -301,8 +304,8 @@ $(ROOTDIR)/configure.ac $(ROOTDIR)/configure_board.ac :
 garbage += \\\#*  .\\\#*  *~ 
 GENERATED_FILES = $(CONFIGURE_TARGETS) $(MAN_1_TARGETS) \
 		  $(MAN_5_TARGETS) $(DOC_MANPAGES) \
-		  $(DNO_CORE_STYLESHEET) $(SCRIPT_TARGETS)
-
+		  $(DNO_CORE_STYLESHEET) $(SCRIPT_TARGETS) \
+		  $(wildcard dno*.tgz)
 clean:
 	$(AT) rm -f $(garbage) $(GENERATED_FILES)
 	$(AT) cd docs; rm -f $(garbage) 
@@ -343,12 +346,12 @@ uninstall:
 # Release targets
 # 
 
-.PHONY: release tarball check_commit check_remote check_tag check_tarball
+.PHONY: release tarball check_commit check_remote check_tag \
+	check_tarball release_tarball
 
 GIT_UPSTREAM = github origin
 
-release: check_tarball check_commit check_remote check_tag \
-	 get_version
+release: check_tarball check_commit check_remote check_tag 
 
 # Check that there are no uncomitted changes.
 check_commit:
@@ -365,12 +368,11 @@ check_remote:
 	      err=2; }; \
 	done; exit $$err
 
-get_version:
-	@#$(eval $(shell grep "DNO_VERSION[[:space:]]*=" bin/dno))
+$(eval $(shell grep "DNO_VERSION[[:space:]]*=" bin/dno))
 
 # Check that head has been tagged.  We assume that if it has, then it
 # has been tagged correctly.
-check_tag: get_version
+check_tag:
 	@echo VERSION = $(DNO_VERSION)
 	@tag=`git tag --points-at HEAD`; \
 	if [ "x$${tag}" = "x" ]; then \
@@ -378,16 +380,28 @@ check_tag: get_version
 	    exit 2; \
 	fi
 
-check_tarball: get_version
-	@[ -f releases/dno_$(DNO_VERSION).tgz ] ||\
-	    (echo "Release for dno $(DNO_VERSION) does not exist" 1>&2; \
-	     false)
+check_tarball: 
+	$(AT) if [ ! -f releases/dno_$(DNO_VERSION).tgz ]; then \
+	    echo "TARBALL FOR DNO $(DNO_VERSION) DOES NOT EXIST" 1>&2; \
+	    echo "  try \"make release_tarball\"" 1>&2; \
+	    false; \
+	fi
 
-tarball: get_version DEFAULT
-	@if [ -f releases/dno_$(DNO_VERSION).tgz ]; then \
-	    echo "Release already exists for dno $(DNO_VERSION)" 1>&2; \
-	    false; fi
-	tar czf releases/dno_$(DNO_VERSION).tgz --exclude releases .
+release_tarball: 
+	$(AT) if [ -f releases/dno_$(DNO_VERSION).tgz ]; then \
+	    (echo "Release for dno $(DNO_VERSION) already exists."); \
+	else \
+	    $(MAKE) dno_$(DNO_VERSION).tgz; \
+	    cp dno_$(DNO_VERSION).tgz releases; \
+	fi
+
+tarball: 
+	@$(MAKE) clean
+	@$(MAKE) dno_$(DNO_VERSION).tgz
+
+dno_$(DNO_VERSION).tgz: $(EVERYTHING)
+	$(AT) tar czf dno_$(DNO_VERSION).tgz --exclude releases \
+	          --exclude config.* --exclude dno_$(DNO_VERSION).tgz .
 
 
 # Local Variables:

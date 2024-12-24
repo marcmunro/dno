@@ -39,38 +39,38 @@ PATH: /usr/games
 ## Core tests. ##
 ## ----------- ##
 
-configure:1744: checking for sed
-configure:1760: found /bin/sed
-configure:1772: result: yes
-configure:1786: checking for gawk
-configure:1802: found /usr/bin/gawk
-configure:1814: result: yes
-configure:1829: checking for dialog
-configure:1862: result: no
-configure:1869: checking for whiptail
-configure:1887: found /usr/bin/whiptail
-configure:1899: result: /usr/bin/whiptail
-configure:1911: checking Checking terminal-based menu command
-configure:1914: result: /usr/bin/whiptail
-configure:1942: checking for pandoc
-configure:1960: found /usr/bin/pandoc
-configure:1972: result: /usr/bin/pandoc
-configure:1989: checking for xsltproc
-configure:2005: found /usr/bin/xsltproc
-configure:2016: result: xsltproc
-configure:2033: checking for DocBook entities
-configure:2065: result: /usr/share/xml/docbook/schema/dtd/4.5/dbcentx.mod
-configure:2072: checking for DocBook stylesheet
-configure:2103: result: /usr/share/xml/docbook/stylesheet/docbook-xsl
-configure:2149: checking build system type
-configure:2163: result: x86_64-unknown-linux-gnu
-configure:2183: checking host system type
-configure:2196: result: x86_64-unknown-linux-gnu
-configure:2223: checking Checking arduino installation dir
-configure:2226: result: /usr/share/arduino
-configure:2239: checking for /usr/share/arduino/hardware/arduino/avr/boards.txt
-configure:2253: result: yes
-configure:2440: creating ./config.status
+configure:1743: checking for sed
+configure:1759: found /bin/sed
+configure:1771: result: yes
+configure:1785: checking for gawk
+configure:1801: found /usr/bin/gawk
+configure:1813: result: yes
+configure:1828: checking for dialog
+configure:1861: result: no
+configure:1868: checking for whiptail
+configure:1886: found /usr/bin/whiptail
+configure:1898: result: /usr/bin/whiptail
+configure:1910: checking Checking terminal-based menu command
+configure:1913: result: /usr/bin/whiptail
+configure:1940: checking for pandoc
+configure:1958: found /usr/bin/pandoc
+configure:1970: result: /usr/bin/pandoc
+configure:1987: checking for xsltproc
+configure:2003: found /usr/bin/xsltproc
+configure:2014: result: xsltproc
+configure:2031: checking for DocBook entities
+configure:2063: result: /usr/share/xml/docbook/schema/dtd/4.5/dbcentx.mod
+configure:2070: checking for DocBook stylesheet
+configure:2101: result: /usr/share/xml/docbook/stylesheet/docbook-xsl
+configure:2147: checking build system type
+configure:2161: result: x86_64-unknown-linux-gnu
+configure:2181: checking host system type
+configure:2194: result: x86_64-unknown-linux-gnu
+configure:2221: checking Checking arduino installation dir
+configure:2224: result: /usr/share/arduino
+configure:2237: checking for /usr/share/arduino/hardware/arduino/avr/boards.txt
+configure:2251: result: yes
+configure:2438: creating ./config.status
 
 ## ---------------------- ##
 ## Running config.status. ##
@@ -137,7 +137,7 @@ DEFS='-DPACKAGE_NAME=\"dno\" -DPACKAGE_TARNAME=\"dno\" -DPACKAGE_VERSION=\"0.5.2
 DIALOG='/usr/bin/whiptail'
 DNO_EXTRA_BOARDS_FILE='/home/marc/.dno_boards_paths'
 DNO_IDE_VERSION='00502'
-DNO_RELEASE_DATE='January 2025'
+DNO_RELEASE_DATE='December 2024'
 DNO_VERSION='0.5.2'
 DOCBOOKENT='/usr/share/xml/docbook/schema/dtd/4.5/dbcentx.mod'
 DOCBOOKSS='/usr/share/xml/docbook/stylesheet/docbook-xsl'

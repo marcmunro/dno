@@ -33,7 +33,7 @@ usage()
 
   Parses the boards.txt and platform.txt files to create
   inclusion-files for dno (make), to identify the available boards,
-  and to help create the BOARD_TYPE file.
+  and to create the BOARD_TYPE and BOARD_INFO files.
 
   Options:
 

@@ -6,11 +6,18 @@
 # Target/intermediate files in man
 man/*.1
 man/*.5
+man/*.md
+
+# Intermediate docs files
+docs/parts/
+
+# Tarballs in root dir
+*.tgz
 
 # autotools crap
 autom4te.cache
 config.status
-
+config.log
 
 # My notes
 NOTES

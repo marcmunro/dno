@@ -11,8 +11,10 @@
 #
 
 # TODOs:
-# Make dependencies on platform.local.txt work properly
+# Handle boards.local.txt
 # ensure there are deps to platform.txt and boards.txt from BOARD_INFO
+# allow boards.local.txt
+# allow dno.mk
 # test upload for esp32
 # docs
 # Compare ide build with our build
@@ -25,7 +27,6 @@
 # Version stuff
 #
 DNO_VERSION = @DNO_VERSION@
-
 
 # Do not use make's built-in rules
 # (this improves performance and avoids hard-to-debug behaviour).
@@ -412,7 +413,7 @@ indent = set -o pipefail; ($1) | sed -e 's/^/    /'
 # variables.  In particular DIR_TYPE can be defined rather than
 # allowing it to be dynamically discovered.
 #
-#-include dno.mk
+-include dno.mk
 
 ifndef DIR_TYPE
   DIR_TYPE = $(shell $(BINDIR)/dno_dirinfo)
@@ -606,100 +607,6 @@ precore: postsketch postlib
 	@$(and $(COMMANDS), $(FEEDBACK_RAW) Performing core pre-build...)
 	$(AT) $(and $(COMMANDS), $(call indent,$(COMMANDS)))
 	@$(and $(COMMANDS), touch $(BUILD_DIR)/.precore)
-
-
-################################################################
-# BOARD_INFO and related targets
-#
-
-.PHONY: show_boards install_extra_boards uninstall_extra_boards \
-	show_extra_boards FORCE
-
-# Define the BPP, board and platforms parser, command.
-#
-BPP = $(BINDIR)/dno_bpp
-
-DIRNAME = $(notdir $(realpath $(BOARD_DIR)))
-
-# Figure out the dependencies to allow BOARD_INFO to be built based on
-# dirname, BOARD_TYPE, or the value of our BOARD variable.
-#
-ifneq "$(BOARD)" ""
-  # BOARD has been provided as a parameter
-  BI_DEPS = BOARD_TYPE
-  BT_DEPS = FORCE
-  # Parameters for board and cpu type can be derived from BOARD and CPU
-  # definitions provided on the command line.  Provide these to the BOARD_TYPE
-  # target, to create a BOARD_TYPE file.
-  #
-  BOARD_TYPE_PARAMS = `[ "x$(BOARD)" = "x" ] || echo "-b $(BOARD)"`
-  CPU_TYPE_PARAMS = `[ "x$(CPU)" = "x" ] || echo "-c $(CPU)"`
-else
-  BOARD_TYPE := $(wildcard BOARD_TYPE)
-  ifeq "$(BOARD_TYPE)" ""
-    # We have no BOARD_TYPE file.  Let's see if our directory name
-    # specifies a valid board type.
-    BOARD != $(BPP) -b $(DIRNAME) -t
-    ifeq "$(.SHELLSTATUS)" "0"
-      # Directory name looks valid.  Check that it matches our BOARD_INFO
-      BOARD_INFO := $(wildcard BOARD_INFO)
-      ifneq "$(BOARD_INFO)" ""
-        # BOARD_INFO file exists.  Check if it matches our BOARD
-	BOARD_FROM_INFO != sed -n -e '/^BOARD_TYPE/{s/.*=\s//p}' BOARD_INFO
-        ifneq "$(BOARD)" "$(BOARD_FROM_INFO)"
-	  # We need to rebuild BOARD_INFO (else nothing to do)
-	  BI_DEPS = FORCE
-	endif
-      endif
-    else
-      # Dirname is not valid.  BOARD_INFO build needs to fail, so make
-      # it depend on BOARD_TYPE
-      BI_DEPS = BOARD_TYPE
-      BOARD := unknown
-    endif
-  else
-   # We have a BOARD_TYPE_FILE
-   BI_DEPS = BOARD_TYPE
-   BOARD := $(file < BOARD_TYPE)
-  endif
-endif
-
-# Identify any platform.local.txt file: this will be a dependency for
-# BOARD_INFO iff it exists.
-#
-PLATFORM_LOCAL := $(firstword $(foreach dir,$(SRC_DIRS),\
-		                $(wildcard $(dir)/platform.local.txt)))
-$(call debug,PLATFORM_LOCAL)
-
-# Special target to be added as a dependency to force dependent
-# targets to be rebuilt.
-#
-FORCE:
-
-# BOARD_INFO contains definitions needed by make to perform the
-# various compilations, links, uploads, etc.  These definitions are
-# specific to the chosen board-type which may be determined from a
-# BOARD_TYPE file or the name of the current directory.
-#
-BOARD_INFO: $(BI_DEPS) $(PLATFORM_LOCAL)
-	$(TARGET)
-	$(FEEDBACK) Creating $@...
-	$(AT)if $(BPP) -b $(BOARD) -p $(PLATFORM_LOCAL) >$@2; then \
-	    mv $@2 $@; \
-	else \
-	    rm -f $@2; false; fi
-
-# BOARD_TYPE identifies the type of board that we will be creating
-# images for.  In its absence the name of the current directory may
-# provide the board type.
-#
-BOARD_TYPE: $(BT_DEPS)
-	$(TARGET)
-	$(FEEDBACK) Creating $@...
-	$(AT) $(BPP) $(BOARD_TYPE_PARAMS) $(CPU_TYPE_PARAMS) -t >$@ || \
-	    (rm $@; \
-	     echo "Unable to create $@.  Try dno help" 1>&2; \
-	     false)
 
 
 ################################################################
@@ -1013,6 +920,104 @@ $(call debug,PROJDIR)
 
 
 ################################################################
+# BOARD_INFO and related targets
+#
+
+.PHONY: show_boards install_extra_boards uninstall_extra_boards \
+	show_extra_boards FORCE
+
+# Define the BPP, board and platforms parser, command.
+#
+BPP = $(BINDIR)/dno_bpp
+
+DIRNAME = $(notdir $(realpath $(BOARD_DIR)))
+
+# Figure out the dependencies to allow BOARD_INFO to be built based on
+# dirname, BOARD_TYPE, or the value of our BOARD variable.
+#
+ifneq "$(BOARD)" ""
+  # BOARD has been provided as a parameter
+  BI_DEPS = BOARD_TYPE
+  BT_DEPS = FORCE
+  # Parameters for board and cpu type can be derived from BOARD and CPU
+  # definitions provided on the command line.  Provide these to the BOARD_TYPE
+  # target, to create a BOARD_TYPE file.
+  #
+  BOARD_TYPE_PARAMS = `[ "x$(BOARD)" = "x" ] || echo "-b $(BOARD)"`
+  CPU_TYPE_PARAMS = `[ "x$(CPU)" = "x" ] || echo "-c $(CPU)"`
+else
+  BOARD_TYPE := $(wildcard BOARD_TYPE)
+  ifeq "$(BOARD_TYPE)" ""
+    # We have no BOARD_TYPE file.  Let's see if our directory name
+    # specifies a valid board type.
+    BOARD != $(BPP) -b $(DIRNAME) -t
+    ifeq "$(.SHELLSTATUS)" "0"
+      # Directory name looks valid.  Check that it matches our BOARD_INFO
+      BOARD_INFO := $(wildcard BOARD_INFO)
+      ifneq "$(BOARD_INFO)" ""
+        # BOARD_INFO file exists.  Check if it matches our BOARD
+	BOARD_FROM_INFO != sed -n -e '/^BOARD_TYPE/{s/.*=\s//p}' BOARD_INFO
+        ifneq "$(BOARD)" "$(BOARD_FROM_INFO)"
+	  # We need to rebuild BOARD_INFO (else nothing to do)
+	  BI_DEPS = FORCE
+	endif
+      endif
+    else
+      # Dirname is not valid.  BOARD_INFO build needs to fail, so make
+      # it depend on BOARD_TYPE
+      BI_DEPS = BOARD_TYPE
+      BOARD := unknown
+    endif
+  else
+   # We have a BOARD_TYPE_FILE
+   BI_DEPS = BOARD_TYPE
+   BOARD := $(file < BOARD_TYPE)
+  endif
+endif
+
+# Identify any platform.local.txt file: this will be a dependency for
+# BOARD_INFO iff it exists.  Note that dno allows platform.local.txt
+# to be placed in a code directory, where it will take prcedence over
+# any other.
+#
+PLATFORM_LOCAL := $(firstword \
+		    $(foreach dir,$(SRC_DIRS),\
+		               $(wildcard $(dir)/platform.local.txt))\
+		    $(wildcard $(dir $(PLATFORM_FILE))/platform.local.txt))
+$(call debug,PLATFORM_LOCAL)
+
+# Special target to be added as a dependency to force dependent
+# targets to be rebuilt.
+#
+FORCE:
+
+# BOARD_INFO contains definitions needed by make to perform the
+# various compilations, links, uploads, etc.  These definitions are
+# specific to the chosen board-type which may be determined from a
+# BOARD_TYPE file or the name of the current directory.
+#
+BOARD_INFO: $(BI_DEPS) $(PLATFORM_LOCAL)
+	$(TARGET)
+	$(FEEDBACK) Creating $@...
+	$(AT)if $(BPP) -b $(BOARD) -p >$@2; then \
+	    mv $@2 $@; \
+	else \
+	    rm -f $@2; false; fi
+
+# BOARD_TYPE identifies the type of board that we will be creating
+# images for.  In its absence the name of the current directory may
+# provide the board type.
+#
+BOARD_TYPE: $(BT_DEPS)
+	$(TARGET)
+	$(FEEDBACK) Creating $@...
+	$(AT) $(BPP) $(BOARD_TYPE_PARAMS) $(CPU_TYPE_PARAMS) -t >$@ || \
+	    (rm $@; \
+	     echo "Unable to create $@.  Try dno help" 1>&2; \
+	     false)
+
+
+################################################################
 # Major targets
 #
 
@@ -1061,11 +1066,6 @@ $(TARGET_BIN): $(TARGET_ELF)
 endef
 $(call feedback, BIN_TARGET_RECIPE $(call BIN_TARGET_RECIPE))
 $(eval $(call BIN_TARGET_RECIPE))
-
-x:
-	@echo recipe: $(recipe.objcopy.bin.pattern)
-	@echo path: $(tools.esptool_py.path)
-	@echo cmd: $(tools.esptool_py.cmd)
 
 # If files for ctags or etags are found, they become a dependency of
 # our elf target, so that they get automatically updated as needed.

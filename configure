@@ -1716,11 +1716,10 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-DNO_RELEASE_DATE="January 2025"
+DNO_RELEASE_DATE="December 2024"
 
 
-# Arduino dir.  From here we are going to find boards.txt and from
-# that we should be able to determine everything else.
+# Arduino dir.  Try to find an installed Arduino system.
 #
 
 # Check whether --with-arduino-dir was given.
@@ -1919,7 +1918,6 @@ $as_echo "not found" >&6; }
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Unable to find menu command" >&5
 $as_echo "$as_me: WARNING: Unable to find menu command" >&2;}
 fi
-
 
 # Convert the package version into DNO_IDE_VERSION.  This has 2 digits
 # per (non-major) part and has the dots removed.
