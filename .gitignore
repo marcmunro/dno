@@ -31,7 +31,7 @@ config.log
 Makefile.global
 
 # docs
-docs/core_stylesheet.xsl
+docs/core-stylesheet.xsl
 
 # My notes
 NOTES
