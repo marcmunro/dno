@@ -9,7 +9,7 @@
 #  
 #  ----------
 #
-AC_INIT([dno], [0.5.3])
+AC_INIT([dno], [0.5.4])
 
 [DNO_RELEASE_DATE="December 2024"]
 AC_SUBST([DNO_RELEASE_DATE])
@@ -30,12 +30,12 @@ AC_SUBST([DNO_EXTRA_BOARDS_FILE])
 # available.
 AC_CHECK_PROG(SED, ['sed'],[yes],[no])
 if test x"${SED}" = x"no" ; then
-    AC_MSG_ERROR([sed not found: it is a required dependency of dno])
+  AC_MSG_ERROR([sed not found: it is a required dependency of dno])
 fi
 
 AC_CHECK_PROG(GAWK, ['gawk'],[yes],[no]) 
 if test x"${GAWK}" = x"no" ; then
-    AC_MSG_ERROR([gawk not found: it is a required dependency of dno])
+  AC_MSG_ERROR([gawk not found: it is a required dependency of dno])
 fi
 
 # Find a command-line menu program
@@ -122,6 +122,7 @@ AC_CACHE_VAL([pgac_cv_path_entities],
 [if test -n "$DOCBOOKSS"; then
   dno_path=$DOCBOOKSS
 else
+  dno_path=
   for dno_prefix in /usr /usr/local /opt /sw; do
     for dno_infix in share lib; do
       for dno_postfix in \

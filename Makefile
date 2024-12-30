@@ -221,7 +221,7 @@ ifdef PANDOC
 		   $(PANDOC) $< -s -t man --top-level-division=section \
 	               -w docbook4 | tail -n +4 >$@ || (rm $@; false)
 else
-  PANDOC2MAN =$ (if $(wildcard $@),touch $@; echo Using current $@,false)
+  PANDOC2MAN = $(if $(wildcard $@),touch $@; echo "    Using current $@",false)
   PANDOC2DOCBOOK = $(PANDOC2MAN)
 endif
 
@@ -246,11 +246,17 @@ man: $(MAN_1_TARGETS) $(MAN_5_TARGETS)
 
 HTMLDIR = html
 DOC_SOURCES = docs/dno_doc.xml
-DOC_MANPAGES = $(patsubst man/%.md,docs/parts/%.xml,$(wildcard man/*.md))
 BASE_STYLESHEET = $(DOCBOOK_STYLESHEETS)/html/chunkfast.xsl
-DNO_CORE_STYLESHEET = docs/core-stylesheet.xsl
 DNO_LOCAL_STYLESHEET =  docs/html_stylesheet.xsl
 DNO_STYLESHEET = docs/html_stylesheet.xsl
+DNO_CORE_STYLESHEET = docs/core-stylesheet.xsl
+DOC_MANPAGES = $(patsubst man/%.md,docs/parts/%.xml,$(wildcard man/*.md))
+DOC_TARGETS = $(DNO_CORE_STYLESHEET) $(DOC_MANPAGES)
+
+CAN_BUILD_DOCBOOK = $(and $(DOCBOOK_STYLESHEETS), $(XSLTPROC))
+
+ifneq "$(CAN_BUILD_DOCBOOK)" ""
+
 
 docs: $(HTMLDIR)/index.html configure $(DNO_CORE_STYLESHEET)
 
@@ -269,13 +275,6 @@ docs/parts/%.xml: man/%.md
 	$(AT) mkdir -p $(dir $@)
 	$(AT) $(PANDOC2DOCBOOK)
 
-# Create html from markdown.  This enables us to test the formatting
-# of markdown files such as our README.md
-#
-%.html: %.md
-	$(PANDOC) --shift-heading-level-by=-1 $*.md \
-	       --standalone --to=html >$*.html
-
 $(DNO_CORE_STYLESHEET): $(BASE_STYLESHEET) Makefile
 	@echo "Creating importer for system base stylesheet for docs..."
 	@{ \
@@ -287,6 +286,30 @@ $(DNO_CORE_STYLESHEET): $(BASE_STYLESHEET) Makefile
 	  echo "     href=\"$(BASE_STYLESHEET)\"/>"; \
 	  echo "</xsl:stylesheet>"; \
 	} > $@
+
+else
+
+docs_target = $(wildcard $(HTMLDIR)/index.html)
+ifeq "$(docs_target)" ""
+docs:
+	@echo "unable to build docs: "
+	@echo "  xsltproc and the docbook stylesheets must be installed"
+else
+docs: $(docs_target)
+
+$(docs_target): $(CONFIGURE_OUTPUTS)
+	@$(and $(docs_target),touch $(docs_target))
+	@echo Using distributed version of docs
+endif
+endif
+
+# Create html from markdown.  This enables us to test the formatting
+# of markdown files such as our README.md
+#
+%.html: %.md
+	$(PANDOC) --shift-heading-level-by=-1 $*.md \
+	       --standalone --to=html >$*.html
+
 
 
 # TODO: deal with docbook and xslt being unavailable
@@ -315,7 +338,8 @@ clean: tidy
 	$(AT) rm -f docs/parts/*
 	$(AT) rm -f html/*
 	$(AT) rm -f $(CONFIGURE_TARGETS) $(CONFIGURE_OUTPUTS) \
-		    $(EXECUTABLE_TARGETS) $(MAN_TARGETS) config.log
+		    $(EXECUTABLE_TARGETS) $(MAN_TARGETS) \
+		    $(DOC_TARGETS) config.log
 
 distclean: clean
 	$(AT) rm -rf configure autom4te.cache config.log
@@ -337,8 +361,10 @@ GENERATED_FILES = $(CONFIGURE_TARGETS) $(MAN_1_TARGETS) \
 dno_$(DNO_VERSION).tgz: $(GENERATED_FILES) | tidy all
 	$(FEEDBACK) TAR $@
 	$(AT) touch dno_$(DNO_VERSION).tgz
-	$(AT) cd ..; tar czf dno/dno_$(DNO_VERSION).tgz --exclude dno/releases \
-	          --exclude dno/dno_$(DNO_VERSION).tgz dno
+	$(AT) cd ..; tar czf dno/dno_$(DNO_VERSION).tgz \
+		  --exclude dno/releases \
+	          --exclude dno/dno_$(DNO_VERSION).tgz \
+		  --exclude Makefile.global dno
 
 
 ################################################################
@@ -352,9 +378,11 @@ DNO_INSTALLABLES = $(patsubst %,$(INSTALL_BINDIR)/%, $(DNO_EXECUTABLES))
 
 install: docs bin
 	@echo Installing dno executables in $(INSTALL_BINDIR)
+	$(AT) mkdir -p $(INSTALL_BINDIR)
 	$(AT) cp $(DNO_EXECUTABLE_FILES) $(INSTALL_BINDIR)
 	$(AT) chmod 755 $(DNO_INSTALLABLES)
 	@echo Install dno man pages in $(INSTALL_MANDIR)
+	$(AT) mkdir -p $(INSTALL_MANDIR)/man1 $(INSTALL_MANDIR)/man5
 	$(AT) cp $(MAN_1_TARGETS) $(INSTALL_MANDIR)/man1
 	$(AT) cp $(MAN_5_TARGETS) $(INSTALL_MANDIR)/man5
 
