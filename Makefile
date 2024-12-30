@@ -336,6 +336,7 @@ GENERATED_FILES = $(CONFIGURE_TARGETS) $(MAN_1_TARGETS) \
 
 dno_$(DNO_VERSION).tgz: $(GENERATED_FILES) | tidy all
 	$(FEEDBACK) TAR $@
+	$(AT) touch dno_$(DNO_VERSION).tgz
 	$(AT) cd ..; tar czf dno/dno_$(DNO_VERSION).tgz --exclude dno/releases \
 	          --exclude dno/dno_$(DNO_VERSION).tgz dno
 
