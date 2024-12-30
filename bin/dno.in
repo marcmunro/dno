@@ -11,7 +11,10 @@
 #
 
 # TODOs:
+# Prevent clean targets from running in unknown dir types (make tests
+# for root dir a bit more stringent)
 # Handle boards.local.txt
+# handle filenames with spaces and other stupid characters
 # ensure there are deps to platform.txt and boards.txt from BOARD_INFO
 # allow boards.local.txt
 # allow dno.mk

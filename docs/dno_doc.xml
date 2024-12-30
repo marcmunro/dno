@@ -26,9 +26,50 @@
   <title>DNO USER GUIDE</title>
   <subtitle>The dno command-line build system for Arduino software</subtitle>
   <preface id="introduction">
-    <title>Introduction to dno</title>
-    <para/>
+    <title>Introduction To Dno</title>
+    <para>
+      Dno is a command-line tool for building software for Arduino and
+      related single board computers.  It is intended as an
+      alternative to the Arduino IDE for building, loading and testing
+      Arduino software.
+    </para>
+    <para>
+      It does not provide an editing environment. Instead, by allowing
+      builds to be executed as simple commands, developers are free to
+      use the editor/programming environment of their choice.
+    </para>
+    <para>
+      It also goes beyond what the Arduino IDE offers by supporting
+      unit testing of libraries and the creation of Doxygen-based
+      documentation of code.  In short, it aims to support the
+      creation of professional quality software for Arduino
+      platforms.
+    </para>
+    <para>
+      Finally it aims to be as simple to use as possible; requiring
+      minimal configuration while providing maximal flexibility.
+    </para>
   </preface>
+  <chapter>
+    <title>Features</title>
+    <para>
+    </para>
+  </chapter>
+  <chapter>
+    <title>Getting Started</title>
+    <para>
+    </para>
+  </chapter>
+  <chapter>
+    <title>Dno Commands</title>
+    <para>
+    </para>
+  </chapter>
+  <chapter>
+    <title>Why?</title>
+    <para>
+    </para>
+  </chapter>
   <appendix id="man_pages">
     <title><literal>dno</literal> man pages</title>
     &appendix_dno;
@@ -42,6 +83,9 @@
     &appendix_BOARD_INFO;
     &appendix_BOARD_TYPE;
     &appendix_BOARD_OPTIONS;
+  </appendix>
+  <appendix id="license">
+    <title>License</title>
   </appendix>
 </book>
   
