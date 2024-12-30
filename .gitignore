@@ -30,6 +30,9 @@ config.log
 # generated root files
 Makefile.global
 
+# docs
+docs/core_stylesheet.xsl
+
 # My notes
 NOTES
 TODO
