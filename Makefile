@@ -2,7 +2,7 @@
 #       Makefile for building and installing dno, the Arduino build
 #       system
 # 
-#       Copyright (c) 2024,2025 Marc Munro
+#       Copyright (c) 2024 Marc Munro
 #       Author:  Marc Munro
 # 	License: GPL-3.0
 #  
@@ -22,6 +22,14 @@ MAKEFLAGS += -r
 # Need bash for pipefail option
 #
 SHELL = bash
+
+
+###########
+# General definitions
+#
+MAKEFILEPATH := $(realpath $(call lastword,$(MAKEFILE_LIST)))
+ROOT_MAKEFILE := $(firstword $(MAKEFILE_LIST))
+ROOTDIR := $(realpath $(dir $(MAKEFILEPATH)))
 
 
 ###########

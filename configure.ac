@@ -3,13 +3,13 @@
 # 
 #       Autoconf definitions for dno.
 # 
-#       Copyright (c) 2024,2025
+#       Copyright (c) 2024
 #       Author:  Marc Munro
 # 	License: GPL V3
 #  
 #  ----------
 #
-AC_INIT([dno], [0.5.2])
+AC_INIT([dno], [0.5.3])
 
 [DNO_RELEASE_DATE="December 2024"]
 AC_SUBST([DNO_RELEASE_DATE])
