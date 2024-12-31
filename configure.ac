@@ -9,7 +9,7 @@
 #  
 #  ----------
 #
-AC_INIT([dno], [0.5.4])
+AC_INIT([dno], [0.5.5])
 
 [DNO_RELEASE_DATE="December 2024"]
 AC_SUBST([DNO_RELEASE_DATE])

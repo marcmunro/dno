@@ -369,7 +369,8 @@ dno_$(DNO_VERSION).tgz: $(GENERATED_FILES) | tidy all
 	$(AT) cd ..; tar czf dno/dno_$(DNO_VERSION).tgz \
 		  --exclude dno/releases \
 	          --exclude dno/dno_$(DNO_VERSION).tgz \
-		  --exclude Makefile.global dno
+		  --exclude Makefile.global \
+		  --exclude bin/dno_requote dno
 
 
 ################################################################
