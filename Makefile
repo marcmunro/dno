@@ -214,12 +214,17 @@ bin/dno_requote: src/dno_requote.c
 #
 .PHONY: man
 
+# This filter modifies the title to make it better fit our
+# documentation requirements.
+#
+MAN_FILTER = sed -e 's!\(<title>[^ ]*\).*\(</title>\)!\1\2!'
+
 ifdef PANDOC
   PANDOC2MAN = set -o pipefail; $(PANDOC) $< -s -t man | \
 	           sed -e 's/<h1>/<h3>/' > $@ || (rm $@; false)
   PANDOC2DOCBOOK = set -o pipefail; \
-		   $(PANDOC) $< -s -t man --top-level-division=section \
-	               -w docbook4 | tail -n +4 >$@ || (rm $@; false)
+		   $(PANDOC) $< -s -t man -w docbook4 | tail -n +4 | \
+		     $(MAN_FILTER) >$@ || (rm $@; false)
 else
   PANDOC2MAN = $(if $(wildcard $@),touch $@; echo "    Using current $@",false)
   PANDOC2DOCBOOK = $(PANDOC2MAN)

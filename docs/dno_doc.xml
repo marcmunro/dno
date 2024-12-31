@@ -19,6 +19,7 @@
 <!ENTITY appendix_BOARD_INFO		SYSTEM "parts/BOARD_INFO.xml">
 <!ENTITY appendix_BOARD_TYPE		SYSTEM "parts/BOARD_TYPE.xml">
 <!ENTITY appendix_BOARD_OPTIONS		SYSTEM "parts/BOARD_OPTIONS.xml">
+<!ENTITY appendix_LICENSE		SYSTEM "LICENSE.dbk">
          
 ]>
 
@@ -26,7 +27,7 @@
   <title>DNO USER GUIDE</title>
   <subtitle>The dno command-line build system for Arduino software</subtitle>
   <preface id="introduction">
-    <title>Introduction To Dno</title>
+    <title>Introduction to Dno</title>
     <para>
       Dno is a command-line tool for building software for Arduino and
       related single board computers.  It is intended as an
@@ -46,7 +47,7 @@
       platforms.
     </para>
     <para>
-      Finally it aims to be as simple to use as possible; requiring
+      Finally it aims to be as simple to use as possible - requiring
       minimal configuration while providing maximal flexibility.
     </para>
   </preface>
@@ -57,11 +58,64 @@
   </chapter>
   <chapter>
     <title>Getting Started</title>
+    <sect1>
+      <title>Compatibility</title>
+      <para>
+	Dno is expected to run on any Unix-like operating system:
+	Linux, BSD, MacOSX.
+      </para>
+      <para>
+	It is built using GNU autotools, so anything that can run
+	autotools should work.  It is unlikely that Windows(tm) will
+	ever be supported.
+      </para>
+    </sect1>
+    <sect1>
+      <title>Dependencies</title>
+      <para>
+	Dno requires bash, make, sed and gawk in order to run.
+      </para>
+      <para>
+	For building and installing dno, gcc is also required.
+      </para>
+      <para>
+	To build documentation: pandoc, xsltproc and the docbook xslt
+	stylesheets (v4) are required.  Tarball-based installations
+	provide pre-built documentation so do not need these.
+      </para>
+      <para>
+	If you want to modify dno, you should also install autotools.
+      </para>
+    </sect1>
+    <sect1>
+      <title>Installing Dno</title>
+      <para>
+	Dno can be installed by downloading and unpacking a release
+	tarball or by cloning from github.  Unless you want to hack on
+	dno itself, installing from a tarball is the recommended
+	option. 
+      </para>
+      <sect2>
+	<title>Installing from a tarball</title>
+	<para>
+	  
+	</para>
+      </sect2>
+      <sect2>
+	<title>Installing by cloning from github</title>
+	<para>
+	  
+	</para>
+      </sect2>
+    </sect1>
+  </chapter>
+  <chapter>
+    <title>Dno Commands</title>
     <para>
     </para>
   </chapter>
   <chapter>
-    <title>Dno Commands</title>
+    <title>The Dno Directory System</title>
     <para>
     </para>
   </chapter>
@@ -84,8 +138,6 @@
     &appendix_BOARD_TYPE;
     &appendix_BOARD_OPTIONS;
   </appendix>
-  <appendix id="license">
-    <title>License</title>
-  </appendix>
+  &appendix_LICENSE;
 </book>
   

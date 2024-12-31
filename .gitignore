@@ -12,7 +12,7 @@ man/*.md
 docs/parts/
 
 # Tarballs in root dir
-*.tgz
+/*.tgz
 
 # generated bin files
 bin/dno
