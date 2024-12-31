@@ -408,7 +408,7 @@ uninstall:
 
 GIT_UPSTREAM = github origin
 
-release: check_commit check_tarball check_remote check_tag 
+release: check_tarball check_commit check_remote check_tag 
 	@echo RELEASE APPEARS OK
 
 # Check that there are no uncomitted changes.
