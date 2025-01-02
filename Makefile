@@ -201,7 +201,7 @@ ifdef PANDOC
 		     $(MAN_FILTER) >$@ || (rm $@; false)
   PANDOC_FEEDBACK = $(FEEDBACK)
 else
-  PANDOC_FEEDBACK = $(FEEDBACK)
+  PANDOC_FEEDBACK = @\#
   PANDOC2MAN = $(if $(wildcard $@),\
 	           touch $@; echo "    Using distributed version of $@",false)
   PANDOC2DOCBOOK = $(PANDOC2MAN)
