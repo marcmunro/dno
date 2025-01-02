@@ -2,14 +2,13 @@
 #       Makefile for building and installing dno, the Arduino build
 #       system
 # 
-#       Copyright (c) 2024 Marc Munro
+#       Copyright (c) 2024, 2025 Marc Munro
 #       Author:  Marc Munro
 # 	License: GPL-3.0
 #  
 #
 
 # TODO:
-# - require xmllint
 # - make no-docs build less verbose (DONE?)
 # - add links between man pages?
 
@@ -38,7 +37,7 @@ ROOTDIR := $(realpath $(dir $(MAKEFILEPATH)))
 # empty definition.  Needed by the succeeding definition for "space".
 empty =
 
-# An explicit space definition for use in macros.  Generally, macros
+# An explicit space definition for use in macros.  Generally macros
 # eliminate leading spaces.  Using this definition will prevent that.
 space = $(empty) $(empty)
 
@@ -53,40 +52,14 @@ space = $(empty) $(empty)
 # command can usefully provide feedback.
 #
 
-# QUIET is used to prevent the automatic display of object size
-# information.  VERBOSE can be used to force a more full display of
-# object size info.
-
-# Try to make the output of the avr-size executable a little more
-# helpful.
-#
-ifndef VERBOSE
-  ifdef QUIET
-    # Make avr_size do nothing.  This breaks the verify_size target if
-    # QUIET is defined but that seems acceptable.
-    avr_size = true
-  else
-    # Define avr_size to handle parameters based on capability
-    ifeq ($(SIZE_FOR_AVR),yes)
-      ifeq ($(notdir $(avr_size)),$(notdir $(AVR_SIZE_CMD)))
-        # There is a patched version of size that handles AVR with
-        # prettier output.
-        avr_flags = --format=avr
-      endif
-    endif
-  endif
-endif
-
 ifdef VERBOSE
     FEEDBACK = @true
     FEEDBACK_RAW = true
     VERBOSEP = VERBOSE=y
-    QUIET = 
     AT =
 else
     FEEDBACK = @echo " "
     FEEDBACK_RAW = echo " "
-    QUIET = 2>/dev/null
     AT = @
 endif
 
@@ -161,7 +134,7 @@ $(CONFIGURE_TARGETS) &: configure $(CONFIGURE_INPUTS)
 #
 .PHONY: FORCE
 CONFIGURE_DEP := $(if $(filter configure,$(MAKECMDGOALS)),\
-		     FORCE,\
+		     $(if $(MAKE_RESTARTS),,FORCE),\
 	           $(and $(wildcard config.log),\
 		         $(wildcard configure.ac)))
 
@@ -269,7 +242,7 @@ ifneq "$(CAN_BUILD_DOCBOOK)" ""
 
 docs: $(HTMLDIR)/index.html configure $(DNO_CORE_STYLESHEET)
 
-$(COMBINED_DOC): $(DOC_SOURCES) $(DOC_MANPAGES) 
+$(COMBINED_DOC): $(DOC_SOURCES) $(DOC_MANPAGES) docs/man2db.xsl
 	$(FEEDBACK) XMLLINT $@
 	$(AT) xmllint --xinclude --output $@ docs/dno_doc.xml || \
 	    (rm -f $@; false)

@@ -3,7 +3,7 @@
 # 
 #       Autoconf definitions for dno.
 # 
-#       Copyright (c) 2024
+#       Copyright (c) 2024, 2025
 #       Author:  Marc Munro
 # 	License: GPL V3
 #  
@@ -77,7 +77,16 @@ test -f "${PANDOC}" || \
     AC_MSG_WARN([pandoc not found.  Man pages cannot be created]) 
 
 # Check for xslt - needed to build html docs
-AC_CHECK_PROGS(XSLTPROC, xsltproc)
+AC_PATH_PROG(XSLTPROC, ['xsltproc'])
+
+test -f "${XSLTPROC}" || \
+    AC_MSG_WARN([xsltproc not found.  User guide cannot be created]) 
+
+# Check for xslt - needed to build html docs
+AC_PATH_PROG(XMLLINT, ['xmllint'])
+
+test -f "${XMLLINT}" || \
+    AC_MSG_WARN([xmllint not found.  User guide cannot be created]) 
 
 dnl Find docbook fastchunk stylesheet
 AC_DEFUN([DNO_PATH_DOCBOOK_STYLESHEETS],
@@ -114,12 +123,7 @@ else
   AC_MSG_RESULT(no)
 fi])
 
-DNO_PATH_DOCBOOK_ENTITIES
 DNO_PATH_DOCBOOK_STYLESHEETS
-
-
-#AC_PATH_PROG(DOXYGEN, ['doxygen']) 
-#AC_PATH_PROG(DOT, ['dot']) 
 
 # Identify host OS.  Currently only linux and macos are supported, so
 # if it's not linux...

@@ -10,6 +10,7 @@ man/*.md
 
 # Intermediate docs files
 docs/parts/
+docs/full_doc.xml
 
 # Tarballs in root dir
 /*.tgz
