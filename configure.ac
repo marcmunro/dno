@@ -9,9 +9,9 @@
 #  
 #  ----------
 #
-AC_INIT([dno], [0.5.5])
+AC_INIT([dno], [0.5.6])
 
-[DNO_RELEASE_DATE="December 2024"]
+[DNO_RELEASE_DATE="January 2025"]
 AC_SUBST([DNO_RELEASE_DATE])
 
 # Arduino dir.  Try to find an installed Arduino system.
