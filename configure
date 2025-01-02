@@ -595,7 +595,6 @@ build_vendor
 build_cpu
 build
 DOCBOOKSS
-DOCBOOKENT
 XSLTPROC
 PANDOC
 DNO_IDE_VERSION
@@ -653,7 +652,6 @@ with_arduino_dir
       ac_precious_vars='build_alias
 host_alias
 target_alias
-DOCBOOKENT
 DOCBOOKSS'
 
 
@@ -1281,7 +1279,6 @@ Optional Packages:
   --with-arduino-dir      Where to find arduino files
 
 Some influential environment variables:
-  DOCBOOKENT  location of Docbook entities
   DOCBOOKSS   location of Docbook stylesheet
 
 Use these variables to override the choices made by `configure' or to help
@@ -2025,47 +2022,7 @@ done
 
 
 
-
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for DocBook entities" >&5
-$as_echo_n "checking for DocBook entities... " >&6; }
-if ${pgac_cv_path_entities+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$DOCBOOKENT"; then
-  dno_path=$DOCBOOKENT
-else
-  for dno_prefix in /usr /usr/local /opt /sw; do
-    for dno_infix in share lib; do
-      for dno_postfix in \
-        xml/docbook/schema/dtd/4.5 \
-	sgml/docbook/dtd/4.5 \
-	sgml/docbook/xml-dtd-4.5
-      do
-        dno_candidate=$dno_prefix/$dno_infix/$dno_postfix
-        if test -r "$dno_candidate/dbcentx.mod"
-        then
-          dno_path=$dno_candidate/dbcentx.mod
-          break 3
-        fi
-      done
-    done
-  done
-fi
-fi
-
-
-DOCBOOKENT=$dno_path
-
-
-if test -n "$DOCBOOKENT"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $DOCBOOKENT" >&5
-$as_echo "$DOCBOOKENT" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
+DNO_PATH_DOCBOOK_ENTITIES
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for DocBook stylesheet" >&5
 $as_echo_n "checking for DocBook stylesheet... " >&6; }
@@ -2076,11 +2033,11 @@ else
   dno_path=$DOCBOOKSS
 else
   dno_path=
-  for dno_prefix in /usr /usr/local /opt /sw; do
+  for dno_prefix in /usr /usr/local /opt /sw /usr/share; do
     for dno_infix in share lib; do
       for dno_postfix in \
-        xml/docbook/stylesheet/docbook-xsl \
-	sgml/docbook/stylesheet/docbook-xsl
+        xml/docbook/stylesheet/docbook-xsl-ns \
+	sgml/docbook/stylesheet/docbook-xsl-ns
       do
         dno_candidate=$dno_prefix/$dno_infix/$dno_postfix
         if test -r "$dno_candidate/xhtml/chunk.xsl"

@@ -9,10 +9,9 @@
 #
 
 # TODO:
-#  release stuff:
-#    - ensure version is bumped
-#    - ensure release date is bumped
-#    - check dates (copyright) in headers
+# - require xmllint
+# - make no-docs build less verbose (DONE?)
+# - add links between man pages?
 
 # Do not use make's built-in rules
 # (this improves performance and avoids hard-to-debug behaviour).
@@ -217,16 +216,21 @@ bin/dno_requote: src/dno_requote.c
 # This filter modifies the title to make it better fit our
 # documentation requirements.
 #
-MAN_FILTER = sed -e 's!\(<title>[^ ]*\).*\(</title>\)!\1\2!'
+MAN_FILTER = xsltproc docs/man2db.xsl -
 
 ifdef PANDOC
   PANDOC2MAN = set -o pipefail; $(PANDOC) $< -s -t man | \
 	           sed -e 's/<h1>/<h3>/' > $@ || (rm $@; false)
   PANDOC2DOCBOOK = set -o pipefail; \
-		   $(PANDOC) $< -s -t man -w docbook4 | tail -n +4 | \
+		   $(PANDOC) $< -s -t man -w docbook5 \
+			     --top-level-division=section \
+		             --id-prefix="$(basename $(notdir $<))-" | \
 		     $(MAN_FILTER) >$@ || (rm $@; false)
+  PANDOC_FEEDBACK = $(FEEDBACK)
 else
-  PANDOC2MAN = $(if $(wildcard $@),touch $@; echo "    Using current $@",false)
+  PANDOC_FEEDBACK = $(FEEDBACK)
+  PANDOC2MAN = $(if $(wildcard $@),\
+	           touch $@; echo "    Using distributed version of $@",false)
   PANDOC2DOCBOOK = $(PANDOC2MAN)
 endif
 
@@ -238,7 +242,7 @@ man: $(MAN_1_TARGETS) $(MAN_5_TARGETS)
 # to date.
 #
 %.1 %.5: %.md
-	$(FEEDBACK) PANDOC $@
+	$(PANDOC_FEEDBACK) PANDOC $@
 	$(AT) $(PANDOC2MAN)
 
 
@@ -251,32 +255,37 @@ man: $(MAN_1_TARGETS) $(MAN_5_TARGETS)
 
 HTMLDIR = html
 DOC_SOURCES = docs/dno_doc.xml
+COMBINED_DOC = docs/full_doc.xml
 BASE_STYLESHEET = $(DOCBOOK_STYLESHEETS)/html/chunkfast.xsl
 DNO_LOCAL_STYLESHEET =  docs/html_stylesheet.xsl
 DNO_STYLESHEET = docs/html_stylesheet.xsl
 DNO_CORE_STYLESHEET = docs/core-stylesheet.xsl
 DOC_MANPAGES = $(patsubst man/%.md,docs/parts/%.xml,$(wildcard man/*.md))
-DOC_TARGETS = $(DNO_CORE_STYLESHEET) $(DOC_MANPAGES)
+DOC_TARGETS = $(DNO_CORE_STYLESHEET) $(DOC_MANPAGES) $(COMBINED_DOC)
 
 CAN_BUILD_DOCBOOK = $(and $(DOCBOOK_STYLESHEETS), $(XSLTPROC))
 
 ifneq "$(CAN_BUILD_DOCBOOK)" ""
 
-
 docs: $(HTMLDIR)/index.html configure $(DNO_CORE_STYLESHEET)
 
-$(HTMLDIR)/index.html: $(DOC_SOURCES) $(DOC_MANPAGES) \
+$(COMBINED_DOC): $(DOC_SOURCES) $(DOC_MANPAGES) 
+	$(FEEDBACK) XMLLINT $@
+	$(AT) xmllint --xinclude --output $@ docs/dno_doc.xml || \
+	    (rm -f $@; false)
+
+$(HTMLDIR)/index.html: $(COMBINED_DOC) \
 		       $(VERSION_FILE) $(DNO_LOCAL_STYLESHEET) \
 		       $(DNO_CORE_STYLESHEET)
 	$(FEEDBACK) $(XSLTPROC) "<docbook sources>.xml -->" $@
 	@mkdir -p html
 	$(AT) $(XSLTPROC) $(XSLTPROCFLAGS) --output html/ \
-		$(DNO_LOCAL_STYLESHEET) docs/dno_doc.xml
+		$(DNO_LOCAL_STYLESHEET) $(COMBINED_DOC)
 
 # docbook version of manpage from markdown
 #
 docs/parts/%.xml: man/%.md
-	$(FEEDBACK) PANDOC $@
+	$(PANDOC_FEEDBACK) PANDOC $@
 	$(AT) mkdir -p $(dir $@)
 	$(AT) $(PANDOC2DOCBOOK)
 
@@ -304,7 +313,7 @@ docs: $(docs_target)
 
 $(docs_target): $(CONFIGURE_OUTPUTS)
 	@$(and $(docs_target),touch $(docs_target))
-	@echo Using distributed version of docs
+	@echo "    Using distributed version of docs"
 endif
 endif
 

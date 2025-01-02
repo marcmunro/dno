@@ -79,41 +79,6 @@ test -f "${PANDOC}" || \
 # Check for xslt - needed to build html docs
 AC_CHECK_PROGS(XSLTPROC, xsltproc)
 
-dnl Find docbook entities file
-AC_DEFUN([DNO_PATH_DOCBOOK_ENTITIES],
-[AC_ARG_VAR(DOCBOOKENT, [location of Docbook entities])
-AC_MSG_CHECKING([for DocBook entities])
-AC_CACHE_VAL([pgac_cv_path_entities],
-[if test -n "$DOCBOOKENT"; then
-  dno_path=$DOCBOOKENT
-else
-  for dno_prefix in /usr /usr/local /opt /sw; do
-    for dno_infix in share lib; do
-      for dno_postfix in \
-        xml/docbook/schema/dtd/4.5 \
-	sgml/docbook/dtd/4.5 \
-	sgml/docbook/xml-dtd-4.5
-      do
-        dno_candidate=$dno_prefix/$dno_infix/$dno_postfix
-        if test -r "$dno_candidate/dbcentx.mod" 
-        then
-          dno_path=$dno_candidate/dbcentx.mod
-          break 3
-        fi
-      done
-    done
-  done
-fi])
-
-DOCBOOKENT=$dno_path
-
-AC_SUBST([DOCBOOKENT])
-if test -n "$DOCBOOKENT"; then
-  AC_MSG_RESULT([$DOCBOOKENT])
-else
-  AC_MSG_RESULT(no)
-fi])
-
 dnl Find docbook fastchunk stylesheet
 AC_DEFUN([DNO_PATH_DOCBOOK_STYLESHEETS],
 [AC_ARG_VAR(DOCBOOKSS, [location of Docbook stylesheet])
@@ -123,11 +88,11 @@ AC_CACHE_VAL([pgac_cv_path_entities],
   dno_path=$DOCBOOKSS
 else
   dno_path=
-  for dno_prefix in /usr /usr/local /opt /sw; do
+  for dno_prefix in /usr /usr/local /opt /sw /usr/share; do
     for dno_infix in share lib; do
       for dno_postfix in \
-        xml/docbook/stylesheet/docbook-xsl \
-	sgml/docbook/stylesheet/docbook-xsl 
+        xml/docbook/stylesheet/docbook-xsl-ns \
+	sgml/docbook/stylesheet/docbook-xsl-ns 
       do
         dno_candidate=$dno_prefix/$dno_infix/$dno_postfix
         if test -r "$dno_candidate/xhtml/chunk.xsl" 

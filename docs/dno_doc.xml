@@ -1,36 +1,22 @@
 <?xml version='1.0'?>
+<!DOCTYPE book []>
 
-<!DOCTYPE book [
-
-<!ENTITY % sgml.features "IGNORE">
-<!ENTITY % xml.features "INCLUDE">
-
-<!ENTITY % dbcent PUBLIC "-//OASIS//ENTITIES DocBook Character Entities V4.5//EN"
-   "docbook_entities.sgml">
-%dbcent;
-
-<!ENTITY appendix_dno	       		SYSTEM "parts/dno.xml">
-<!ENTITY appendix_dno_bpp      		SYSTEM "parts/dno_bpp.xml">
-<!ENTITY appendix_dno_checksize		SYSTEM "parts/dno_checksize.xml">
-<!ENTITY appendix_dno_commands_for	SYSTEM "parts/dno_commands_for.xml">
-<!ENTITY appendix_dno_dirinfo		SYSTEM "parts/dno_dirinfo.xml">
-<!ENTITY appendix_dno_menu		SYSTEM "parts/dno_menu.xml">
-<!ENTITY appendix_dno_requote		SYSTEM "parts/dno_requote.xml">
-<!ENTITY appendix_BOARD_INFO		SYSTEM "parts/BOARD_INFO.xml">
-<!ENTITY appendix_BOARD_TYPE		SYSTEM "parts/BOARD_TYPE.xml">
-<!ENTITY appendix_BOARD_OPTIONS		SYSTEM "parts/BOARD_OPTIONS.xml">
-<!ENTITY appendix_LICENSE		SYSTEM "LICENSE.dbk">
-         
-]>
-
-<book id="dno_user_guide">
-  <title><command>DNO</command> USER GUIDE</title>
-  <subtitle>
-    The <command>dno</command> command-line build system for Arduino
-    software
-  </subtitle>
-  <preface id="introduction">
-    <title>Introduction to <command>Dno</command></title>
+<book version="5.0"
+      xmlns="http://docbook.org/ns/docbook" 
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:xlink="http://www.w3.org/1999/xlink">
+  <info>
+    <title>DNO USER GUIDE</title>
+    <subtitle>
+      The <command>dno</command> command-line build system for Arduino
+      software
+    </subtitle>
+  </info>
+  
+  <preface xml:id="introduction">
+    <info>
+      <title>Introduction to Dno</title>
+    </info>
     <para>
       <command>Dno</command> is a command-line tool for building
       software for Arduino and related single board computers.  It is
@@ -54,22 +40,24 @@
       minimal configuration while providing maximal flexibility.
     </para>
   </preface>
-  <chapter>
-    <title>Features</title>
+  <chapter><info><title>Features</title></info>
+    
     <para>
     </para>
   </chapter>
   <chapter>
-    <title>Installation</title>
-      <para>
-	<command>Dno</command> can be installed by downloading and
-	unpacking a release tarball or by cloning from <ulink
-	url="https://github.com/marcmunro/dno">github</ulink>.  Unless
-	you want to hack on dno itself, installing from a tarball is
-	the recommended option.
-      </para>
-    <sect1>
-      <title>Compatibility</title>
+    <info><title>Installation</title></info>
+    <para>
+      <command>Dno</command> can be installed by downloading and
+      unpacking a release tarball or by cloning from <link
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xlink:href="https://github.com/marcmunro/dno">github</link>.
+    </para>
+    <para>
+      Unless you want to hack on dno itself, installing from a tarball
+      is the recommended option.
+    </para>
+    <section><info><title>Compatibility</title></info>
       <para>
 	<command>Dno</command> is expected to run on any Unix-like
 	operating system: Linux, BSD, MacOSX.
@@ -80,9 +68,9 @@
 	<literal>autotools</literal> should work.  It is unlikely that
 	Windows(tm) will ever be supported.
       </para>
-    </sect1>
-    <sect1>
-      <title>Dependencies</title>
+    </section>
+    <section><info><title>Dependencies</title></info>
+      
       <para>
 	Dno requires <command>bash</command>, <command>make</command>,
 	<command>sed</command> and <command>gawk</command> in order to
@@ -102,13 +90,12 @@
 	If you want to modify <command>dno</command>, you should also install
 	<literal>autotools</literal>.
       </para>
-    </sect1>
-    <sect1>
-      <title>Installing from a tarball</title>
+    </section>
+    <section><info><title>Installing from a tarball</title></info>
+      
       <para>
 	Releases can be found in the github project releases
-	directory:  <ulink
-	url="https://github.com/marcmunro/dno/tree/main/releases">https://github.com/marcmunro/dno/tree/main/releases</ulink>.
+	directory:  <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://github.com/marcmunro/dno/tree/main/releases">https://github.com/marcmunro/dno/tree/main/releases</link>.
       </para>
       <para>
 	You can download a tarball by clicking on it and then
@@ -122,50 +109,108 @@ $ tar xvzf dno_<replaceable>VERSION</replaceable>.tgz
 	</programlisting>
       </para>
       <para>
+	Note: the v option above gives verbose feedback.  Use this to get a
+	warm fuzzy feeling when you unpack the tarball.
+      </para>
+      <para>
 	Now <command>cd</command> to the new <literal>dno</literal>
 	directory and run <command>make</command>:
+	<programlisting>
+$ cd dno
+$ make
+  CONFIGURE...
+    checking for sed... yes
+    checking for gawk... yes
+    checking for dialog... no
+    checking for whiptail... /usr/bin/whiptail
+    checking Checking terminal-based menu command... /usr/bin/whiptail
+    checking for pandoc... no
+configure: WARNING: pandoc not found.  Man pages cannot be created
+    checking for xsltproc... no
+    checking for DocBook entities... /usr/share/xml/docbook/schema/dtd/4.5/dbcentx.mod
+    checking for DocBook stylesheet... no
+    checking build system type... x86_64-unknown-linux-gnu
+    checking host system type... x86_64-unknown-linux-gnu
+    checking Checking arduino installation dir... /usr/share/arduino
+    checking for /usr/share/arduino/hardware/arduino/avr/boards.txt... yes
+    configure: creating ./config.status
+    config.status: creating Makefile.global
+    config.status: creating bin/dno_commands_for
+    config.status: creating bin/dno_bpp
+    config.status: creating bin/dno_dirinfo
+    config.status: creating bin/dno_menu
+    config.status: creating bin/dno
+    config.status: creating man/BOARD_INFO.md
+    config.status: creating man/BOARD_OPTIONS.md
+    config.status: creating man/BOARD_TYPE.md
+    config.status: creating man/dno.md
+    config.status: creating man/dno_bpp.md
+    config.status: creating man/dno_checksize.md
+    config.status: creating man/dno_commands_for.md
+    config.status: creating man/dno_dirinfo.md
+    config.status: creating man/dno_menu.md
+    config.status: creating man/dno_requote.md
+  CC, LD [dno_requote]
+  PANDOC man/dno_bpp.1
+    Using current man/dno_bpp.1
+  PANDOC man/dno_checksize.1
+    Using current man/dno_checksize.1
+  PANDOC man/dno_commands_for.1
+    Using current man/dno_commands_for.1
+  PANDOC man/dno_dirinfo.1
+    Using current man/dno_dirinfo.1
+  PANDOC man/dno.1
+    Using current man/dno.1
+  PANDOC man/dno_menu.1
+    Using current man/dno_menu.1
+  PANDOC man/dno_requote.1
+    Using current man/dno_requote.1
+  PANDOC man/BOARD_INFO.5
+    Using current man/BOARD_INFO.5
+  PANDOC man/BOARD_OPTIONS.5
+    Using current man/BOARD_OPTIONS.5
+  PANDOC man/BOARD_TYPE.5
+    Using current man/BOARD_TYPE.5
+Using distributed version of docs
+$ 
+	</programlisting>
+      </para>
+      <para>
+	
       </para>
       <para>
       </para>
-      <para>
-      </para>
-    </sect1>
-    <sect1>
-      <title>Installing by cloning from github</title>
+    </section>
+    <section><info><title>Installing by cloning from github</title></info>
+      
       <para>
 	  
       </para>
-    </sect1>
+    </section>
   </chapter>
-  <chapter>
-    <title>Dno Commands</title>
+  <chapter><info><title>Dno Commands</title></info>
+    
     <para>
     </para>
   </chapter>
-  <chapter>
-    <title>The Dno Directory System</title>
+  <chapter><info><title>The Dno Directory System</title></info>
+    
     <para>
     </para>
   </chapter>
-  <chapter>
-    <title>Why?</title>
+  <chapter><info><title>Why?</title></info>
+    
     <para>
     </para>
   </chapter>
-  <appendix id="man_pages">
-    <title><literal>dno</literal> man pages</title>
-    &appendix_dno;
-    &appendix_dno_bpp;
-    &appendix_dno_checksize;
-    &appendix_dno_checksize;
-    &appendix_dno_commands_for;
-    &appendix_dno_dirinfo;
-    &appendix_dno_menu;
-    &appendix_dno_requote;
-    &appendix_BOARD_INFO;
-    &appendix_BOARD_TYPE;
-    &appendix_BOARD_OPTIONS;
-  </appendix>
-  &appendix_LICENSE;
+  <xi:include href="parts/dno.xml"/>
+  <xi:include href="parts/dno_bpp.xml"/>
+  <xi:include href="parts/dno_checksize.xml"/>
+  <xi:include href="parts/dno_commands_for.xml"/>
+  <xi:include href="parts/dno_dirinfo.xml"/>
+  <xi:include href="parts/dno_requote.xml"/>
+  <xi:include href="parts/BOARD_INFO.xml"/>
+  <xi:include href="parts/BOARD_OPTIONS.xml"/>
+  <xi:include href="parts/BOARD_TYPE.xml"/> -->
+  <xi:include href="gpl-3.0.xml"/>
 </book>
-  
