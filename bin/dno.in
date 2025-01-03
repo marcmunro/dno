@@ -4,7 +4,7 @@
 #       Self-executing makefile for dno, the Arduino build system
 #	Execute "dno help" or "dno info" for more information.
 # 
-#       Copyright (c) 2024 Marc Munro
+#       Copyright (c) 2024, 2025 Marc Munro
 #       Author:  Marc Munro
 # 	License: GPL-3.0
 #  
@@ -27,9 +27,10 @@
 # dirnames containing spaces
 # dirnames containing commas
 
-# Version stuff
+# Version and configuration stuff
 #
 DNO_VERSION = @DNO_VERSION@
+EXTRA_BOARDS_FILE=@DNO_EXTRA_BOARDS_FILE@
 
 # Do not use make's built-in rules
 # (this improves performance and avoids hard-to-debug behaviour).
@@ -1018,6 +1019,42 @@ BOARD_TYPE: $(BT_DEPS)
 	    (rm $@; \
 	     echo "Unable to create $@.  Try dno help" 1>&2; \
 	     false)
+
+# Install another boards.txt to your user environment.  You need to
+# define BOARDS_PATH on the command line, which must be the full path
+# to a boards.txt file."
+#
+install_extra_boards:
+	$(TARGET)
+	$(AT) [ -f "$(BOARDS_PATH)" ] || \
+	      [ -f "$(BOARDS_PATH)/boards.txt" ] || \
+	      (echo "BOARDS_PATH must be defined and be the path" \
+	            "to a boards.txt file." 1>&2; exit 2)
+	$(AT) if [ "x$(notdir $(BOARDS_PATH))" = "xboards.txt" ]; then \
+	    echo "$(dir $(BOARDS_PATH))" >>$(EXTRA_BOARDS_FILE); \
+	else \
+	    echo "$(BOARDS_PATH)" >>$(EXTRA_BOARDS_FILE); \
+	fi
+
+show_extra_boards:
+	$(TARGET)
+	@if [ -f $${HOME}/.dno_boards_paths ]; then \
+	    echo "Supplemental boards.txt directories:"; \
+	    sed -e 's/#.*//' -e 's/^/  /' $(EXTRA_BOARDS_FILE) | \
+	        grep '[^[:space:]]'; \
+	else \
+	    echo "No supplemental boards.txt directories defined."; \
+	fi
+
+# List all supported boards.  You can narrow down the shown options by
+# specifying BOARD and/or CPU on the command line.
+#
+show_boards:
+	$(TARGET)
+	$(AT) echo
+	$(AT) echo "    Supported ArduinoBoard and CPU Types"
+	$(AT) echo ============================================================
+	$(AT) $(BPP) -f $(BOARD_TYPE_PARAMS) $(CPU_TYPE_PARAMS) || true
 
 
 ################################################################

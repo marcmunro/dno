@@ -3,7 +3,7 @@
 # 
 #       Autoconf input file for Makefile.global
 # 
-#       Copyright (c) 2024
+#       Copyright (c) 2024, 2025
 #       Author:  Marc Munro
 # 	License: GPL V3
 #  
@@ -26,6 +26,7 @@ INSTALL_BINDIR=	        @bindir@
 INSTALL_MANDIR=		@mandir@
 
 XSLTPROC = @XSLTPROC@
+XMLLINT = @XMLLINT@
 DOCBOOK_ENTITIES = @DOCBOOKENT@
 DOCBOOK_STYLESHEETS = @DOCBOOKSS@
 PANDOC = @PANDOC@

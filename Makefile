@@ -9,7 +9,6 @@
 #
 
 # TODO:
-# - make no-docs build less verbose (DONE?)
 # - add links between man pages?
 
 # Do not use make's built-in rules
@@ -236,7 +235,7 @@ DNO_CORE_STYLESHEET = docs/core-stylesheet.xsl
 DOC_MANPAGES = $(patsubst man/%.md,docs/parts/%.xml,$(wildcard man/*.md))
 DOC_TARGETS = $(DNO_CORE_STYLESHEET) $(DOC_MANPAGES) $(COMBINED_DOC)
 
-CAN_BUILD_DOCBOOK = $(and $(DOCBOOK_STYLESHEETS), $(XSLTPROC))
+CAN_BUILD_DOCBOOK = $(and $(DOCBOOK_STYLESHEETS), $(XSLTPROC), $(XMLLINT))
 
 ifneq "$(CAN_BUILD_DOCBOOK)" ""
 

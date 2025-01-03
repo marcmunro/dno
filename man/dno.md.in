@@ -27,6 +27,9 @@ source-trees as clean as possible.
 
 This is part of the dno Arduino software builder package.
 
+Most of the time dno is invoked without any parameters and it just
+does the right thing.
+
 # DIRECTORY STRUCTURE
 
 For a simple piece of Arduino code, **dno** will work in a single

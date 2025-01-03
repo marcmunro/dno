@@ -21,6 +21,8 @@
       The <command>dno</command> command-line build system for Arduino
       software
     </subtitle>
+    <edition>0.5.6</edition>
+    <pubdate>Januart 2025</pubdate>
   </info>
   
   <preface xml:id="introduction">
@@ -67,7 +69,8 @@
       Unless you want to hack on dno itself, installing from a tarball
       is the recommended option.
     </para>
-    <section><info><title>Compatibility</title></info>
+    <section>
+      <info><title>Compatibility</title></info>
       <para>
 	<command>Dno</command> is expected to run on any Unix-like
 	operating system: Linux, BSD, MacOSX.
@@ -101,8 +104,8 @@
 	<literal>autotools</literal>.
       </para>
     </section>
-    <section><info><title>Installing from a tarball</title></info>
-      
+    <section>
+      <info><title>Installing from a tarball</title></info>
       <para>
 	Releases can be found in the github project releases
 	directory:  <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://github.com/marcmunro/dno/tree/main/releases">https://github.com/marcmunro/dno/tree/main/releases</link>.
@@ -123,95 +126,186 @@ $ tar xvzf dno_<replaceable>VERSION</replaceable>.tgz
 	warm fuzzy feeling when you unpack the tarball.
       </para>
       <para>
-	Now <command>cd</command> to the new <literal>dno</literal>
-	directory and run <command>make</command>:
+	Move to the new <literal>dno</literal> directory and run
+	<command>./configure</command>:
 	<programlisting>
 $ cd dno
-$ make
-  CONFIGURE...
-    checking for sed... yes
-    checking for gawk... yes
-    checking for dialog... no
-    checking for whiptail... /usr/bin/whiptail
-    checking Checking terminal-based menu command... /usr/bin/whiptail
-    checking for pandoc... no
+$ ./configure
+checking for sed... yes
+checking for gawk... yes
+checking for dialog... no
+checking for whiptail... /usr/bin/whiptail
+checking Checking terminal-based menu command... /usr/bin/whiptail
+checking for pandoc... no
 configure: WARNING: pandoc not found.  Man pages cannot be created
-    checking for xsltproc... no
-    checking for DocBook entities... /usr/share/xml/docbook/schema/dtd/4.5/dbcentx.mod
-    checking for DocBook stylesheet... no
-    checking build system type... x86_64-unknown-linux-gnu
-    checking host system type... x86_64-unknown-linux-gnu
-    checking Checking arduino installation dir... /usr/share/arduino
-    checking for /usr/share/arduino/hardware/arduino/avr/boards.txt... yes
-    configure: creating ./config.status
-    config.status: creating Makefile.global
-    config.status: creating bin/dno_commands_for
-    config.status: creating bin/dno_bpp
-    config.status: creating bin/dno_dirinfo
-    config.status: creating bin/dno_menu
-    config.status: creating bin/dno
-    config.status: creating man/BOARD_INFO.md
-    config.status: creating man/BOARD_OPTIONS.md
-    config.status: creating man/BOARD_TYPE.md
-    config.status: creating man/dno.md
-    config.status: creating man/dno_bpp.md
-    config.status: creating man/dno_checksize.md
-    config.status: creating man/dno_commands_for.md
-    config.status: creating man/dno_dirinfo.md
-    config.status: creating man/dno_menu.md
-    config.status: creating man/dno_requote.md
-  CC, LD [dno_requote]
-  PANDOC man/dno_bpp.1
-    Using current man/dno_bpp.1
-  PANDOC man/dno_checksize.1
-    Using current man/dno_checksize.1
-  PANDOC man/dno_commands_for.1
-    Using current man/dno_commands_for.1
-  PANDOC man/dno_dirinfo.1
-    Using current man/dno_dirinfo.1
-  PANDOC man/dno.1
-    Using current man/dno.1
-  PANDOC man/dno_menu.1
-    Using current man/dno_menu.1
-  PANDOC man/dno_requote.1
-    Using current man/dno_requote.1
-  PANDOC man/BOARD_INFO.5
-    Using current man/BOARD_INFO.5
-  PANDOC man/BOARD_OPTIONS.5
-    Using current man/BOARD_OPTIONS.5
-  PANDOC man/BOARD_TYPE.5
-    Using current man/BOARD_TYPE.5
-Using distributed version of docs
+checking for xsltproc... no
+configure: WARNING: xsltproc not found.  User guide cannot be created
+checking for xmllint... no
+configure: WARNING: xmllint not found.  User guide cannot be created
+checking for DocBook stylesheet... no
+checking build system type... x86_64-unknown-linux-gnu
+checking host system type... x86_64-unknown-linux-gnu
+checking Checking arduino installation dir... /usr/share/arduino
+checking for /usr/share/arduino/hardware/arduino/avr/boards.txt... yes
+configure: creating ./config.status
+config.status: creating Makefile.global
+config.status: creating bin/dno_commands_for
+config.status: creating bin/dno_bpp
+config.status: creating bin/dno_dirinfo
+config.status: creating bin/dno_menu
+config.status: creating bin/dno
+config.status: creating man/BOARD_INFO.md
+config.status: creating man/BOARD_OPTIONS.md
+config.status: creating man/BOARD_TYPE.md
+config.status: creating man/dno.md
+config.status: creating man/dno_bpp.md
+config.status: creating man/dno_checksize.md
+config.status: creating man/dno_commands_for.md
+config.status: creating man/dno_dirinfo.md
+config.status: creating man/dno_menu.md
+config.status: creating man/dno_requote.md
 $ 
 	</programlisting>
       </para>
       <para>
-	
+	This determines where dno should be installed, among other
+	things.  Note that this step will fail if you don't have the
+	basic pre-requisites (gawk, sed, etc) installed.  If it fails,
+	install the programs it is asking for, and run it again.
+      </para>
+      <para>
+	Now we build the <command>dno_requote</command> command and
+	prepare the dno man pages for installation using
+	<command>make</command>:
+      </para>
+      <programlisting>
+$ make
+  CC, LD [dno_requote]
+    Using distributed version of man/dno_bpp.1
+    Using distributed version of man/dno_checksize.1
+    Using distributed version of man/dno_commands_for.1
+    Using distributed version of man/dno_dirinfo.1
+    Using distributed version of man/dno.1
+    Using distributed version of man/dno_menu.1
+    Using distributed version of man/dno_requote.1
+    Using distributed version of man/BOARD_INFO.5
+    Using distributed version of man/BOARD_OPTIONS.5
+    Using distributed version of man/BOARD_TYPE.5
+    Using distributed version of docs
+$ 
+      </programlisting>
+      <para>
+	If you happen to already have the tools installed that are
+	needed for creating dno documentation, this step will build
+	the documentation from source rather than using the
+	distributed versions.  Either way, you will now be ready to
+	install.
+      </para>
+      <para>
+	Installation, needs to be done as root.  You can use
+	<command>sudo</command> if you must
+	<footnote>
+	  <para>
+	    The big problem with sudo is that it is generally
+	    configured to allow an unprivileged user to do
+	    <emphasis>anything</emphasis> that root can do without
+	    the need for any password other than your own.  What this
+	    means is that your user password becomes the single means
+	    of authentication for all administrative tasks.  If you
+	    think this is unduly alarmist try typing
+	    <programlisting>
+$ sudo su -	      
+	    </programlisting>
+	  </para>
+	  <para>
+	    Now you have a root shell and you should be very
+	    concerned.  Sudo was designed to allow non-root users to
+	    perform <emphasis>specific</emphasis> privileged tasks.
+	    In this mode of use it makes a lot of sense and poses
+	    little risk.  Having sudo allow
+	    <emphasis>anything</emphasis> should be regarded as poor
+	    security practice.
+	  </para>
+	</footnote>,
+	or become root using <command>su</command> and run
+	<command>make install</command>:
+	<programlisting>
+$ su
+Password: 
+# make install
+Installing dno executables in /usr/local/bin
+Install dno man pages in /usr/local/share/man
+# exit
+$
+	</programlisting>
+      </para>
+      <para>
+	That's it.  You are done.
+      </para>
+      <para>
+	Note that if you install a new Arduino IDE after this,
+	you should repeat the above installation steps.  This will
+	ensure that dno can find the newly installed Arduino tools.
+      </para>
+    </section>
+    <section>
+      <info><title>Installing by cloning from github</title></info>
+      <para>
+	TODO
+      </para>
+    </section>
+  </chapter>
+  <chapter>
+    <info><title>Getting Started</title></info>
+    <para>
+      To get started using <command>dno</command>
+    </para>
+  </chapter>
+  <chapter>
+    <info><title>Dno Commands</title></info>
+    
+    <para>
+    </para>
+  </chapter>
+  <chapter>
+    <info><title>The Dno Directory System</title></info>
+    
+    <para>
+    </para>
+  </chapter>
+  <chapter>
+    <info><title>Why?</title></info>
+    
+    <para>
+    </para>
+  </chapter>
+  <chapter>
+    <info><title>Installing and Updating Arduino Toolsets</title></info>
+    <para>
+      In order to compile code for Arduino boards, you need to have
+      Arduino compilers and other tools installed.  Most Linux
+      distributions have pre-packaged arduino toolsets available but
+      many of these are quite old.
+    </para>
+    <para>
+      Often the best way to install a reasonably current Arduino
+      toolset is to install whatever Arduino IDE you can find and then
+      use it to install more up to date tools.
+    </para>
+    <section>
+      <info><title>Install Arduino IDE</title></info>
+      <para>
       </para>
       <para>
       </para>
     </section>
-    <section><info><title>Installing by cloning from github</title></info>
-      
+    <section>
+      <info><title>...</title></info>
       <para>
-	  
+      </para>
+      <para>
       </para>
     </section>
-  </chapter>
-  <chapter><info><title>Dno Commands</title></info>
-    
-    <para>
-    </para>
-  </chapter>
-  <chapter><info><title>The Dno Directory System</title></info>
-    
-    <para>
-    </para>
-  </chapter>
-  <chapter><info><title>Why?</title></info>
-    
-    <para>
-    </para>
   </chapter>
   <xi:include href="parts/dno.xml"/>
   <xi:include href="parts/dno_bpp.xml"/>
