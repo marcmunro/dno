@@ -13,6 +13,9 @@
 # TODOs:
 # Prevent clean targets from running in unknown dir types (make tests
 # for root dir a bit more stringent)
+# Improve performance of show_boards, install_extra_boards,
+# show_extra_boards
+# Make extra boards location user-independent
 # Handle boards.local.txt
 # handle filenames with spaces and other stupid characters
 # ensure there are deps to platform.txt and boards.txt from BOARD_INFO
@@ -927,8 +930,7 @@ $(call debug,PROJDIR)
 # BOARD_INFO and related targets
 #
 
-.PHONY: show_boards install_extra_boards uninstall_extra_boards \
-	show_extra_boards FORCE
+.PHONY: show_boards install_extra_boards show_extra_boards FORCE
 
 # Define the BPP, board and platforms parser, command.
 #
@@ -1026,8 +1028,8 @@ BOARD_TYPE: $(BT_DEPS)
 #
 install_extra_boards:
 	$(TARGET)
-	$(AT) [ -f "$(BOARDS_PATH)" ] || \
-	      [ -f "$(BOARDS_PATH)/boards.txt" ] || \
+	$(AT) [ -f $(BOARDS_PATH) ] || \
+	      [ -f $(BOARDS_PATH)/boards.txt ] || \
 	      (echo "BOARDS_PATH must be defined and be the path" \
 	            "to a boards.txt file." 1>&2; exit 2)
 	$(AT) if [ "x$(notdir $(BOARDS_PATH))" = "xboards.txt" ]; then \

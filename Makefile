@@ -226,7 +226,10 @@ man: $(MAN_1_TARGETS) $(MAN_5_TARGETS)
 # TODO: core stylesheet should not be distributed in tarball.
 
 HTMLDIR = html
-DOC_SOURCES = docs/dno_doc.xml
+DOC_SOURCES = docs/dno_doc.xml docs/installation.xml \
+	      docs/toolsets.xml
+DOC_IMAGES = $(wildcard docs/*.png)
+
 COMBINED_DOC = docs/full_doc.xml
 BASE_STYLESHEET = $(DOCBOOK_STYLESHEETS)/html/chunkfast.xsl
 DNO_LOCAL_STYLESHEET =  docs/html_stylesheet.xsl
@@ -248,9 +251,10 @@ $(COMBINED_DOC): $(DOC_SOURCES) $(DOC_MANPAGES) docs/man2db.xsl
 
 $(HTMLDIR)/index.html: $(COMBINED_DOC) \
 		       $(VERSION_FILE) $(DNO_LOCAL_STYLESHEET) \
-		       $(DNO_CORE_STYLESHEET)
+		       $(DNO_CORE_STYLESHEET) $(DOC_IMAGES)
 	$(FEEDBACK) $(XSLTPROC) "<docbook sources>.xml -->" $@
 	@mkdir -p html
+	$(AT) cp -f $(DOC_IMAGES) html
 	$(AT) $(XSLTPROC) $(XSLTPROCFLAGS) --output html/ \
 		$(DNO_LOCAL_STYLESHEET) $(COMBINED_DOC)
 

@@ -1,0 +1,611 @@
+<?xml version="1.0"?>
+<chapter xmlns:d="http://docbook.org/ns/docbook" version="5.0">
+  <info xmlns="http://docbook.org/ns/docbook">
+    <title>Installing and Updating Arduino Toolsets</title>
+  </info>
+  <para>
+    The easiest, and probably safest, way to install up to date
+    Arduino toolsets is to use the venerable old Arduino IDE.  This
+    allows you to install toolsets for specific boards under your own
+    OS account, and does so without requiring root access to your
+    system.
+  </para>
+  <section>
+    <info><title>Install the standard old Arduino IDE</title></info>
+    <para>
+      Note: There is a new and improved IDE but since the whole point
+      of dno is to avoid using an IDE we will stick to using the
+      simple old one.  As little as possible.
+    </para>
+    <section>
+      <info>
+	<title>
+	  Install On Debian (and relatives) Using Apt
+	</title>
+      </info>
+      <para>
+	You will want to first ensure that all installed packages are
+	up to date (as root - you can use <command>sudo</command> to
+	run a command as root but please note <link
+	linkend='sudo-wassup'>this objection</link>):
+	<programlisting>
+# apt update
+# apt upgrade
+	</programlisting>
+      </para>
+      <para>
+	Now, again as root, we install the arduino package:
+	<programlisting>
+# apt install arduino
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  arduino-builder arduino-core-avr arduino-ctags avr-libc avrdude binutils-avr
+  extra-xdg-menus gcc-avr java-wrappers libapache-pom-java libastylej-jni
+  libbatik-java libbcpg-java libbcprov-java libcommons-codec-java
+  libcommons-compress-java libcommons-exec-java libcommons-io-java
+  libcommons-lang3-java libcommons-logging-java libcommons-net-java
+  libcommons-parent-java libftdi1 libgoogle-gson-java libhidapi-libusb0
+  libhttpclient-java libhttpcore-java libjackson2-annotations-java
+  libjackson2-core-java libjackson2-databind-java libjaxp1.3-java
+  libjmdns-java libjna-java libjna-jni libjna-platform-java libjsch-java
+  libjssc-java libjzlib-java liblightcouch-java liblistserialsj-dev
+  liblistserialsj1 liblog4j2-java libmongodb-java librsyntaxtextarea-java
+  librxtx-java libsemver-java libserialport0 libslf4j-java libusb-0.1-4
+  libxalan2-java libxerces2-java libxml-commons-external-java
+  libxml-commons-resolver1.1-java libxmlgraphics-commons-java
+Suggested packages:
+  avrdude-doc gcc-doc librhino-java libbcpg-java-doc libbcprov-java-doc
+  libxz-java libcommons-io-java-doc libcommons-lang3-java-doc
+  libavalon-framework-java libcommons-logging-java-doc
+  libexcalibur-logkit-java liblog4j1.2-java libcommons-net-java-doc
+  libgoogle-gson-java-doc libjackson2-annotations-java-doc libjna-java-doc
+  libcommons-csv-java libconversant-disruptor-java libdisruptor-java
+  libgeronimo-jms-1.1-spec-java libjackson2-dataformat-xml-java
+  libjackson2-dataformat-yaml libjansi-java libjctools-java libjeromq-java
+  libmail-java libwoodstox-java librsyntaxtextarea-java-doc libsemver-java-doc
+  libxalan2-java-doc libbsf-java libxsltc-java libxerces2-java-doc
+  libxml-commons-resolver1.1-java-doc libxmlgraphics-commons-java-doc
+The following NEW packages will be installed:
+  arduino arduino-builder arduino-core-avr arduino-ctags avr-libc avrdude
+  binutils-avr extra-xdg-menus gcc-avr java-wrappers libapache-pom-java
+  libastylej-jni libbatik-java libbcpg-java libbcprov-java
+  libcommons-codec-java libcommons-compress-java libcommons-exec-java
+  libcommons-io-java libcommons-lang3-java libcommons-logging-java
+  libcommons-net-java libcommons-parent-java libftdi1 libgoogle-gson-java
+  libhidapi-libusb0 libhttpclient-java libhttpcore-java
+  libjackson2-annotations-java libjackson2-core-java libjackson2-databind-java
+  libjaxp1.3-java libjmdns-java libjna-java libjna-jni libjna-platform-java
+  libjsch-java libjssc-java libjzlib-java liblightcouch-java
+  liblistserialsj-dev liblistserialsj1 liblog4j2-java libmongodb-java
+  librsyntaxtextarea-java librxtx-java libsemver-java libserialport0
+  libslf4j-java libusb-0.1-4 libxalan2-java libxerces2-java
+  libxml-commons-external-java libxml-commons-resolver1.1-java
+  libxmlgraphics-commons-java
+0 upgraded, 55 newly installed, 0 to remove and 5 not upgraded.
+Need to get 57.5 MB of archives.
+After this operation, 189 MB of additional disk space will be used.
+
+[ . . . ]
+
+Do you want to continue? [Y/n] y
+Get:1 http://archive.ubuntu.com/ubuntu jammy/universe amd64 arduino-ctags amd64 5.8-arduino11-1 [123 kB]
+Get:2 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 libbatik-java all 1.14-1ubuntu0.2 [3,866 kB]
+Get:3 http://archive.ubuntu.com/ubuntu jammy/universe amd64 arduino-builder amd64 1.3.25-3 [902 kB]
+Get:4 http://archive.ubuntu.com/ubuntu jammy/universe amd64 binutils-avr amd64 2.26.20160125+Atmel3.6.2-4 [1,697 kB]
+Get:5 http://archive.ubuntu.com/ubuntu jammy/universe amd64 gcc-avr amd64 1:5.4.0+Atmel3.6.2-3 [17.2 MB]
+Get:6 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 libcommons-net-java all 3.6-1+deb11u1build0.22.04.1 [281 kB]
+Get:7 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 libgoogle-gson-java all 2.8.8-1ubuntu0.1 [219 kB]
+Get:8 http://archive.ubuntu.com/ubuntu jammy/universe amd64 avr-libc all 1:2.0.0+Atmel3.6.2-3 [4,859 kB]
+Get:9 http://archive.ubuntu.com/ubuntu jammy/universe amd64 arduino-core-avr all 1.8.4+dfsg1-1 [196 kB]
+Get:10 http://archive.ubuntu.com/ubuntu jammy/main amd64 libusb-0.1-4 amd64 2:0.1.12-32build3 [17.7 kB]
+Get:11 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libftdi1 amd64 0.20-4ubuntu1 [15.4 kB]
+Get:12 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libhidapi-libusb0 amd64 0.11.2-1 [17.8 kB]
+Get:13 http://archive.ubuntu.com/ubuntu jammy/universe amd64 avrdude amd64 6.3-20171130+svn1429-2 [316 kB]
+Get:14 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libastylej-jni amd64 3.1-2build1 [105 kB]
+Get:15 http://archive.ubuntu.com/ubuntu jammy/universe amd64 java-wrappers all 0.3 [9,560 B]
+Get:16 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjaxp1.3-java all 1.3.05-6 [227 kB]
+Get:17 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libxml-commons-external-java all 1.4.01-5 [240 kB]
+Get:18 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libxml-commons-resolver1.1-java all 1.2-11 [97.6 kB]
+Get:19 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libxerces2-java all 2.12.1-1 [1,437 kB]
+Get:20 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libxalan2-java all 2.7.2-4 [3,416 kB]
+Get:21 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libapache-pom-java all 18-1 [4,720 B]
+Get:22 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libcommons-parent-java all 43-1 [10.8 kB]
+Get:23 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libcommons-io-java all 2.11.0-2 [297 kB]
+Get:24 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libcommons-logging-java all 1.2-2 [60.3 kB]
+Get:25 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libxmlgraphics-commons-java all 2.6-1 [612 kB]
+Get:26 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libbcprov-java all 1.68-5 [3,457 kB]
+Get:27 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libbcpg-java all 1.68-5 [267 kB]
+Get:28 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libcommons-codec-java all 1.15-1 [291 kB]
+Get:29 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libcommons-compress-java all 1.21-1 [575 kB]
+Get:30 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libcommons-exec-java all 1.3-2 [48.1 kB]
+Get:31 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libcommons-lang3-java all 3.11-1 [526 kB]
+Get:32 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libhttpcore-java all 4.4.14-2 [606 kB]
+Get:33 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libhttpclient-java all 4.5.13-3 [1,226 kB]
+Get:34 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjackson2-annotations-java all 2.13.0-1 [64.7 kB]
+Get:35 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjackson2-core-java all 2.13.0-2 [354 kB]
+Get:36 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjackson2-databind-java all 2.13.0-2 [1,382 kB]
+Get:37 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libslf4j-java all 1.7.32-1 [141 kB]
+Get:38 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjmdns-java all 3.5.5-1 [201 kB]
+Get:39 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjna-jni amd64 5.9.0-1 [33.1 kB]
+Get:40 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjna-java all 5.9.0-1 [193 kB]
+Get:41 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjna-platform-java all 5.9.0-1 [1,119 kB]
+Get:42 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjzlib-java all 1.1.3-2 [77.5 kB]
+Get:43 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjsch-java all 0.1.55-1 [283 kB]
+Get:44 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjssc-java amd64 2.8.0-3 [29.3 kB]
+Get:45 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libserialport0 amd64 0.1.1-4 [22.4 kB]
+Get:46 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 liblistserialsj1 amd64 1.4.0-1ubuntu0.22.04.1 [4,664 B]
+Get:47 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 liblistserialsj-dev amd64 1.4.0-1ubuntu0.22.04.1 [1,518 B]
+Get:48 http://archive.ubuntu.com/ubuntu jammy/universe amd64 liblightcouch-java all 0.0.6-1.1 [65.2 kB]
+Get:49 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libmongodb-java all 3.6.3-2 [1,899 kB]
+Get:50 http://archive.ubuntu.com/ubuntu jammy/universe amd64 liblog4j2-java all 2.17.1-1 [2,065 kB]
+Get:51 http://archive.ubuntu.com/ubuntu jammy/universe amd64 librsyntaxtextarea-java all 2.5.8-1 [1,013 kB]
+Get:52 http://archive.ubuntu.com/ubuntu jammy/universe amd64 librxtx-java amd64 2.2pre2+dfsg1-2 [348 kB]
+Get:53 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libsemver-java all 0.9.0-4 [42.2 kB]
+Get:54 http://archive.ubuntu.com/ubuntu jammy/universe amd64 arduino amd64 2:1.8.19+dfsg1-1 [4,905 kB]
+Get:55 http://archive.ubuntu.com/ubuntu jammy/universe amd64 extra-xdg-menus all 1.0-6 [11.9 kB]
+Fetched 57.5 MB in 14s (4,055 kB/s)                                            
+Extracting templates from packages: 100%
+Selecting previously unselected package arduino-ctags.
+(Reading database ... 241774 files and directories currently installed.)
+Preparing to unpack .../00-arduino-ctags_5.8-arduino11-1_amd64.deb ...
+Unpacking arduino-ctags (5.8-arduino11-1) ...
+Selecting previously unselected package arduino-builder.
+Preparing to unpack .../01-arduino-builder_1.3.25-3_amd64.deb ...
+Unpacking arduino-builder (1.3.25-3) ...
+Selecting previously unselected package binutils-avr.
+Preparing to unpack .../02-binutils-avr_2.26.20160125+Atmel3.6.2-4_amd64.deb ...
+Unpacking binutils-avr (2.26.20160125+Atmel3.6.2-4) ...
+Selecting previously unselected package gcc-avr.
+Preparing to unpack .../03-gcc-avr_1%3a5.4.0+Atmel3.6.2-3_amd64.deb ...
+Unpacking gcc-avr (1:5.4.0+Atmel3.6.2-3) ...
+Selecting previously unselected package avr-libc.
+Preparing to unpack .../04-avr-libc_1%3a2.0.0+Atmel3.6.2-3_all.deb ...
+Unpacking avr-libc (1:2.0.0+Atmel3.6.2-3) ...
+Selecting previously unselected package arduino-core-avr.
+Preparing to unpack .../05-arduino-core-avr_1.8.4+dfsg1-1_all.deb ...
+Unpacking arduino-core-avr (1.8.4+dfsg1-1) ...
+Selecting previously unselected package libusb-0.1-4:amd64.
+Preparing to unpack .../06-libusb-0.1-4_2%3a0.1.12-32build3_amd64.deb ...
+Unpacking libusb-0.1-4:amd64 (2:0.1.12-32build3) ...
+Selecting previously unselected package libftdi1:amd64.
+Preparing to unpack .../07-libftdi1_0.20-4ubuntu1_amd64.deb ...
+Unpacking libftdi1:amd64 (0.20-4ubuntu1) ...
+Selecting previously unselected package libhidapi-libusb0:amd64.
+Preparing to unpack .../08-libhidapi-libusb0_0.11.2-1_amd64.deb ...
+Unpacking libhidapi-libusb0:amd64 (0.11.2-1) ...
+Selecting previously unselected package avrdude.
+Preparing to unpack .../09-avrdude_6.3-20171130+svn1429-2_amd64.deb ...
+Unpacking avrdude (6.3-20171130+svn1429-2) ...
+Selecting previously unselected package libastylej-jni:amd64.
+Preparing to unpack .../10-libastylej-jni_3.1-2build1_amd64.deb ...
+Unpacking libastylej-jni:amd64 (3.1-2build1) ...
+Selecting previously unselected package java-wrappers.
+Preparing to unpack .../11-java-wrappers_0.3_all.deb ...
+Unpacking java-wrappers (0.3) ...
+Selecting previously unselected package libjaxp1.3-java.
+Preparing to unpack .../12-libjaxp1.3-java_1.3.05-6_all.deb ...
+Unpacking libjaxp1.3-java (1.3.05-6) ...
+Selecting previously unselected package libxml-commons-external-java.
+Preparing to unpack .../13-libxml-commons-external-java_1.4.01-5_all.deb ...
+Unpacking libxml-commons-external-java (1.4.01-5) ...
+Selecting previously unselected package libxml-commons-resolver1.1-java.
+Preparing to unpack .../14-libxml-commons-resolver1.1-java_1.2-11_all.deb ...
+Unpacking libxml-commons-resolver1.1-java (1.2-11) ...
+Selecting previously unselected package libxerces2-java.
+Preparing to unpack .../15-libxerces2-java_2.12.1-1_all.deb ...
+Unpacking libxerces2-java (2.12.1-1) ...
+Selecting previously unselected package libxalan2-java.
+Preparing to unpack .../16-libxalan2-java_2.7.2-4_all.deb ...
+Unpacking libxalan2-java (2.7.2-4) ...
+Selecting previously unselected package libapache-pom-java.
+Preparing to unpack .../17-libapache-pom-java_18-1_all.deb ...
+Unpacking libapache-pom-java (18-1) ...
+Selecting previously unselected package libcommons-parent-java.
+Preparing to unpack .../18-libcommons-parent-java_43-1_all.deb ...
+Unpacking libcommons-parent-java (43-1) ...
+Selecting previously unselected package libcommons-io-java.
+Preparing to unpack .../19-libcommons-io-java_2.11.0-2_all.deb ...
+Unpacking libcommons-io-java (2.11.0-2) ...
+Selecting previously unselected package libcommons-logging-java.
+Preparing to unpack .../20-libcommons-logging-java_1.2-2_all.deb ...
+Unpacking libcommons-logging-java (1.2-2) ...
+Selecting previously unselected package libxmlgraphics-commons-java.
+Preparing to unpack .../21-libxmlgraphics-commons-java_2.6-1_all.deb ...
+Unpacking libxmlgraphics-commons-java (2.6-1) ...
+Selecting previously unselected package libbatik-java.
+Preparing to unpack .../22-libbatik-java_1.14-1ubuntu0.2_all.deb ...
+Unpacking libbatik-java (1.14-1ubuntu0.2) ...
+Selecting previously unselected package libbcprov-java.
+Preparing to unpack .../23-libbcprov-java_1.68-5_all.deb ...
+Unpacking libbcprov-java (1.68-5) ...
+Selecting previously unselected package libbcpg-java.
+Preparing to unpack .../24-libbcpg-java_1.68-5_all.deb ...
+Unpacking libbcpg-java (1.68-5) ...
+Selecting previously unselected package libcommons-codec-java.
+Preparing to unpack .../25-libcommons-codec-java_1.15-1_all.deb ...
+Unpacking libcommons-codec-java (1.15-1) ...
+Selecting previously unselected package libcommons-compress-java.
+Preparing to unpack .../26-libcommons-compress-java_1.21-1_all.deb ...
+Unpacking libcommons-compress-java (1.21-1) ...
+Selecting previously unselected package libcommons-exec-java.
+Preparing to unpack .../27-libcommons-exec-java_1.3-2_all.deb ...
+Unpacking libcommons-exec-java (1.3-2) ...
+Selecting previously unselected package libcommons-lang3-java.
+Preparing to unpack .../28-libcommons-lang3-java_3.11-1_all.deb ...
+Unpacking libcommons-lang3-java (3.11-1) ...
+Selecting previously unselected package libcommons-net-java.
+Preparing to unpack .../29-libcommons-net-java_3.6-1+deb11u1build0.22.04.1_all.d
+eb ...
+Unpacking libcommons-net-java (3.6-1+deb11u1build0.22.04.1) ...
+Selecting previously unselected package libhttpcore-java.
+Preparing to unpack .../30-libhttpcore-java_4.4.14-2_all.deb ...
+Unpacking libhttpcore-java (4.4.14-2) ...
+Selecting previously unselected package libhttpclient-java.
+Preparing to unpack .../31-libhttpclient-java_4.5.13-3_all.deb ...
+Unpacking libhttpclient-java (4.5.13-3) ...
+Selecting previously unselected package libjackson2-annotations-java.
+Preparing to unpack .../32-libjackson2-annotations-java_2.13.0-1_all.deb ...
+Unpacking libjackson2-annotations-java (2.13.0-1) ...
+Selecting previously unselected package libjackson2-core-java.
+Preparing to unpack .../33-libjackson2-core-java_2.13.0-2_all.deb ...
+Unpacking libjackson2-core-java (2.13.0-2) ...
+Selecting previously unselected package libjackson2-databind-java.
+Preparing to unpack .../34-libjackson2-databind-java_2.13.0-2_all.deb ...
+Unpacking libjackson2-databind-java (2.13.0-2) ...
+Selecting previously unselected package libslf4j-java.
+Preparing to unpack .../35-libslf4j-java_1.7.32-1_all.deb ...
+Unpacking libslf4j-java (1.7.32-1) ...
+Selecting previously unselected package libjmdns-java.
+Preparing to unpack .../36-libjmdns-java_3.5.5-1_all.deb ...
+Unpacking libjmdns-java (3.5.5-1) ...
+Selecting previously unselected package libjna-jni.
+Preparing to unpack .../37-libjna-jni_5.9.0-1_amd64.deb ...
+Unpacking libjna-jni (5.9.0-1) ...
+Selecting previously unselected package libjna-java.
+Preparing to unpack .../38-libjna-java_5.9.0-1_all.deb ...
+Unpacking libjna-java (5.9.0-1) ...
+Selecting previously unselected package libjna-platform-java.
+Preparing to unpack .../39-libjna-platform-java_5.9.0-1_all.deb ...
+Unpacking libjna-platform-java (5.9.0-1) ...
+Selecting previously unselected package libjzlib-java.
+Preparing to unpack .../40-libjzlib-java_1.1.3-2_all.deb ...
+Unpacking libjzlib-java (1.1.3-2) ...
+Selecting previously unselected package libjsch-java.
+Preparing to unpack .../41-libjsch-java_0.1.55-1_all.deb ...
+Unpacking libjsch-java (0.1.55-1) ...
+Selecting previously unselected package libjssc-java.
+Preparing to unpack .../42-libjssc-java_2.8.0-3_amd64.deb ...
+Unpacking libjssc-java (2.8.0-3) ...
+Selecting previously unselected package libserialport0:amd64.
+Preparing to unpack .../43-libserialport0_0.1.1-4_amd64.deb ...
+Unpacking libserialport0:amd64 (0.1.1-4) ...
+Selecting previously unselected package liblistserialsj1:amd64.
+Preparing to unpack .../44-liblistserialsj1_1.4.0-1ubuntu0.22.04.1_amd64.deb ...
+Unpacking liblistserialsj1:amd64 (1.4.0-1ubuntu0.22.04.1) ...
+Selecting previously unselected package liblistserialsj-dev:amd64.
+Preparing to unpack .../45-liblistserialsj-dev_1.4.0-1ubuntu0.22.04.1_amd64.deb 
+...
+Unpacking liblistserialsj-dev:amd64 (1.4.0-1ubuntu0.22.04.1) ...
+Selecting previously unselected package libgoogle-gson-java.
+Preparing to unpack .../46-libgoogle-gson-java_2.8.8-1ubuntu0.1_all.deb ...
+Unpacking libgoogle-gson-java (2.8.8-1ubuntu0.1) ...
+Selecting previously unselected package liblightcouch-java.
+Preparing to unpack .../47-liblightcouch-java_0.0.6-1.1_all.deb ...
+Unpacking liblightcouch-java (0.0.6-1.1) ...
+Selecting previously unselected package libmongodb-java.
+Preparing to unpack .../48-libmongodb-java_3.6.3-2_all.deb ...
+Unpacking libmongodb-java (3.6.3-2) ...
+Selecting previously unselected package liblog4j2-java.
+Preparing to unpack .../49-liblog4j2-java_2.17.1-1_all.deb ...
+Unpacking liblog4j2-java (2.17.1-1) ...
+Selecting previously unselected package librsyntaxtextarea-java.
+Preparing to unpack .../50-librsyntaxtextarea-java_2.5.8-1_all.deb ...
+Unpacking librsyntaxtextarea-java (2.5.8-1) ...
+Selecting previously unselected package librxtx-java.
+Preparing to unpack .../51-librxtx-java_2.2pre2+dfsg1-2_amd64.deb ...
+Unpacking librxtx-java (2.2pre2+dfsg1-2) ...
+Selecting previously unselected package libsemver-java.
+Preparing to unpack .../52-libsemver-java_0.9.0-4_all.deb ...
+Unpacking libsemver-java (0.9.0-4) ...
+Selecting previously unselected package arduino.
+Preparing to unpack .../53-arduino_2%3a1.8.19+dfsg1-1_amd64.deb ...
+Unpacking arduino (2:1.8.19+dfsg1-1) ...
+Selecting previously unselected package extra-xdg-menus.
+Preparing to unpack .../54-extra-xdg-menus_1.0-6_all.deb ...
+Unpacking extra-xdg-menus (1.0-6) ...
+Setting up binutils-avr (2.26.20160125+Atmel3.6.2-4) ...
+Setting up libbcprov-java (1.68-5) ...
+Setting up libsemver-java (0.9.0-4) ...
+Setting up libjackson2-annotations-java (2.13.0-1) ...
+Setting up libslf4j-java (1.7.32-1) ...
+Setting up java-wrappers (0.3) ...
+Setting up libjmdns-java (3.5.5-1) ...
+Setting up libcommons-net-java (3.6-1+deb11u1build0.22.04.1) ...
+Setting up libcommons-exec-java (1.3-2) ...
+Setting up libgoogle-gson-java (2.8.8-1ubuntu0.1) ...
+Setting up extra-xdg-menus (1.0-6) ...
+Setting up libastylej-jni:amd64 (3.1-2build1) ...
+Setting up librxtx-java (2.2pre2+dfsg1-2) ...
+Setting up libjzlib-java (1.1.3-2) ...
+Setting up libusb-0.1-4:amd64 (2:0.1.12-32build3) ...
+Setting up libjsch-java (0.1.55-1) ...
+Setting up gcc-avr (1:5.4.0+Atmel3.6.2-3) ...
+Setting up arduino-ctags (5.8-arduino11-1) ...
+Setting up arduino-builder (1.3.25-3) ...
+Setting up librsyntaxtextarea-java (2.5.8-1) ...
+Setting up libapache-pom-java (18-1) ...
+Setting up libxml-commons-resolver1.1-java (1.2-11) ...
+Setting up libhidapi-libusb0:amd64 (0.11.2-1) ...
+Setting up libjna-jni (5.9.0-1) ...
+Setting up libmongodb-java (3.6.3-2) ...
+Setting up libxml-commons-external-java (1.4.01-5) ...
+Setting up libjna-java (5.9.0-1) ...
+Setting up libjackson2-core-java (2.13.0-2) ...
+Setting up libhttpcore-java (4.4.14-2) ...
+Setting up libbcpg-java (1.68-5) ...
+Setting up libxerces2-java (2.12.1-1) ...
+Setting up libjaxp1.3-java (1.3.05-6) ...
+Setting up libserialport0:amd64 (0.1.1-4) ...
+Setting up libjssc-java (2.8.0-3) ...
+Setting up libcommons-parent-java (43-1) ...
+Setting up liblistserialsj1:amd64 (1.4.0-1ubuntu0.22.04.1) ...
+Setting up libftdi1:amd64 (0.20-4ubuntu1) ...
+Setting up libcommons-logging-java (1.2-2) ...
+Setting up libjna-platform-java (5.9.0-1) ...
+Setting up avr-libc (1:2.0.0+Atmel3.6.2-3) ...
+Setting up libjackson2-databind-java (2.13.0-2) ...
+Setting up libxalan2-java (2.7.2-4) ...
+Setting up liblistserialsj-dev:amd64 (1.4.0-1ubuntu0.22.04.1) ...
+Setting up libcommons-lang3-java (3.11-1) ...
+Setting up libcommons-codec-java (1.15-1) ...
+Setting up arduino-core-avr (1.8.4+dfsg1-1) ...
+Setting up avrdude (6.3-20171130+svn1429-2) ...
+Setting up libcommons-compress-java (1.21-1) ...
+Setting up libcommons-io-java (2.11.0-2) ...
+Setting up libxmlgraphics-commons-java (2.6-1) ...
+Setting up libhttpclient-java (4.5.13-3) ...
+Setting up liblightcouch-java (0.0.6-1.1) ...
+Setting up libbatik-java (1.14-1ubuntu0.2) ...
+Setting up liblog4j2-java (2.17.1-1) ...
+Setting up arduino (2:1.8.19+dfsg1-1) ...
+Processing triggers for hicolor-icon-theme (0.17-2) ...
+Processing triggers for gnome-menus (3.36.0-1ubuntu3) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.8) ...
+Processing triggers for man-db (2.10.2-1) ...
+Processing triggers for shared-mime-info (2.1-2) ...
+Processing triggers for mailcap (3.70+nmu1ubuntu1) ...
+Processing triggers for desktop-file-utils (0.26-1ubuntu3) ...
+# exit
+$
+	</programlisting>
+      </para>
+      <para>
+	At this point, you should re-run the dno installation steps of
+	<link linkend='install-commands'>configure, make, make
+	install</link> so that dno can find the board configuration
+	files associated with the Arduino IDE.
+      </para>
+    </section>
+    <section>
+      <info>
+	<title>Install On Other OSes</title>
+      </info>
+      <para>
+	Use your distribution's package manager.  Resist the
+	temptation to install the latest and greatest
+	<emphasis>whatever</emphasis> from github or other sites.  The
+	packages curated by your distribution's maintainers are far
+	safer to use.
+      </para>
+    </section>
+  </section>
+  <section>
+    <info><title>Ensure Dno Sees the New Files</title></info>
+    <para>
+      We can check that dno can find the newly installed Arduino board
+      files using <command>dno show_boards</command>:
+      <programlisting>
+$ dno show_boards
+
+    Supported ArduinoBoard and CPU Types
+============================================================
+unomini               Arduino Uno Mini
+circuitplay32u4cat    Adafruit Circuit Playground
+robotControl          Arduino Robot Control
+leonardoeth           Arduino Leonardo ETH
+uno                   Arduino Uno
+yun                   Arduino Yún
+yunmini               Arduino Yún Mini
+lilypad               LilyPad Arduino
+  atmega168             ATmega168
+  atmega328             ATmega328P
+diecimila             Arduino Duemilanove or Diecimila
+  atmega168             ATmega168
+  atmega328             ATmega328P
+mega                  Arduino Mega or Mega 2560
+  atmega1280            ATmega1280
+  atmega2560            ATmega2560 (Mega 2560)
+atmegang              Arduino NG or older
+  atmega168             ATmega168
+  atmega8               ATmega8
+leonardo              Arduino Leonardo
+LilyPadUSB            LilyPad Arduino USB
+ethernet              Arduino Ethernet
+esplora               Arduino Esplora
+pro                   Arduino Pro or Pro Mini
+  16MHzatmega168        ATmega168 (5V, 16 MHz)
+  8MHzatmega168         ATmega168 (3.3V, 8 MHz)
+  16MHzatmega328        ATmega328P (5V, 16 MHz)
+  8MHzatmega328         ATmega328P (3.3V, 8 MHz)
+nano                  Arduino Nano
+  atmega168             ATmega168
+  atmega328             ATmega328P
+  atmega328old          ATmega328P (Old Bootloader)
+bt                    Arduino BT
+  atmega168             ATmega168
+  atmega328             ATmega328P
+unowifi               Arduino Uno WiFi
+robotMotor            Arduino Robot Motor
+micro                 Arduino Micro
+gemma                 Arduino Gemma
+megaADK               Arduino Mega ADK
+chiwawa               Arduino Industrial 101
+fio                   Arduino Fio
+mini                  Arduino Mini
+  atmega168             ATmega168
+  atmega328             ATmega328P
+one                   Linino One
+      </programlisting>
+    </para>
+  </section>
+  <section>
+    <info><title>Update Installed Boards</title></info>
+    <para>
+      We can now use the Arduino IDE to get the latest curated
+      configuration and toolset files from trusted sources.
+    </para>
+    <section xml:id="invoke-board-manager">
+      <info><title>Select the Boards Manager</title></info>
+      <para>
+	Invoke the Arduino IDE and select
+	<literal>Tools->Board->Boards Manager</literal> like this:
+	<mediaobject>
+	  <imageobject>
+   	    <imagedata fileref="board_manager.png" format="PNG" scale="100"/>
+   	  </imageobject>
+	</mediaobject>
+      </para>
+      <para>
+	The <literal>Boards Manager</literal> selector looks like a
+	heading for the bullet list but is, in fact, selectable.
+      </para>
+    </section>
+    <section>
+      <info><title>Update Installed Boards</title></info>
+      <para>
+	Mouse over the <quote>Arduino AVR Boards</quote> block, and
+	the <literal>Update</literal> button should appear.  Press
+	that button.
+	<mediaobject>
+	  <imageobject>
+   	    <imagedata fileref="board_manager2.png" format="PNG" scale="100"/>
+   	  </imageobject>
+	</mediaobject>
+      </para>
+    </section>
+    <section>
+      <info><title>Tell dno About The New Files</title></info>
+      <para>
+	Now, we need to tell dno where to find the new files.  We
+	start by figuring out for ourselves where the IDE installed
+	everything.
+      </para>
+      <para>
+	On <literal>debian</literal>, the files are installed in the
+	user's home directory in a hidden directory named
+	<literal>.arduino15</literal>.
+      </para>
+      <para>
+	You can identify this directory using the
+	<command>ls</command> from your home directory:
+	<programlisting>
+$ ls -ltr
+total xxxxxxx
+[ redacted ]
+drwx------  2 marc marc       4096 Jan  5 13:51 .ssh
+drwxrwxr-x  2 marc marc       4096 Jan  5 13:56 Screenshots
+drwxrwxr-x  5 marc marc       4096 Jan  5 13:57 .arduino15
+-rw-------  1 marc marc         20 Jan  5 13:59 .lesshst
+drwxr-x--- 18 marc marc       4096 Jan  5 13:59 .
+$ 
+	</programlisting>
+      </para>
+      <para>
+	This shows files and directories in order of creation, with
+	the most recently created appearing last.  You should see a
+	directory near the end of the listing that will be where the
+	files were installed.
+      </para>
+      <para>
+	Move into the installation directory and look for a file
+	called <literal>boards.txt</literal> using
+	<command>find</command>:
+	<programlisting>
+$ cd .arduino15/
+$ find . -name boards.txt
+./packages/arduino/hardware/avr/1.8.6/boards.txt
+$ 
+	</programlisting>
+      </para>
+      <para xml:id="install-extra-boards">
+	Now we can tell dno where to find that file.  We run
+	<command>dno</command> with the
+	<literal>install_extra_boards</literal> target and with the
+	variable <literal>BOARDS_PATH</literal> set to the full
+	directory path for the <literal>boards.txt</literal>
+	discovered above:
+	<programlisting>
+$ dno install_extra_boards BOARDS_PATH=~/arduino15/packages/arduino/hardware/avr/1.8.6
+$ 
+	</programlisting>
+      </para>
+      <para>
+	If there are no errors, all has gone well.  Confirm this using
+	the <literal>show_extra_boards</literal> target:
+	<programlisting>
+$ dno show_extra_boards
+Supplemental boards.txt directories:
+  ~/.arduino15/packages/arduino/hardware/avr/1.8.6
+$ 
+	</programlisting>
+      </para>
+    </section>
+    <section>
+      <info><title>Install Some New Boards</title></info>
+      <para>
+	You can install support for non Arduino/avr boards in the same
+	way.  Invoke the Arduino IDE's Board Manager as described
+	<link linkend='invoke-board-manager'>above</link>
+      </para>
+      <para>
+	In the Boards Manager, scroll down to the set of boards you
+	are interested in, mouse over the aprpriate block and click on
+	<literal>Install</literal>.  The example below shows us
+	selecting <literal>esp32</literal> boards.
+	<mediaobject>
+	  <imageobject>
+   	    <imagedata fileref="board_manager3.png" format="PNG" scale="100"/>
+   	  </imageobject>
+	</mediaobject>
+      </para>
+      <para>
+	The new files will be loaded into the same directory system as
+	before.  Move into that directory using <command>cd</command>
+	and run the <command>find</command> command again:
+	<programlisting>
+$ cd .arduino15/
+$ find . -name boards.txt
+./packages/arduino/hardware/esp32/2.0.18-20240930.arduino3/boards.txt
+./packages/arduino/hardware/avr/1.8.6/boards.txt
+$ 
+	</programlisting>
+      </para>
+      <para>
+	You will tell dno about the new files using the
+	<literal>install_extra_boards</literal> target again as,
+	again, described <link
+	linkend='install-extra-boards'>above</link>. 
+      </para>
+      <para>
+	Finally, you can see the full set of boards now supported by
+	dno using <command>dno show_boards</command>:
+	<programlisting>
+$ dno show_boards
+	  
+	</programlisting>
+      </para>
+    </section>
+  </section>
+</chapter>

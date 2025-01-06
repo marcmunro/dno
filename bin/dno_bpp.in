@@ -2,7 +2,7 @@
 #
 #       dno_bpp - Board and platform parser for dno
 # 
-#       Copyright (c) 2024 Marc Munro
+#       Copyright (c) 2024,2025 Marc Munro
 #       Author:  Marc Munro
 # 	License: GPL-3.0
 #
@@ -90,6 +90,8 @@ default_board_paths () {
     if [ -f "${EXTRA_BOARDS_FILE}" ]; then
         sed -e 's/^#.*//' <"${EXTRA_BOARDS_FILE}" |
 	    while  read dir; do
+		# Force tilde expansion
+		dir=${dir/#\~/$HOME}
 	        if [ -f "${dir}/boards.txt" ]; then
                     echo $(printf %q "${dir}/boards.txt")
 		fi
