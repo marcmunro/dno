@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<chapter xmlns:d="http://docbook.org/ns/docbook" version="5.0"
+	 xmlns:xlink="http://www.w3.org/1999/xlink">
+  <info xmlns="http://docbook.org/ns/docbook">
+    <title>Documentation with Doxygen</title>
+  </info>
+  <para>
+    To get started with Doxygen-based documentation for your project
+    you will create a <literal>docs</literal> directory under your
+    project directory, and there create the
+    <literal>Doxyfile</literal> configuration file.
+  </para>
+  <para>
+    You can also create any input or resource files that you may need
+    in this directory.
+  </para>
+  <section>
+    <title>Doxygen Configuration</title>
+    <para>
+      This section identifies a few Doxgen configuration settings 
+      can consider.
+    </para>
+    <simplesect>
+      <title>PROJECT_NAME</title>
+      <para>
+	You can set PROJECT_NAME manually:
+	<programlisting>
+PROJECT_NAME      = "My Project"
+	</programlisting>
+      </para>
+      <para>
+	or have it automatically set, based on the name of the
+	<link linkend='project_dir'>project directory</link> as follows:
+	<programlisting>
+PROJECT_NAME      =  $(PROJNAME)
+	</programlisting>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>OUTPUT_DIRECTORY</title>
+      <para>
+	Set this to docs:
+	<programlisting>
+OUTPUT_DIRECTORY       = docs
+	</programlisting>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>FILE_PATTERNS</title>
+      <para>
+	Add the <literal>*.ino</literal> and <literal>*.S</literal>
+	patterns to this list.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>USE_MDFILE_AS_MAINPAGE</title>
+      <para>
+	This allows you to create a mainpage for your documentation
+	that is written in
+	<link
+	    xlink:href="https://en.wikipedia.org/wiki/Markdown">Markdown</link>.
+	Something like this is good: 
+	<programlisting>
+USE_MDFILE_AS_MAINPAGE = ./docs/README.md
+	</programlisting>
+      </para>
+    </simplesect>
+  </section>
+  <section>
+    <title>Documenting Libraries</title>
+    <para>
+      As well as being able to create whole project documentation,
+      individual libraries can be separately documented.
+    </para>
+    <para>
+      This is done just as for projects, by creating a docs
+      subdirectory within the library directory, and creating a
+      suitable <literal>Doxyfile</literal>.
+    </para>
+  </section>
+  <section>
+    <title>Building Documentation</title>
+    <para>
+      Project documentation can be built by invoking:
+      <itemizedlist>
+	<listitem>
+	  <literal>dno docs</literal> in the project root directory;
+	</listitem>
+	<listitem>
+	  <literal>dno docs</literal> in the project docs directory;
+	</listitem>
+	<listitem>
+	  <literal>dno</literal> in the project docs directory.
+	</listitem>
+      </itemizedlist>
+    </para>
+    <para>
+      Library documentation can be built by invoking:
+      <itemizedlist>
+	<listitem>
+	  <literal>dno docs</literal> in the library directory;
+	</listitem>
+	<listitem>
+	  <literal>dno docs</literal> in the library's docs directory;
+	</listitem>
+	<listitem>
+	  <literal>dno</literal> in the library's docs directory.
+	</listitem>
+      </itemizedlist>
+    </para>
+  </section>
+</chapter>

@@ -1,0 +1,227 @@
+<?xml version="1.0"?>
+<chapter xmlns:d="http://docbook.org/ns/docbook" version="5.0"
+	 xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>The Dno Directory System</title>
+  <para>
+    Blah blah blah.  Intro to this.
+  </para>
+  <section xml:id="project_dir">
+    <title>The Project/Root Directory</title>
+    <para>
+      This is the core of a dno project.  The name of this directory
+      is the name of the project.  It can contain the following
+      subdirectories:
+      <itemizedlist>
+	<listitem>
+	  board subdirectories;
+	</listitem>
+	<listitem>
+	  library subdirectories;
+	</listitem>
+	<listitem>
+	  a documentation subdirectory;
+	</listitem>
+	<listitem>
+	  a <literal>tests</literal> subdirectory;
+	</listitem>
+	<listitem>
+	  a <literal>build</literal> subdirectory.
+	</listitem>
+      </itemizedlist>
+    </para>
+    <para>
+      It may also contain the following types of file:
+      <itemizedlist>
+	<listitem>
+	  sketch source code and header files;
+	</listitem>
+	<listitem>
+	  a <literal>BOARD_TYPE</literal> file;
+	</listitem>
+	<listitem>
+	  a <literal>BOARD_INFO</literal> file;
+	</listitem>
+	<listitem>
+	  a <literal>BOARD_OPTIONS</literal> file.
+	</listitem>
+      </itemizedlist>
+    </para>
+    <para>
+      This directory will normally only contain the various
+      <literal>BOARD_XXX</literal> files and the
+      <literal>build</literal> subdirectory if there are no board
+      subdirectories.
+    </para>
+    <para>
+      For any project other than the smallest and simplest it is
+      better to use board subdirectories and do all compilations
+      there.
+    </para>
+    <section>
+      <title>Running <literal>dno</literal></title>
+      <para>
+	There are two significant, explicit dno targets that can be
+	run in the Project/Root directory:
+	<itemizedlist>
+	  <listitem>
+	    tests (aka test, unit, unit_test);
+	    <para>
+	      Unit tests can be provided for libraries in explicit
+	      test directories.  Running <literal>dno</literal> with
+	      an explicit "tests", "test", unit or "unit_test" target,
+	      will seek out those libraries that have unit tests, and
+	      run those unit tests, compiling and linking them first,
+	      if needed.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    docs.
+	    <para>
+	      The docs target attempts to build
+	      <literal>Doxygen</literal> documentation for the whole
+	      project.  See XXXXX
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+      <para>
+	Running <literal>dno</literal> without an explicit target in
+	the project/root directory will perform different actions
+	depending on circumstances.
+      </para>
+      <section>
+	<title>With A <literal>BOARD_TYPE</literal> File</title>
+	<para>
+	  When a <literal>BOARD_TYPE</literal> file is present in the
+	  project directory, <literal>dno</literal> will attempt to
+	  compile and link your code, creating a <literal>build
+	  directory</literal>.
+	</para>
+      </section>
+      <section>
+	<title>Without A <literal>BOARD_TYPE</literal> File</title>
+	<para>
+	  In the absence of a <literal>BOARD_TYPE</literal> file in the
+	  project directory, <literal>dno</literal> will not be able
+	  to build anything:
+	  <programlisting>
+blink$ dno
+Nothing to be done here (in /home/marc/proj/blink).
+Try dno ./BOARD_TYPE or dno tests
+blink$ 
+	  </programlisting>
+	</para>
+      </section>
+    </section>
+  </section>
+  <section>
+    <title>Board Subdirectories</title>
+    <para>
+      A board subdirectory is used as the home directory for builds
+      for a specific board.  The name of the directory providing the
+      <link linkend='board_type'>board type</link>.
+    </para>
+    <para>
+      Usually all sketch source and header files will be placed in the
+      project root directory, however if board-specific customisations
+      are required, modified versions of source files can be placed in
+      these directories.  The local version of any file always takes
+      precedence over the project directories version.
+    </para>
+    <section>
+      <title>Running <literal>dno</literal></title>
+      <para>
+	Running <literal>dno</literal> without an explicit target in
+	the project/root directory will compile and link any code that
+	needs to be compiled/linked.  As always, the object files,
+	etc, will be created in a directory called
+	<literal>build</literal>.
+      </para>
+      <para>
+	Explicit targets that you are likely to use in a a board
+	directory include:
+	<itemizedlist>
+	  <listitem>
+	    upload;
+	    <para>
+	      This will attempt to upload the latest executable to a
+	      connected Arduino board.  See XXX
+	    </para>
+	  </listitem>
+	  <listitem>
+	    eeprom.
+	    <para>
+	      This will attempt to upload an eeprom image to a 
+	      connected Arduino board.  See XXX
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+    </section>
+  </section>
+  <section>
+    <title>Library Subdirectories</title>
+    <para>
+      A library subdirectory contains the source code for a library.
+      This may be a locally modified version of one of the standard
+      libraries, or a fully custom library.
+    </para>
+    <para>
+      The distinguishing feature of a Library Subdirectory is that it
+      will contain a source file with the same basename as that of the
+      directory itself.  Eg, if your library is named
+      <literal>Deferal</literal>, there will be a source file called
+      <literal>Deferal.cpp</literal> or <literal>Deferal.c</literal>.
+    </para>
+    <para>
+      Note that some libraries, generally those that contain a lot of
+      code, may use an explicit <literal>src</literal> directory to
+      contain the source code.
+    </para>
+    <section>
+      <title>Running <literal>dno</literal></title>
+      <para>
+	Running <literal>dno</literal> without an explicit target in
+	a library subdirectory will attempt to build and run any unit
+	tests that have defined.  See XXXX.
+      </para>
+      <para>
+	If no unit tests have been defined, <literal>dno</literal>
+	will warn the user and then do nothing.
+      </para>
+      <para>
+	The only significant explicit target that makes sense to use
+	in a library subdirectory is <literal>docs</literal>.  You can
+	also use <literal>test, tests, unit or unit_test</literal> but
+	since these do the same as the implicit target, there is
+	little point.  The docs target will attempt to create
+	stand-alone documentation for the library using Doxygen.
+      </para>
+    </section>
+  </section>
+  <section>
+    <title>The docs Subdirectory</title>
+    <para>
+      The docs subdirectory is where Doxygen-based documentation will
+      be prepared.  Documentation created here will be for everything
+      within the project, and will include libraries, even if those
+      libraries have their own separate library specific documentation.
+    </para>
+    <para>
+      This is covered in detail in XXXX.
+    </para>
+    <para>
+      Note that individual libraries may also contain docs
+      directories.  These are for library-specific documentation.
+    </para>
+    <section>
+      <title>Running <literal>dno</literal></title>
+      <para>
+	The only target that makes sense in the docs subdirectory is
+	the <literal>docs</literal> target.  Running
+	<literal>dno</literal> witout an explicit target will do
+	exactly the same thing.
+      </para>
+    </section>
+  </section>
+</chapter>

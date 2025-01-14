@@ -227,7 +227,9 @@ man: $(MAN_1_TARGETS) $(MAN_5_TARGETS)
 
 HTMLDIR = html
 DOC_SOURCES = docs/dno_doc.xml docs/installation.xml \
-	      docs/toolsets.xml
+	      docs/toolsets.xml docs/getting_started.xml \
+	      docs/a_little_exploration.xml docs/directory_system.xml \
+	      docs/libraries.xml docs/documentation.xml
 DOC_IMAGES = $(wildcard docs/*.png)
 
 COMBINED_DOC = docs/full_doc.xml

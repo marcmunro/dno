@@ -78,6 +78,20 @@ version()
     exit
 }
 
+
+##
+# projname
+# Echo, to stdout, the project name.  This is the name of the project
+# directory
+#
+projname () {
+    if dno_dirinfo | grep -q root; then
+	basename `pwd`
+    else 
+	( cd ..; projname )
+    fi
+}
+
 ##
 # default_board_paths
 # Echo, to stdout, the paths to boards.txt files determined from
@@ -308,7 +322,8 @@ platform_parameters()
     fi
     echo "BOARD_FILE = $1"
     echo "PLATFORM_FILE = $2"
-    echo "runtime.os = ${OS}"
+    echo "runtime.os = ${HOST_OS}"
+    echo "build.project_name = `projname`"
 }
 
 ##
@@ -345,7 +360,109 @@ platform_parameters()
 #
 file_parser()
 {
-    awk '
+    gawk '
+        # Record incoming input lines, identifying those that are
+	# definitions and recording them separately.
+	#
+	function record_line(line,
+			     lhs, rhs) {
+	   lines[next_line] = line
+	   next_line++
+	   if (line ~ /[^#]*=/) {
+	       # This is a definition line: record it so we can later
+	       # expand our  definitions to help identify tool paths.
+	       lhs = gensub(/^([^=]*).*/, "\\1", "1", line)
+	       rhs = gensub(/^[^=]*=/, "", "1", line)
+	       definitions[lhs] = rhs
+	   }
+	}
+
+	# Modify entries of the form:
+	#   tools.xyz.something={xxx.path}...
+	# where xxx.path is not defined into:
+	#   tools.xyz.something={tools.xyz.xxx.path}...
+	#
+	function update_tool_references(  idx, line, startpos, 
+		 			  line_part, matchpos, rlength,
+					  def, lhs, prefix) {
+	    for (idx = 1; idx < next_line; idx++) {
+	        line = lines[idx]
+		if (line ~ /^tools\./) {
+		    startpos = 1
+		    line_part = substr(line,startpos)
+	            while (matchpos = match(line_part, "{[^{}]*}")) {
+		        rlength = RLENGTH
+	                def = substr(line_part, matchpos + 1, rlength - 2)
+			lhs = gensub(/^([^=]*).*/, "\\1", "1", line)
+			if (!(def ~ /\.tools\./)) {
+			    if (!(def in definitions)) {
+			        # The current def appears to be
+				# undefined and is not prefixed with
+				# tools...  Lets see if prefixing it
+				# will help.
+			        prefix = gensub(/(tools.[^\.]*.).*/, 
+				                "\\1", 1, lhs)
+				if (prefix def in definitions) {
+				    # Yep, it will.  So substitute it
+				    # into our line.
+				    sub("{" def "}","{" prefix def "}",\
+				        lines[idx])
+				    sub("{" def "}","{" prefix def "}",\
+				        definitions[lhs])
+				}
+			    }
+			}
+			startpos += matchpos + length(def) + 1
+		        line_part = substr(line,startpos)
+		    }
+		}
+	    }
+	}
+	# Convert a line from platform.txt, etc, into a form suitable
+	# for make.  This means converting "{ref}" into "$(ref)".
+	#
+	function makify(line) {
+	    gsub(/{/, "$(", line)
+	    gsub(/}/, ")", line)
+	    return line
+        }
+
+	function print_recorded_lines(  idx) {
+	   for (idx = 1; idx < next_line; idx++) {
+	       print(makify(lines[idx]))
+	   }
+	}
+	function menu_entry(menu_line) {
+	    # Return the menu entry name from a menu_line
+	    # The menu line is in the form menu.ENTRY...
+
+	    return gensub("^menu\\.([^\\.]*).*", "\\1", 1, menu_line)
+	}
+	function menu_option(menu_line) {
+	    # Return the menu option name from a menu_line
+	    # The menu line is in the form menu.entry.OPTION...
+
+	    return gensub("^menu\\.[^\\.]*.([^\\.=]*).*", "\\1", 1, menu_line)
+	}
+	function menu_selection(menu_line) {
+	    # Return the menu selection details from a menu_line
+	    # The menu line is in the form menu.entry.option.SELECTION
+
+	    return gensub("^menu\\.[^\\.]*.[^\\.]*\\.", "", 1, menu_line)
+	}
+	# Print a definition iff it is not already defined.
+	#
+	function print_undefined(name, value) {
+	    if ((name in undefined) || !(name in definitions)) {
+		print name " = " value
+	        definitions[name] = value
+		delete undefined[name]
+	    }
+	}
+	function build_variant_path() {
+	    return PLATFORM_PATH "/variants/" definitions["build.variant"] 
+	}
+
 	# Replace the substring in VALUE starting at FROM and of
 	# length LEN, with the string WITH.
 	#
@@ -361,10 +478,10 @@ file_parser()
 	# definitions are used in which other definitions.
 	#
 	function expand_definition(def,
-				   matchpos, updated, rlength, rhs) {
+				   matchpos, updated, rlength, rhs ) {
 	    updated = 0
 	    if (!(def in definitions)) {
-	        undefined_entries[def] = 1
+	        undefined[def] = 1
 		definitions[def] = "[" def "]"
 		return definitions[def]
 	    }
@@ -410,9 +527,14 @@ file_parser()
 	       after_def = "\"" after_def
 	   }
 	   # Now eliminate anything after unquoted whitespace
-	   return gensub(/^((("[^"]*")|([^ \t"]*))*).*/, "\\1", "1", after_def)
+	   after_def = gensub(/^((("[^"]*")|([^ \t"]*))*).*/, "\\1", "1", \
+	                      after_def)
+	   # And remove any remaining quotes
+	   return gensub(/"/, "", "g", after_def)
 	}
 
+	# Add entries to array USES for all uses of DEF.
+	#
 	function all_uses_of(def, uses,
 		             this) {
 	    if (def in used_in) {
@@ -424,12 +546,19 @@ file_parser()
 		}
 	    }
 	}
-		             
+	# Identify references that exist within our definitions that
+	# are not currently defined.
+	#
+	function identify_undefined(  def) {
+	    for (def in definitions) {
+	        expand_definition(def)
+	    }
+	}
 	# Attempt to determine paths for an undefined definition def.
-	# We identify potential paths by calling our enclosing script
+	# We iqdentify potential paths by calling our enclosing script
 	# (dno_bpp) with the -x parameter.
 	#
-	function runtime_paths(def,
+	function print_runtime_paths(def,
 			       uses, subpath, subpaths, path, paths,
 			       found_count, found_path) {
 	    split("", uses)
@@ -462,34 +591,25 @@ file_parser()
 		}
 	    }
 	}
-	function build_variant_path() {
-	    return PLATFORM_PATH "/variants/" definitions["build.variant"] 
+	# Identify (discover) and print undefined required runtime paths
+	# 
+	function print_undefined_runtime_paths(  def) {
+	    for (def in undefined)  {
+	        if (def ~ /^runtime\..*\.path/) {
+		    print_runtime_paths(def)
+		}
+	    }
 	}
-	function menu_entry(menu_line) {
-	    # Return the menu entry name from a menu_line
-	    # The menu line is in the form menu.ENTRY...
-
-	    return gensub("^menu\\.([^\\.]*).*", "\\1", 1, menu_line)
-	}
-	function menu_option(menu_line) {
-	    # Return the menu option name from a menu_line
-	    # The menu line is in the form menu.entry.OPTION...
-
-	    return gensub("^menu\\.[^\\.]*.([^\\.=]*).*", "\\1", 1, menu_line)
-	}
-	function menu_selection(menu_line) {
-	    # Return the menu selection details from a menu_line
-	    # The menu line is in the form menu.entry.option.SELECTION
-
-	    return gensub("^menu\\.[^\\.]*.[^\\.]*\\.", "", 1, menu_line)
+	BEGIN {
+	    next_line = 1
+	    split("", ossified) # Init the ossified array
 	}
         (FNR == 1) {
-	    print ""
-	    print "#"
-	    print "# From: " FILENAME
-	    print "#"
-	    print ""
-	    split("", ossified) # Init the ossified array
+	    record_line("")
+	    record_line("#")
+	    record_line("# From: " FILENAME)
+	    record_line("#")
+	    record_line("")
 	}
 	(FILENAME ~ "/boards.txt") {
 	    # Much of boards.txt needs to be ignored - ie the stuff
@@ -506,16 +626,6 @@ file_parser()
 	        next
 	    }
 	}
-	/^[ \t]*#/ {
-	    # This is a comment line.  Do not process it, but copy it.
-	    print
-	    next
-	}
-	/^[ \t]*$/ {
-	    # This is an empty line.  Ditto.
-	    print
-	    next
-	}
     	{
 	    # OS-ify our entry.  This means replacing OS-specific
 	    # entries for our OS with non-OS-specific entries and
@@ -523,113 +633,59 @@ file_parser()
 	    # subsequently appear.
 	    defname_no_os = gensub(/^(.*)\.[^\.]*=.*/, "\\1", "1")
 	    if (defname_no_os in ossified) {
-	       print "# " $0
+	       record_line("# " $0)
 	       next	        
 	    }
 	    if ($0 ~ "\\." OS "=") {
-	       print "# " $0
+	       record_line("# " $0)
 	       sub("\\." OS "=", "=")
 	       lhs = gensub(/^([^=]*).*/, "\\1", "1")
 	       ossified[lhs] = 1
 	    }
     	}
-    	/=/ {
-	    # Record this definition, so we can later expand our
-	    # definitions to help identify tool paths.
-	    lhs = gensub(/^([^=]*).*/, "\\1", "1")
-	    rhs = gensub(/^[^=]*=/, "", "1")
-	    definitions[lhs] = rhs
-	    
-	    # This make-ifies the incoming definitions, turning {...}
-	    # into $(...), which make can easily deal with.
-    	    gsub(/{/, "$(")
-	    gsub(/}/, ")")
-	}
 	{
-	    # Finally, we escape quotes that appear within quoted
-	    # strings.  This is far from foolproof and there will be
-	    # pathological cases that this fails for.  With luck they
-	    # will not ever appear in our input files.
-	    if ($0 ~ /^[^"]*"[^"]*"[@-]*\$\(/) {
-	        # We match if the first quote on the line is
-		# eventually followed by what looks like a quoted
-		# variable.
-		start = gensub(/(^[^"]*").*/, "\\1", "1") # up to 1st quote
-		remainder = gensub(/^[^"]*"/, "", "1")    # after 1st quote
-
-		# Replace every pair of quotes around a variable.
-		remainder = gensub(/"([@-]*\$\([^"]*)"/, "\\\\\"\\1\\\\\"",
-			           "g", remainder)
-	        print start remainder
+	    record_line($0)
+	}
+	/^menu\.[^\.]*\./ {
+	    # The first occurrence of a particular menu entry provides
+	    # the default value.
+	    entry = menu_entry($0)
+	    option = menu_option($0)
+	    if (entry != cur_entry) {
+		# This is the first entry for this menu so this is the
+		# selected option. 
+		cur_entry = entry
+		selected_option = option
+		record_line("menuselection." entry "=" option)
 	    }
 	    else {
-	        print
-	    }
-	    if ($0 ~ "^menu\\.[^\\.]*\\.") {
-	        # Menu entries are tricky.  The first occurrence of a
-		# particular entry provides the default value.  Entries that
-		# match that value name provide definitions which should be
-		# made in our output.
-		entry = menu_entry($0)
-		option = menu_option($0)
-		if (entry != cur_entry) {
-		    # This is the first entry for this menu so, by default,
-		    # this is the selected option.  We make this
-		    # explicit for easier handling later.
-		    cur_entry = entry
-		    selected_option = option
-		    print "menuselection." entry "=" option
-		}
-		else {
-		    if (option == selected_option) {
-		        print menu_selection($0)
-		    }
+	        # This is an entry for the selected (default) menu
+		# option, so we record it as a selected value.
+		if (option == selected_option) {
+		    record_line(menu_selection($0))
 		}
 	    }
 	}
 	END {
-	    # Deal with undefined references
-	    for (def in definitions) {
-	        expand_definition(def)
-	    }
-	    # Deal with some specific values
-	    if ("runtime.platform.path" in undefined_entries) {
-		print "runtime.platform.path = " PLATFORM_PATH
-		delete undefined_entries["runtime.platform.path"]
-	    }
-	    if (("runtime.hardware.path" in undefined_entries) ||
-	        !("runtime.hardware.path" in definitions)) {
-		print "runtime.hardware.path = " HARDWARE_PATH
-	        definitions["runtime.hardware.path"] = HARDWARE_PATH
-		delete undefined_entries["runtime.hardware.path"]
-	    }
-	    if ("build.arch" in undefined_entries) {
-		print "build.arch = " toupper(ARCH_NAME)
-	    }
-	    print "build.source.path=."
-	    print "build.variant.path=" build_variant_path()
-	    if ("runtime.ide.version" in undefined_entries) {
-	        print "runtime.ide.version = " DNO_IDE_VERSION
-	    }
+	    update_tool_references()
+	    identify_undefined()
+	    print_recorded_lines()
+	    print_undefined("runtime.platform.path", PLATFORM_PATH)
+	    print_undefined("runtime.hardware.path", HARDWARE_PATH)
+	    print_undefined("build.arch", toupper(ARCH_NAME))
+	    print_undefined("build.source.path", ".")
+	    print_undefined("build.variant.path", build_variant_path())
+	    print_undefined("runtime.ide.version", DNO_IDE_VERSION)
+	    print_undefined("build.fqbn", "$(build.variant):$(build.core):"\
+	    	  "$(build.target)$(build.menu_selections)")
 	    base_search_path = gensub(/^"(.*)"$/, "\\1", "1",
 	    		              definitions["runtime.hardware.path"])
 	    base_search_path = gensub(/\/[^\/]*\/?$/, "", "1", base_search_path)
-
-	    print ""	    
-	    print "# Paths below have been discovered by dno_bpp:"
-	    print "# If a commented path is more appropriate for you, then"
-    	    print "# copy it into your platform.local.txt file"
-	    print "#"
-	    for (def in undefined_entries)  {
-	        if (def ~ /^runtime\..*\.path/) {
-		    runtime_paths(def)
-		}
-	    }
-	    print "build.fqbn=$(build.variant):$(build.core):"\
-	    	  "$(build.target)$(build.menu_selections)"
+	    print_undefined_runtime_paths()
 	}
     ' "$@"
     return $?
+
 }
 
 ##

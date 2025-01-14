@@ -1,0 +1,349 @@
+<?xml version="1.0"?>
+<chapter xmlns:d="http://docbook.org/ns/docbook" version="5.0">
+  <title>Getting Started</title>
+  <section xml:id="getting_started">
+    <title>Creating The Project Directory</title>
+    <para>
+      Create a directory named after your project.  For our example,
+      we'll call our project <quote>blink</quote>.
+      <programlisting>
+~$ mkdir blink
+~$ cd blink	    
+      </programlisting>
+    </para>
+    <para>
+      That's it.  It's no harder than that.  But to make this section
+      more interesting, let's run <literal>dno</literal> in this
+      directory:
+      <programlisting>
+blink$ dno
+make: Nothing to be done for 'unknown'.
+blink$
+      </programlisting>
+    </para>
+    <para>
+      Here dno can't figure out what the right thing to do is, so
+      does nothing.  Which is the right thing to do.
+    </para>
+  </section>
+  <section>
+    <title>Create An Initial Sketch</title>
+    <para>
+      Let's create a copy of the much-used
+      <literal>blink.ino</literal> sketch.  You can use your favourite
+      editor, or get it from github, or whatever.  You could even copy
+      and paste it from below:
+      <programlisting>
+/*
+  Blink
+
+  Turns an LED on for one second, then off for one second, repeatedly.
+
+  Most Arduinos have an on-board LED you can control. On the UNO, MEGA and ZERO
+  it is attached to digital pin 13, on MKR1000 on pin 6. LED_BUILTIN is set to
+  the correct LED pin independent of which board is used.
+  If you want to know what pin the on-board LED is connected to on your Arduino
+  model, check the Technical Specs of your board at:
+  https://www.arduino.cc/en/Main/Products
+
+  modified 8 May 2014
+  by Scott Fitzgerald
+  modified 2 Sep 2016
+  by Arturo Guadalupi
+  modified 8 Sep 2016
+  by Colby Newman
+
+  This example code is in the public domain.
+
+  http://www.arduino.cc/en/Tutorial/Blink
+*/
+
+// the setup function runs once when you press reset or power the board
+void setup() {
+  // initialize digital pin LED_BUILTIN as an output.
+  pinMode(LED_BUILTIN, OUTPUT);
+}
+
+// the loop function runs over and over again forever
+void loop() {
+  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(1000);                       // wait for a second
+  digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+  delay(1000);                       // wait for a second
+}
+      </programlisting>
+    </para>
+    <para>
+      Now our directory looks like this:
+      <programlisting>
+blink$ ls
+blink.ino
+blink$ 
+      </programlisting>
+    </para>
+    <para>
+      Let's run <literal>dno</literal> again:
+      <programlisting>
+blink$ dno
+Nothing to be done here (in /home/user/proj/blink).
+Try dno ./BOARD_TYPE or dno tests
+blink$ 
+      </programlisting>
+    </para>
+    <para>
+      This tells us that <literal>dno</literal> does not know what
+      sort of Arduino board to build for.  You can get more
+      information about this using <literal>dno info</literal> or
+      <literal>dno help</literal>.
+    </para>
+  </section>
+  <section>
+    <title>Select Our Board</title>
+    <para>
+      We can tell <literal>dno</literal> what sort of board to build
+      for by creating a BOARD_TYPE file.  The simplest way to do this
+      is using <literal>dno</literal>'s <literal>BOARD_TYPE</literal>
+      <link linkend='targets'>target</link>.
+    </para>
+    <para>
+      To see what boards are available use <literal>dno
+      show_boards</literal>.
+    </para>
+    <para>
+      Let's assume that we want to compile for a 3.3V Arduino pro
+      mini.  Using <literal>show_boards</literal>, we find that that
+      the board name for this is <quote>pro</quote>, and that there
+      are 4 cpu options:
+      <programlisting>
+blink$ dno show_boards BOARD=pro
+
+    Supported ArduinoBoard and CPU Types
+============================================================
+pro                   Arduino Pro or Pro Mini
+  16MHzatmega168        ATmega168 (5V, 16 MHz)
+  8MHzatmega168         ATmega168 (3.3V, 8 MHz)
+  16MHzatmega328        ATmega328P (5V, 16 MHz)
+  8MHzatmega328         ATmega328P (3.3V, 8 MHz)
+blink$
+      </programlisting>
+    </para>
+    <para>
+      We create our <literal>BOARD_TYPE</literal> file as follows:
+      <programlisting>
+blink$ dno BOARD_TYPE BOARD=pro CPU=8MHzatmega328
+  Creating BOARD_TYPE...
+blink$ ls
+blink.ino  BOARD_TYPE
+blink$ 
+      </programlisting>
+    </para>
+    <para>
+      We can see that <literal>dno</literal> has created a BOARD_TYPE
+      file, which identifies the type of board that we are to compile
+      for.  Looking at it:
+      <programlisting>
+blink$ cat BOARD_TYPE
+pro.8MHzatmega328
+blink$ 
+      </programlisting>
+    </para>
+    <para>
+      We see that it simply contains the board and cpu identification
+      for our pro mini board.
+    </para>
+  </section>
+  <section>
+    <title>Compiling/Building</title>
+    <para>
+      Let's now run <literal>dno</literal> again and see what happens:
+      <programlisting>
+blink$ dno
+  Creating BOARD_INFO...
+  C++  [.] blink.ino
+  AS  [core] wiring_pulse.S
+  C  [core] wiring_shift.c
+  C  [core] wiring_pulse.c
+  C  [core] wiring_digital.c
+  C  [core] wiring.c
+  C  [core] wiring_analog.c
+  C  [core] WInterrupts.c
+  C  [core] hooks.c
+  C++  [core] WString.cpp
+  C++  [core] WMath.cpp
+  C++  [core] USBCore.cpp
+  C++  [core] Tone.cpp
+  C++  [core] Stream.cpp
+  C++  [core] Print.cpp
+  C++  [core] PluggableUSB.cpp
+  C++  [core] new.cpp
+  C++  [core] main.cpp
+  C++  [core] IPAddress.cpp
+  C++  [core] HardwareSerial.cpp
+  C++  [core] HardwareSerial3.cpp
+  C++  [core] HardwareSerial2.cpp
+  C++  [core] HardwareSerial1.cpp
+  C++  [core] HardwareSerial0.cpp
+  C++  [core] CDC.cpp
+  C++  [core] abi.cpp
+  AR [libcore] abi.o...
+  LD blink.ino.o
+  OBJCOPY (hex) blink.elf
+blink$ ls -l
+total 28
+-rw-r--r-- 1 user user  1233 Jan  6 11:04 blink.ino
+-rw-r--r-- 1 user user 12701 Jan  6 12:15 BOARD_INFO
+-rw-r--r-- 1 user user    18 Jan  6 12:04 BOARD_TYPE
+drwxr-xr-x 3 user user  4096 Jan  6 12:15 build
+blink$ 
+      </programlisting>
+    </para>
+    <para>
+      From <literal>dno</literal>'s output we can see that
+      <literal>BOARD_INFO</literal> was created, and then a bunch of
+      compilation and other commands were executed.  In addition to
+      compiling the sketch <literal>blink.ino</literal>, the
+      components of the <literal>core</literal> library were built, an
+      archive file was built from those
+      components (<literal>AR</literal>), the whole thing was linked
+      together to create an executable (<literal>LD</literal>), and
+      then, finally, a downloadable version of the executable was
+      created (<literal>OBJCOPY</literal>).
+    </para>
+    <para>
+      From our directory listing we can also see that a
+      <literal>build</literal> directory was created.  This is where
+      all of our object, lib and executable files are created:
+      <programlisting>
+blink$ ls -l build
+total 372
+-rwxr-xr-x 1 user user  14108 Jan  6 12:15 blink.elf
+-rw-r--r-- 1 user user   2615 Jan  6 12:15 blink.hex
+-rw-r--r-- 1 user user   1104 Jan  6 12:15 blink.ino.d
+-rw-r--r-- 1 user user   3860 Jan  6 12:15 blink.ino.o
+drwxr-xr-x 2 user user   4096 Jan  6 12:15 libcore
+-rw-r--r-- 1 user user 345554 Jan  6 12:15 libcore.a
+blink$ ls build/libcore
+abi.d		   HardwareSerial.o  Stream.d	       wiring.o
+abi.o		   hooks.d	     Stream.o	       wiring_pulse.d
+CDC.d		   hooks.o	     Tone.d	       wiring_pulse.o
+CDC.o		   IPAddress.d	     Tone.o	       wiring_pulse.S.d
+HardwareSerial0.d  IPAddress.o	     USBCore.d	       wiring_pulse.S.o
+HardwareSerial0.o  main.d	     USBCore.o	       wiring_shift.d
+HardwareSerial1.d  main.o	     WInterrupts.d     wiring_shift.o
+HardwareSerial1.o  new.d	     WInterrupts.o     WMath.d
+HardwareSerial2.d  new.o	     wiring_analog.d   WMath.o
+HardwareSerial2.o  PluggableUSB.d    wiring_analog.o   WString.d
+HardwareSerial3.d  PluggableUSB.o    wiring.d	       WString.o
+HardwareSerial3.o  Print.d	     wiring_digital.d
+HardwareSerial.d   Print.o	     wiring_digital.o
+blink$ 
+      </programlisting>
+    </para>
+    <para>
+      Note that once everything is built, <literal>dno</literal> will
+      not rebuild it unless something changes:
+      <programlisting>
+blink$ dno
+make: Nothing to be done for 'build'.
+blink$
+      </programlisting>
+    </para>
+    <para>
+      Note that the message says <literal>make:...</literal>.  This is
+      because <literal>dno</literal> is <link
+      linkend='dno_is_make'>implemented using
+      <literal>make</literal></link>.
+    </para>
+  </section>
+  <section>
+    <title>Uploading To A Board</title>
+    <para>
+      Now we need to connect our <literal>Arduino</literal> device to
+      our computer.  Typically, this is through a USB connection.
+      Once done, we can verify that the device can be seen using
+      <literal>dno devices</literal>:
+      <programlisting>
+blink$ dno devices
+DEVICES: /dev/ttyUSB0
+blink$
+      </programlisting>
+    </para>
+    <para>
+      This shows that a serial device is connected to
+      <literal>/dev/ttyUSB0</literal>.  This is a good sign.
+    </para>
+    <para>
+      Now, as long as there is a single device connected, we should be
+      able to upload our sketch:
+      <programlisting>
+blink$ dno upload
+  Resetting device attached to (/dev/ttyUSB0)...
+/usr/local/bin/dno do_upload
+make[1]: Entering directory '.../proj/blink'
+ 
+    Uploading blink.hex to /dev/ttyUSB0
+
+avrdude: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.01s
+
+avrdude: Device signature = 0x1e950f (probably m328p)
+avrdude: reading input file "build/blink.hex"
+avrdude: writing flash (924 bytes):
+
+Writing | ################################################## | 100% 0.51s
+
+avrdude: 924 bytes of flash written
+avrdude: verifying flash memory against build/blink.hex:
+avrdude: load data flash data from input file build/blink.hex:
+avrdude: input file build/blink.hex contains 924 bytes
+avrdude: reading on-chip flash data:
+
+Reading | ################################################## | 100% 0.43s
+
+avrdude: verifying ...
+avrdude: 924 bytes of flash verified
+
+avrdude: safemode: Fuses OK (E:00, H:00, L:00)
+
+avrdude done.  Thank you.
+
+make[1]: Leaving directory '.../blink'
+blink$ 	
+      </programlisting>
+    </para>
+    <para>
+      Please note that the ridiculous verbosity of this is outside of
+      <literal>dno</literal>'s control.
+    </para>
+  </section>
+  <section>
+    <title>In Summary</title>
+    <para>
+      In summary, to create a brand new project, blink, from scratch,
+      and upload it to an Arduino board takes only the following steps
+      (<literal>dno</literal> output not shown):
+      <programlisting>
+~$ mkdir blink
+~$ cd blink
+blink$ [create blink.cpp using your favorite editor]
+blink$ dno BOARD_TYPE BOARD=pro CPU=8MHzatmega328
+[ . . . ]
+blink$ dno
+[ . . . ]
+blink$ dno upload
+[ . . . ]
+      </programlisting>
+    </para>
+    <para>
+      It could hardly be more simple.
+    </para>
+    <para>
+      Note that if you were confident that
+      <literal>blink.cpp</literal> would build without errors, you
+      could even omit the build step: ie the step before the upload,
+      as <literal>dno upload</literal> will automatically realise that
+      compilation and linking is needed and will make it happen.
+    </para>
+  </section>
+</chapter>

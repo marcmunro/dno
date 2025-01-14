@@ -29,7 +29,7 @@ usage()
     - root_board
       This is the root directory for a dno directory system and is set
       up for a specific board.  A dno build can be performed here,
-      which will attempt by defauly to compile and build for the
+      which will attempt by default to compile and build for the
       directory's  identified board type.
     - lib
       This directory contains library code.  Running a dno build in
@@ -119,21 +119,14 @@ is_code_dir() {
 }
 
 ##
-# True if the directory contains board directories other than $1
+# True if the directory contains code directories other than $1
 #
 is_container_dir() {
-    find . -maxdepth 1 -mindepth 1 -type d | while read dir; do
-	if [ x`basename ${dir}` != x$1 ]; then
-	    if (cd "${dir}"; is_board_dir); then
-	        echo yep
-	        break
-	    fi
-	    if (cd "${dir}"; is_code_dir); then
-	        echo yep
-	        break
-	    fi
-	fi
-    done | grep -q yep
+    # Look for any file named *.c, *.cpp, *.h, *.S, or *.ino
+    find . -maxdepth 2 -mindepth 2 -name '*cpp' -o \
+	 -name '*.c' -o -name '*.S' -o \
+	 -name '*.h' -o -name '*.ino' | grep -v /$1/ | grep -q .
+    return $?
 }
 
 ##

@@ -22,7 +22,7 @@
       software
     </subtitle>
     <edition>0.5.6</edition>
-    <pubdate>Januart 2025</pubdate>
+    <pubdate>January 2025</pubdate>
   </info>
   
   <preface xml:id="introduction">
@@ -30,10 +30,11 @@
       <title>Introduction to Dno</title>
     </info>
     <para>
-      <command>Dno</command> is a command-line tool for building
-      software for Arduino and related single board computers.  It is
-      intended as an alternative to the Arduino <acronym>IDE</acronym>
-      for building, loading and testing Arduino software.
+      <command>Dno</command>, pronounced dee-no, is a command-line
+      tool for building software for Arduino and related single board
+      computers.  It is intended as an alternative to the Arduino
+      <acronym>IDE</acronym> for building, loading and testing Arduino
+      software.
     </para>
     <para>
       It does not provide an editing environment. Instead, by allowing
@@ -44,36 +45,40 @@
       It also goes beyond what the original Arduino
       <acronym>IDE</acronym> offers by supporting unit testing of
       libraries and the creation of Doxygen-based documentation of
-      code.  In short, it aims to support the creation of professional
-      quality software for Arduino platforms.
+      code.  In short, it aims to support the creation of
+      professional-quality software for Arduino platforms.
     </para>
     <para>
-      Finally it aims to be as simple to use as possible - requiring
+      Finally, it aims to be as simple to use as possible - requiring
       minimal configuration while providing maximal flexibility.
     </para>
   </preface>
   <xi:include href="installation.xml"/>
   <xi:include href="toolsets.xml"/>
+  <xi:include href="getting_started.xml"/>
+  <xi:include href="a_little_exploration.xml"/>
+  <xi:include href="directory_system.xml"/>
+  <xi:include href="libraries.xml"/>
+  <xi:include href="documentation.xml"/>
   <chapter>
-    <info><title>Getting Started</title></info>
+    <title>Revision Control</title>
     <para>
-      To get started using <command>dno</command>
+      Include unit testing
     </para>
   </chapter>
   <chapter>
-    <info><title>Dno Commands</title></info>
-    
+    <title>Tags</title>
+    <para>
+      tags
+    </para>
+  </chapter>
+  <chapter>
+    <title>Developing and Debugging</title>
     <para>
     </para>
   </chapter>
   <chapter>
-    <info><title>The Dno Directory System</title></info>
-    
-    <para>
-    </para>
-  </chapter>
-  <chapter>
-    <info><title>Why?</title></info>
+    <title>Why?</title>
     
     <para>
     </para>

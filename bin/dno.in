@@ -11,16 +11,9 @@
 #
 
 # TODOs:
-# Prevent clean targets from running in unknown dir types (make tests
-# for root dir a bit more stringent)
-# Improve performance of show_boards, install_extra_boards,
-# show_extra_boards
-# Make extra boards location user-independent
 # Handle boards.local.txt
 # handle filenames with spaces and other stupid characters
-# ensure there are deps to platform.txt and boards.txt from BOARD_INFO
 # allow boards.local.txt
-# allow dno.mk
 # test upload for esp32
 # docs
 # Compare ide build with our build
@@ -403,6 +396,16 @@ requote = $(shell echo '$1' | dno_requote)
 #
 indent = set -o pipefail; ($1) | sed -e 's/^/    /'
 
+
+# STARTDIR is set when we are recursinf for one of the clean targets.
+# In these cases we just want to get started as quickly as possible,
+# so we avoid much of the slow startup bahaviour.
+#
+ifdef STARTDIR
+  QUICKSTART = true
+endif
+
+ifndef QUICKSTART
 
 ################################################################
 # Figure out from where we are being run.
@@ -788,11 +791,13 @@ ifeq "$(CROSS_BUILD)" "yes"
     # We only do the following if BOARD_INFO was successfully read.
     # This prevents a load of half-baked things happening in the event
     # that we are going to have to restart dno after building BOARD_INFO
-    PROJNAME = $(subst $(space),_,$(notdir \
-	 	  $(or $(basename $(firstword \
-				    $(foreach dir,$(SRC_DIRS),\
-		                      $(wildcard $(dir)/*.ino)))), \
-		       $(realpath $(PROJDIR)))))
+    PROJNAME = $(notdir $(realpath $(PROJDIR)))
+    ifneq "$(PROJNAME)" "$(build.project_name)"
+      # Project dirname has changed.  Force a rebuild of BOARD_INFO
+      BI_DEPS := FORCE
+    else
+      BI_DEPS :=
+    endif
 
     # Identify possible libraries.
     USER_LIB_DIRS = $(foreach root,$(USER_LIB_ROOTS),\
@@ -803,7 +808,6 @@ ifeq "$(CROSS_BUILD)" "yes"
     CXXFLAGS += $(ALL_LIB_FLAGS)
     CXXFLAGS += -Os -Wall
 
-    build.project_name = $(PROJNAME)
     build.menu_selections = :$(shell dno_menu -l)
 
     $(call debug,STD_LIB_DIRS)
@@ -818,6 +822,15 @@ ifeq "$(CROSS_BUILD)" "yes"
     recipe.ino.o.pattern = $(subst \
       $(compiler.cpp.cmd)",$(compiler.cpp.cmd)" $(ino_compiler_flags),\
       $(recipe.cpp.o.pattern))
+
+    # define a pattern for uploading eeprom files.  Don't know why
+    # this is not already defined.
+    #
+    recipe.eep.upload.pattern = \
+	        $(subst flash:w,eeprom:w,\
+		        $(subst .hex:i,.eep:i,\
+				$(tools.$(upload.tool).upload.pattern))))
+
     source_file = $<
     object_file = $(@:.d=.o)
     build.path = $(BUILD_DIR)
@@ -876,7 +889,16 @@ ifeq "$(CROSS_BUILD)" "yes"
     $(call debug,TARGET_HEX)
       OBJCOPY_PATTERNS := $(call uniqify,\
         $(shell grep "^recipe.objcopy\..*\.pattern=" BOARD_INFO | cut -d= -f1))
-  else
+
+    ifneq ($(strip $(upload.maximum_size)),)
+      CHECK_SIZE = $(recipe.size.pattern) | $(BINDIR)/dno_checksize \
+          MAX_DATA=$(upload.maximum_data_size) \
+          MAX_UPLOAD=$(upload.maximum_size)
+    else
+      CHECK_SIZE = echo "Cannot determine flash memory of $(BOARD_TYPE).";\
+                   echo "Make sure the size of $(TARGET_ELF) is" \
+                        "less than $(BOARD_TYPE)'s flash memory"
+    endif
 
   endif
 else ifeq "$(NATIVE_BUILD)" "yes"
@@ -905,7 +927,7 @@ else ifeq "$(NATIVE_BUILD)" "yes"
 		            $(call is_lib,$(wildcard $(root)/*))),libname)))
   ALL_LIB_DIRS := $(USER_LIB_DIRS) $(PROJ_LIB_DIRS) \
 		  $(STD_LIB_DIRS) $(USER_LIB_ROOTS)
-  CXXFLAGS += -g -O0 -Wall -DUNIT_TESTING\
+  CXXFLAGS += -g -O0 -Wall -DUNIT_TESTING -I . \
 		$(foreach dir,$(ALL_LIB_DIRS),-I $(dir))
 
   $(eval $(call ALL_BUILD_RULES,NATIVE_COMPILE_RULE,\
@@ -919,7 +941,7 @@ else ifeq "$(BUILD_TYPE)" "lib"
 			       $(filter %/tests,${dir}),\
 			       $(filter %/unit,${dir}))))
 else
-  PROJNAME = undefined2
+  PROJNAME = $(notdir $(realpath $(PROJDIR)))
 endif
 
 $(call debug,PROJNAME)
@@ -943,8 +965,8 @@ DIRNAME = $(notdir $(realpath $(BOARD_DIR)))
 #
 ifneq "$(BOARD)" ""
   # BOARD has been provided as a parameter
-  BI_DEPS = BOARD_TYPE
-  BT_DEPS = FORCE
+  BI_DEPS += BOARD_TYPE
+  BT_DEPS += FORCE
   # Parameters for board and cpu type can be derived from BOARD and CPU
   # definitions provided on the command line.  Provide these to the BOARD_TYPE
   # target, to create a BOARD_TYPE file.
@@ -965,18 +987,18 @@ else
 	BOARD_FROM_INFO != sed -n -e '/^BOARD_TYPE/{s/.*=\s//p}' BOARD_INFO
         ifneq "$(BOARD)" "$(BOARD_FROM_INFO)"
 	  # We need to rebuild BOARD_INFO (else nothing to do)
-	  BI_DEPS = FORCE
+	  BI_DEPS += FORCE
 	endif
       endif
     else
       # Dirname is not valid.  BOARD_INFO build needs to fail, so make
       # it depend on BOARD_TYPE
-      BI_DEPS = BOARD_TYPE
+      BI_DEPS += BOARD_TYPE
       BOARD := unknown
     endif
   else
    # We have a BOARD_TYPE_FILE
-   BI_DEPS = BOARD_TYPE
+   BI_DEPS += BOARD_TYPE
    BOARD := $(file < BOARD_TYPE)
   endif
 endif
@@ -1002,7 +1024,9 @@ FORCE:
 # specific to the chosen board-type which may be determined from a
 # BOARD_TYPE file or the name of the current directory.
 #
-BOARD_INFO: $(BI_DEPS) $(PLATFORM_LOCAL)
+
+BOARD_INFO: $(BI_DEPS) $(PLATFORM_LOCAL) \
+	    $(BOARD_FILE) $(PLATFORM_FILE)
 	$(TARGET)
 	$(FEEDBACK) Creating $@...
 	$(AT)if $(BPP) -b $(BOARD) -p >$@2; then \
@@ -1064,7 +1088,7 @@ show_boards:
 #
 
 .PHONY: build root_code_info root_build_info lib unit_test \
-	test tests unit
+	test tests unit size verify_size
 
 build: BOARD_INFO $(TARGET_HEX) $(TARGET_BIN) $(TARGET_ELF)
 
@@ -1124,6 +1148,18 @@ $(TARGET_ELF): $(object_files) $(archive_file_path) $(TAGFILES) BOARD_INFO
 	@# $(eval COMMANDS2 = $(shell dno_commands_for linking.postlink))
 	@$(and $(COMMANDS2),$(FEEDBACK_RAW) Performing post-link...)
 	$(AT) $(and $(COMMANDS2),$(call indent,$(COMMANDS2)))
+
+
+
+size:   $(TARGET_ELF)
+	$(TARGET)
+	@echo size
+	$(AT) $(CHECK_SIZE)
+
+verify_size:   $(TARGET_ELF)
+	$(TARGET)
+	$(AT) $(CHECK_SIZE) >/dev/null
+
 endif
 
 root_code_info root_build_info:
@@ -1158,6 +1194,21 @@ $(TEST_EXECUTABLE): $(TEST_OBJECTS) $(TAGFILES)
 	$(AT) g++ $(LDFLAGS) -o $@ $(MAIN_TEST_OBJECT) \
 		$(SECONDARY_TEST_OBJECTS)
 
+else
+# Identify possible unit test directories
+#
+TEST_DIRS = $(shell find . -maxdepth 2 -type d -a \
+	\( -name tests -o -name test -o -name unit \))
+
+# Identify commands to be run for each unit test directory
+#
+test_cmds = $(foreach dir,$(TEST_DIRS),\
+                (cd $(dir); $(MAKE) test); )
+
+# Run unit tests for all libs
+unit_test test tests unit:
+	@$(test_cmds)
+
 endif
 
 
@@ -1169,7 +1220,6 @@ endif
 
 docs/html: $(DOC_SOURCES) docs/Doxyfile
 	$(TARGET)
-	@mkdir -p html 2>/dev/null
 	@rm -rf html/*
 	@$(FEEDBACK) "DOXYGEN $(PROJNAME)"
 	$(AT)env PROJNAME="$(PROJNAME)" doxygen docs/Doxyfile || \
@@ -1184,6 +1234,7 @@ docs:
 	    $(MAKE) --no-print-directory docs/html; \
 	fi
 
+endif #QUICKSTART
 
 ################################################################
 # clean targets
@@ -1357,7 +1408,7 @@ no_screen noscreen:
 #
 upload:	$(TARGET_HEX) verify_size reset
 	$(TARGET)
-	$(MAKE) -f $(THIS_MAKEFILE) do_upload
+	$(MAKE) do_upload
 
 # This is used recursively from the upload target in order to separate any
 # dependencies for this target from the main dependency graph.  This allows us
@@ -1367,24 +1418,22 @@ upload:	$(TARGET_HEX) verify_size reset
 #
 do_upload: no_screen
 	$(TARGET)
-	$(FEEDBACK) "\n  Uploading $(notdir $(TARGET_HEX)) to $(DEVICE_PATH)\n"
-	$(AT) $(tools.avrdude.upload.pattern)
+	$(FEEDBACK)
+	$(FEEDBACK) "  Uploading $(notdir $(TARGET_HEX)) to $(DEVICE_PATH)"
+	$(AT) $(tools.$(upload.tool).upload.pattern)
 
 eeprom_image: $(TARGET_EEP) 
 	$(TARGET)
 
 eeprom:	$(TARGET_EEP) verify_size reset
 	$(TARGET)
-	$(MAKE) -f $(THIS_MAKEFILE) do_eeprom
+	$(MAKE) do_eeprom
 
 do_eeprom: no_screen
 	$(TARGET)
 	$(FEEDBACK) "\n  writing eeprom from $(notdir $(TARGET_EEP))" \
 		"using $(DEVICE_PATH)\n"
-	$(AT) "$(cmd.path)" "-C$(config.path)" $(upload.verbose) \
-	  $(upload.verify) -p$(build.mcu) -c$(upload.protocol) \
-	  "-P$(serial.port)" -b$(upload.speed) \
-	  -U eeprom:w:$(build.path)/$(build.project_name).eep:i
+	$(AT) $(recipe.eep.upload.pattern)
 
 
 ################################################################

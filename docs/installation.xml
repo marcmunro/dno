@@ -1,11 +1,9 @@
 <?xml version="1.0"?>
 <chapter xmlns:d="http://docbook.org/ns/docbook" version="5.0">
-  <info xmlns="http://docbook.org/ns/docbook">
-    <title>Installation</title>
-  </info>
+  <title>Installation</title>
   <para>
-    <command>Dno</command> can be installed by downloading and
-    unpacking a release tarball or by cloning from <link
+    Dno can be installed by downloading and unpacking a release
+    tarball or by cloning from <link
     xmlns:xlink="http://www.w3.org/1999/xlink"
     xlink:href="https://github.com/marcmunro/dno">github</link>.
   </para>
@@ -14,43 +12,43 @@
     is the recommended option.
   </para>
   <section>
-    <info><title>Compatibility</title></info>
+    <title>Compatibility</title>
     <para>
-      <command>Dno</command> is expected to run on any Unix-like
-      operating system: Linux, BSD, MacOSX.
+      Dno is expected to run on any Unix-like operating system: Linux,
+      BSD, MacOSX.
     </para>
     <para>
       It is built using <acronym>GNU</acronym>
       <literal>autotools</literal>, so any OS supported by
       <literal>autotools</literal> should work.  It is unlikely that
-      Windows(tm) will ever be supported.
+      Windows(Tm) will ever be supported.
     </para>
   </section>
-  <section><info><title>Dependencies</title></info>
+  <section><title>Dependencies</title>
   <para>
-    Dno requires <command>bash</command>, <command>make</command>,
-    <command>sed</command> and <command>gawk</command> in order to
+    Dno requires <literal>bash</literal>, <literal>make</literal>,
+    <literal>sed</literal> and <literal>gawk</literal> in order to
     run.
   </para>
   <para>
-    For building and installing <command>dno</command>,
-    <command>gcc</command> is also required.
+    For building and installing dno, <literal>gcc</literal> is also
+    required.
   </para>
   <para>
-    To build documentation: <command>pandoc</command>,
-    <command>xsltproc</command> and the docbook xslt stylesheets (v4)
+    To build documentation: <literal>pandoc</literal>,
+    <literal>xsltproc</literal> and the docbook xslt stylesheets (v4)
     are required.  Tarball-based installations provide pre-built
     documentation so do not need these.
   </para>
   <para>
-    If you want to modify <command>dno</command>, you should also
-    install <literal>autotools</literal>.
+    If you want to modify dno, you should also install
+    <literal>autotools</literal>.
   </para>
   </section>
   <section>
-    <info><title>Installing from a tarball</title></info>
+    <title>Installing From A Tarball</title>
     <section>
-      <info><title>Download</title></info>
+      <title>Download</title>
       <para>
 	Releases can be found in the github project releases
 	directory: <link xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -62,27 +60,28 @@
       </para>
     </section>
     <section>
-      <info><title>Unpack</title></info>
+      <title>Unpack</title>
       <para>
 	To unpack the tarball (this will create a new directory called
 	<literal>dno</literal>):
 	<programlisting>
-$ tar xvzf dno_<replaceable>VERSION</replaceable>.tgz
+~$ tar xvzf dno_<replaceable>VERSION</replaceable>.tgz
 	</programlisting>
       </para>
       <para>
-	Note: the v option above gives verbose feedback.  Use this to
-	get a warm fuzzy feeling when you unpack the tarball.
+	Note: the <literal>v</literal> option above gives verbose
+	feedback.  Use this to get a warm fuzzy feeling when you
+	unpack the tarball.
       </para>
     </section>
     <section xml:id='install-commands'>
-      <info><title>Configure</title></info>
+      <title>Configure</title>
       <para>
 	Move to the new <literal>dno</literal> directory and run
-	<command>./configure</command>:
+	<literal>./configure</literal>:
 	<programlisting>
-$ cd dno
-$ ./configure
+~$ cd dno
+dno$ ./configure
 checking for sed... yes
 checking for gawk... yes
 checking for dialog... no
@@ -116,25 +115,26 @@ config.status: creating man/dno_commands_for.md
 config.status: creating man/dno_dirinfo.md
 config.status: creating man/dno_menu.md
 config.status: creating man/dno_requote.md
-$ 
+dno$ 
 	</programlisting>
       </para>
       <para>
 	This determines where dno should be installed, among other
 	things.  Note that this step will fail if you don't have the
-	basic pre-requisites (gawk, sed, etc) installed.  If it fails,
-	install the programs it is asking for, and run it again.
+	basic pre-requisites (<literal>gawk</literal>,
+	<literal>sed</literal>, etc) installed.  If it fails, install
+	the programs it is asking for, and run it again.
       </para>
     </section>
     <section>
-      <info><title>Make</title></info>
+      <title>Make</title>
       <para>
-	Now we build the <command>dno_requote</command> command and
+	Now we build the <literal>dno_requote</literal> command and
 	prepare the dno man pages for installation using
-	<command>make</command>:
+	<literal>make</literal>:
       </para>
       <programlisting>
-$ make
+dno$ make
   CC, LD [dno_requote]
     Using distributed version of man/dno_bpp.1
     Using distributed version of man/dno_checksize.1
@@ -147,7 +147,7 @@ $ make
     Using distributed version of man/BOARD_OPTIONS.5
     Using distributed version of man/BOARD_TYPE.5
     Using distributed version of docs
-$ 
+dno$ 
       </programlisting>
       <para>
 	If you happen to already have the tools installed that are
@@ -158,10 +158,10 @@ $
       </para>
     </section>
     <section>
-      <info><title>Make Install</title></info>
+      <title>Make Install</title>
       <para>
 	Installation, needs to be done as root.  You can use
-	<command>sudo</command> if you must
+	<literal>sudo</literal> if you must
 	<footnote xml:id='sudo-wassup'>
 	  <para>
 	    The big problem with sudo is that it is generally
@@ -172,28 +172,29 @@ $
 	    of authentication for all administrative tasks.  If you
 	    think this is unduly alarmist try typing
 	    <programlisting>
-$ sudo su -	      
+~$ sudo su -	      
 	    </programlisting>
 	  </para>
 	  <para>
-	    Now you have a root shell and you should be very
-	    concerned.  Sudo was designed to allow non-root users to
-	    perform <emphasis>specific</emphasis> privileged tasks.
-	    In this mode of use it makes a lot of sense and poses
-	    little risk.  Having sudo allow
+	    Now you have a root shell.  You can do absolutely anything
+	    at this point, with virtually no audit trail, and you
+	    should be very concerned.  Sudo was designed to allow
+	    non-root users to perform <emphasis>specific</emphasis>
+	    privileged tasks.  In this mode of use it makes a lot of
+	    sense and poses little risk.  Having sudo allow
 	    <emphasis>anything</emphasis> should be regarded as poor
 	    security practice.
 	  </para>
-	  </footnote>, or become root using <command>su</command> and
-	  run <command>make install</command>:
+	  </footnote>, or become root using <literal>su</literal> and
+	  run <literal>make install</literal>:
 	  <programlisting>
-$ su
+dno$ su
 Password: 
-# make install
+dno# make install
 Installing dno executables in /usr/local/bin
 Install dno man pages in /usr/local/share/man
-# exit
-$
+dno# exit
+dno$
 	  </programlisting>
       </para>
       <para>
@@ -207,7 +208,7 @@ $
     </section>
   </section>
   <section>
-    <info><title>Installing by cloning from github</title></info>
+    <title>Installing By Cloning From Github</title>
     <para>
       TODO
     </para>
