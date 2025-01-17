@@ -103,16 +103,17 @@
     <section>
       <title>On clones/forks,  autotools and configure</title>
       <para>
-	Once you have cloned or forked dno, you only need to run
-	<literal>./configure</literal> once.  After that, you can just
-	run <literal>make</literal> and make will figure out when
+	Once you have pulled, cloned or forked dno, you only need to
+	run <literal>./configure</literal> once.  After that, you can
+	just run <literal>make</literal> and make will figure out when
 	<literal>aclocal</literal>, <literal>autoconf</literal> and
 	<literal>./configure</literal> need to be run.
       </para>
       <para>
 	<literal>make</literal> cannot figure this out for itself in a
-	freshly cloned directory as file timestamps are not preserved
-	(as far as I can tell - MM) by <literal>git</literal>.
+	freshly cloned/pulled directory as file timestamps are not
+	preserved (as far as I can tell - MM) by
+	<literal>git</literal>.
       </para>
     </section>
   </chapter>
