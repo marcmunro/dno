@@ -9,7 +9,7 @@
 #  
 #  ----------
 #
-AC_INIT([dno], [0.7.3 beta],
+AC_INIT([dno], [0.7.4 beta],
         [https://github.com/marcmunro/dno/issues],,
         [https://github.com/marcmunro/dno])
 

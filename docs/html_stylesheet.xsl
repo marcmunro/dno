@@ -36,6 +36,8 @@
 
   <!-- Auto-numbering of sections -->
   <xsl:param name="section.autolabel" select="1"/>
+  <xsl:param name="section.label.includes.component.label" select="1"/>
+
   <xsl:param name="appendix.autolabel" select="A"/>
   <xsl:param name="section.autolabel.max.depth" select="3"/>
   <xsl:param name="chunk.section.depth" select="0"/>

@@ -20,57 +20,57 @@ This is part of the dno Arduino software builder package.
 
 **-b board, --board board**
 
-    Specify a board to be searched for in the boards.txt file(s) If
-    board is in the form x.y, then cpu will be determined from y, and
-    board from x.  If the board is not completely specified, a list of
-    possible boards will be printed.
+Specify a board to be searched for in the boards.txt file(s) If board
+is in the form x.y, then cpu will be determined from y, and board from
+x.  If the board is not completely specified, a list of possible
+boards will be printed.
     
 **-c cpu, --cpu cpu**
 
-    Specify a cpu to be searched for in the boards.txt file(s)
+Specify a cpu to be searched for in the boards.txt file(s)
 
 **-d dir, --dir dir**
 
-    Specify a directory to search for boards.txt This may be specified
-    multiple times to allow for multiple boards.txt files.
+Specify a directory to search for boards.txt This may be specified
+multiple times to allow for multiple boards.txt files.
 
 **-f, --friendly**
 
-    Friendly-format the output.  This is mostly useful when not fully
-    specifying the board that we are interested in.  This makes the
-    board listing output more human-friendly.
+Friendly-format the output.  This is mostly useful when not fully
+specifying the board that we are interested in.  This makes the board
+listing output more human-friendly.
     
 **-h, --help**
 
-    Provide help.
+Provide help.
 
 **-n, --no, --nodefaults**
 
-    Do not use the system default dno paths for the boards.txt files.
-    You must provide at least one explicit --dir option in this case.
+Do not use the system default dno paths for the boards.txt files.
+You must provide at least one explicit --dir option in this case.
 
 **-p, --params**
 
-    Print build parameters for inclusion into a makefile, etc.  This
-    is used to create a BOARD_INFO file for dno.
+Print build parameters for inclusion into a makefile, etc.  This
+is used to create a BOARD_INFO file for dno.
 
 **-q, --quiet**
 
-    Be silent
+Be silent
 
 **-t, --type**
 
-    Print the board type definition in a format suitable for a dno
-    BOARD_TYPE file.
+Print the board type definition in a format suitable for a dno
+BOARD_TYPE file.
     
 **-v, --version**
 
-    Print version information and exit
+Print version information and exit
 
 **-x**
 
-    Provide directory path discovery services to an inferior version
-    of this executable that is determining build parameters. 
+Provide directory path discovery services to an inferior version
+of this executable that is determining build parameters. 
 
 # FILES
 By default, **dno_bpp** looks for platforms.txt and boards.txt files in
@@ -96,17 +96,17 @@ found in in our searched boards.txt files.
 Provide a human readable list of all board types from the boards.txt
 file in a given board-path:
 
-    $ **dno_bpp** -d /usr/share/arduino/hardware/arduino/avr -f
+    $ dno_bpp -d /usr/share/arduino/hardware/arduino/avr -f
 
 List the set of arduino pro board types, in a form suitable for a
 dno BOARD_TYPE file:
 
-    $ **dno_bpp** -d /usr/share/arduino/hardware/arduino/avr -b pro -t
+    $ dno_bpp -d /usr/share/arduino/hardware/arduino/avr -b pro -t
 
 List the full set of board parameters, for inclusion into a dno
 BOARD_INFO file, for an Arduino pro 8MHzatmega328:
 
-    $ **dno_bpp** -d /usr/share/arduino/hardware/arduino/avr \
+    $ dno_bpp -d /usr/share/arduino/hardware/arduino/avr \
     	    -b pro -c 8MHzatmega328 -p
 
 

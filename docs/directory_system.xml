@@ -72,7 +72,7 @@
 	    <para>
 	      Unit tests can be provided for libraries in explicit
 	      test directories.  Running <literal>dno</literal> with
-	      an explicit "tests", "test", unit or "unit_test" target,
+	      an explicit "tests", "test", "unit" or "unit_test" target,
 	      will seek out those libraries that have unit tests, and
 	      run those unit tests, compiling and linking them first,
 	      if needed.
@@ -127,7 +127,7 @@ blink$
     </para>
     <para>
       Usually all sketch source and header files will be placed in the
-      project root directory however, if board-specific customisations
+      project root directory, however, if board-specific customisations
       are required, modified versions of source files can be placed in
       these directories.  The local version of any file always takes
       precedence over the project directory's version.
@@ -229,7 +229,7 @@ blink$
       <para>
 	The only target that makes sense in the docs subdirectory is
 	the <literal>docs</literal> target.  Running
-	<literal>dno</literal> witout an explicit target will do
+	<literal>dno</literal> without an explicit target will do
 	exactly the same thing.
       </para>
     </section>
