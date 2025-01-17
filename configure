@@ -2295,6 +2295,8 @@ ac_config_files="$ac_config_files man/dno_menu.md"
 
 ac_config_files="$ac_config_files man/dno_requote.md"
 
+ac_config_files="$ac_config_files README.md"
+
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -3016,6 +3018,7 @@ do
     "man/dno_dirinfo.md") CONFIG_FILES="$CONFIG_FILES man/dno_dirinfo.md" ;;
     "man/dno_menu.md") CONFIG_FILES="$CONFIG_FILES man/dno_menu.md" ;;
     "man/dno_requote.md") CONFIG_FILES="$CONFIG_FILES man/dno_requote.md" ;;
+    "README.md") CONFIG_FILES="$CONFIG_FILES README.md" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
