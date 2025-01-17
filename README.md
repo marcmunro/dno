@@ -1,18 +1,20 @@
-# dno
+# dno 0.7.2
 #### A system for building Arduino software
 
 dno provides a command-line alternative to Arduino IDEs.  It is fast
 and easy to use, and supports the creation of documentation and unit
 tests, which the standard IDE does not.
 
-It is built around gnu make and is designed to rebuild only what it
+It is built around GNU make and is designed to rebuild only what it
 has to following code updates.  It automatically links to standard
 Arduino libraries and allows user-defined libraries to be added
-simply by including them in their own diorectories.
+simply by including them in their own directories.
 
-Full documentation will be forthcoming.  In the meantime, check out the
-various man pages in the man subdirectory, or the info and help
-targets in dno itself.
+Dno is [documented here on
+github](https://marcmunro.github.io/dno/html/index.html).
+
+You can also check out the various man pages in the man subdirectory,
+or the info and help targets in dno itself.
 
 ## Installation
 

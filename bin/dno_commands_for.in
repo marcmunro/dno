@@ -90,10 +90,6 @@ patterns_for () {
 	recipe_filter
 }
 
-# Include configuration-specific definitions
-#
-. `dirname $0`/../lib/dno_defs.sh
-
 while getopts "hv-:" opt; do
     case "${opt}" in
 	-)

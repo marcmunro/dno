@@ -94,12 +94,28 @@
       </itemizedlist>
     </para>
     <para>
-      The real key to understaning dno, is the
+      The real key to understanding dno, is the
       <literal>ALL_BUILD_RULES</literal> macro.  When you understand
       how this is used, along with the way that make restarts when
       dependency files (included makefiles) are updated, then you will
       get dno.
     </para>
+    <section>
+      <title>On clones/forks,  autotools and configure</title>
+      <para>
+	Once you have pulled, cloned or forked dno, you only need to
+	run <literal>./configure</literal> once.  After that, you can
+	just run <literal>make</literal> and make will figure out when
+	<literal>aclocal</literal>, <literal>autoconf</literal> and
+	<literal>./configure</literal> need to be run.
+      </para>
+      <para>
+	<literal>make</literal> cannot figure this out for itself in a
+	freshly cloned/pulled directory as file timestamps are not
+	preserved (as far as I can tell - MM) by
+	<literal>git</literal>.
+      </para>
+    </section>
   </chapter>
   <chapter>
     <title>Why?</title>
@@ -125,7 +141,7 @@
 	  </para>
 	  <para>
 	    Everything about it is clunky.  The tiny edit window.  The
-	    wierd buttons.  The way that it always starts up halfway
+	    weird buttons.  The way that it always starts up halfway
 	    between my 2 monitors.  The menu entries that look like
 	    headings...
 	  </para>
@@ -143,18 +159,19 @@
 	    you can but the commands are insane.
 	  </para>
 	  <para>
-	    <quote>But this is the right way to do it.  In fact it's the only
-	    way.</quote>
+	    <quote>But this is the right way to do it.  In fact it's
+	    the only way.</quote>
 	  </para>
 	  <para>
 	    That's the attitude I'm talking about.  And it sucks.
 	  </para>
 	  <para>
-	    IDEs all have that attitude.  And many of their users buy
-	    in to it.  You will often here the question, <quote>why
-	    would you not use <emphasis>whatever</emphasis>?</quote>,
-	    when the real question should be <quote>why can't I use
-	    tools that I am familiar with?</quote>
+	    Many IDEs have that attitude.  And many of their users
+	    buy-in to it.  You will often hear the question,
+	    <quote>why would you not use
+	    <emphasis>whatever</emphasis>?</quote>, when the real
+	    question should be <quote>why can't I use tools that I am
+	    familiar with?</quote>
 	  </para>
 	</listitem>
 	<listitem>
@@ -163,8 +180,10 @@
 	  </para>
 	  <para>
 	    The editor has no flexibility.  It is neither powerful nor
-	    customisable.  It doesn't, by default access your normal
-	    files.
+	    customisable.  It doesn't, by default, access your normal
+	    files, and creates new files where <emphasis>it</emphasis>
+	    wants to, taking no account of the way you want your
+	    directory structured.
 	  </para>
 	  <para>
 	    The IDE provides no way to actually develop libraries.
@@ -182,8 +201,13 @@
 	cutting and pasting my code into the IDE.  That sucked.
       </para>
       <para>
+	I know there are other IDEs, like eclipse, that maybe don't
+	suck, but I still don't like IDEs.
+      </para>
+      <para>
 	I tried using the CLI.  But the commands are pure mental: way
-	too many parameters.  That sucked.
+	too many parameters.  That sucked.  Even with some moderately
+	smart scripts to run it all.
       </para>
       <para>
 	I found <literal>Arduino.mk</literal>.  Finally, something that
@@ -221,6 +245,6 @@
   <xi:include href="parts/dno_requote.xml"/>
   <xi:include href="parts/BOARD_INFO.xml"/>
   <xi:include href="parts/BOARD_OPTIONS.xml"/>
-  <xi:include href="parts/BOARD_TYPE.xml"/> -->
+  <xi:include href="parts/BOARD_TYPE.xml"/>
   <xi:include href="gpl-3.0.xml"/>
 </book>

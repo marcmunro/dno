@@ -9,7 +9,7 @@
 #  
 #  ----------
 #
-AC_INIT([dno], [0.7.1])
+AC_INIT([dno], [0.7.2])
 
 [DNO_RELEASE_DATE="January 2025"]
 AC_SUBST([DNO_RELEASE_DATE])
@@ -168,5 +168,6 @@ AC_CONFIG_FILES([man/dno_commands_for.md])
 AC_CONFIG_FILES([man/dno_dirinfo.md])
 AC_CONFIG_FILES([man/dno_menu.md])
 AC_CONFIG_FILES([man/dno_requote.md])
+AC_CONFIG_FILES([README.md])
 AC_OUTPUT
  
