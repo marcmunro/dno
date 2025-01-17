@@ -59,12 +59,29 @@
 <p>
     </p>
 <p>
-      The real key to understaning dno, is the
+      The real key to understanding dno, is the
       <code class="literal">ALL_BUILD_RULES</code> macro.  When you understand
       how this is used, along with the way that make restarts when
       dependency files (included makefiles) are updated, then you will
       get dno.
     </p>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm1027"></a>1. On clones/forks,  autotools and configure</h2></div></div></div>
+<p>
+	Once you have pulled, cloned or forked dno, you only need to
+	run <code class="literal">./configure</code> once.  After that, you can
+	just run <code class="literal">make</code> and make will figure out when
+	<code class="literal">aclocal</code>, <code class="literal">autoconf</code> and
+	<code class="literal">./configure</code> need to be run.
+      </p>
+<p>
+	<code class="literal">make</code> cannot figure this out for itself in a
+	freshly cloned/pulled directory as file timestamps are not
+	preserved (as far as I can tell - MM) by
+	<code class="literal">git</code>.
+      </p>
+</div>
 </div>
 <div class="navfooter">
 <hr>
