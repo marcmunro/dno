@@ -224,7 +224,7 @@ blink$
 	      connected to your Arduino.
 	    </para>
 	  </listitem>
-	  <listitem>
+	  <listitem id="VERBOSE">
 	    <para>
 	      <literal>VERBOSE</literal>
 	    </para>

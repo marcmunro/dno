@@ -127,10 +127,10 @@ blink$
     </para>
     <para>
       Usually all sketch source and header files will be placed in the
-      project root directory, however if board-specific customisations
+      project root directory however, if board-specific customisations
       are required, modified versions of source files can be placed in
       these directories.  The local version of any file always takes
-      precedence over the project directories version.
+      precedence over the project directory's version.
     </para>
     <section>
       <title>Running <literal>dno</literal> in a Board Directory</title>
@@ -223,7 +223,7 @@ blink$
     </para>
     <section>
       <title>
-	Running <literal>dno</literal>in a <literal>docs</literal>
+	Running <literal>dno</literal> in a <literal>docs</literal>
 	Directory
       </title>
       <para>

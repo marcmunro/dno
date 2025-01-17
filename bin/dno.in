@@ -14,14 +14,8 @@
 # Handle boards.local.txt
 # handle filenames with spaces and other stupid characters
 # allow boards.local.txt
-# test upload for esp32
-# docs
-# Compare ide build with our build
-# Allow for tests to be in different directory from lib
 # Add programmers.txt into BOARD_INFO
 # deb package build
-# dirnames containing spaces
-# dirnames containing commas
 
 # Version and configuration stuff
 #
