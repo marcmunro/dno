@@ -16,7 +16,7 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:xlink="http://www.w3.org/1999/xlink">
   <info>
-    <title>DNO USER GUIDE</title>
+    <title>Dno User Guide</title>
     <subtitle>
       The <command>dno</command> command-line build system for Arduino
       software
@@ -24,7 +24,6 @@
     <edition>0.5.6</edition>
     <pubdate>January 2025</pubdate>
   </info>
-  
   <preface xml:id="introduction">
     <info>
       <title>Introduction to Dno</title>
@@ -44,9 +43,10 @@
     <para>
       It also goes beyond what the original Arduino
       <acronym>IDE</acronym> offers by supporting unit testing of
-      libraries and the creation of Doxygen-based documentation of
-      code.  In short, it aims to support the creation of
-      professional-quality software for Arduino platforms.
+      libraries and the creation of <link
+      xlink:href="https://www.doxygen.nl/index.html">Doxygen</link>-based
+      documentation of code.  In short, it aims to support the
+      creation of professional-quality software for Arduino platforms.
     </para>
     <para>
       Finally, it aims to be as simple to use as possible - requiring
@@ -60,28 +60,158 @@
   <xi:include href="directory_system.xml"/>
   <xi:include href="libraries.xml"/>
   <xi:include href="documentation.xml"/>
+  <xi:include href="other.xml"/>
   <chapter>
-    <title>Revision Control</title>
+    <title>Developing and Debugging Dno</title>
     <para>
-      Include unit testing
+      If you want to hack on dno, feel free.  The
+      <literal>dno</literal> executable is a self-executing Makefile
+      and aims to be well commented.
     </para>
-  </chapter>
-  <chapter>
-    <title>Tags</title>
     <para>
-      tags
+      The various helper tools (see the man page appendices) are all
+      shell and awk scripts, and again should be either well-enough
+      documented, or simple enough that they are relatively easy to
+      work on.
     </para>
-  </chapter>
-  <chapter>
-    <title>Developing and Debugging</title>
     <para>
+      To get started with hacking on <literal>dno</literal> you should
+      familiarise yourself with its debug variables which provide
+      various degrees of feedback:
+      <itemizedlist>
+	<listitem>
+	  <literal>VERBOSE</literal>;
+	</listitem>
+	<listitem>
+	  <literal>REPORT</literal>;
+	</listitem>
+	<listitem>
+	  <literal>DEBUG</literal>;
+	</listitem>
+	<listitem>
+	  <literal>SHOW_RULES</literal>.
+	</listitem>
+      </itemizedlist>
+    </para>
+    <para>
+      The real key to understaning dno, is the
+      <literal>ALL_BUILD_RULES</literal> macro.  When you understand
+      how this is used, along with the way that make restarts when
+      dependency files (included makefiles) are updated, then you will
+      get dno.
     </para>
   </chapter>
   <chapter>
     <title>Why?</title>
-    
     <para>
+      <emphasis>This is one developer's Point Of View</emphasis>:
     </para>
+    <para>
+      Dno was created out of frustration with the Arduino IDE.  In
+      particular:
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    its slowness;
+	  </para>
+	  <para>
+	    The IDE is slow everywhere.  It's slow to start, slow to
+	    compile, slow to do anything.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    its clunkiness;
+	  </para>
+	  <para>
+	    Everything about it is clunky.  The tiny edit window.  The
+	    wierd buttons.  The way that it always starts up halfway
+	    between my 2 monitors.  The menu entries that look like
+	    headings...
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    its attitude;
+	  </para>
+	  <para>
+	    Here's how you write software: you bring up a really
+	    crappy editor that has no interest in how you want to use
+	    your filesystem and that does not have the power of the
+	    tools that you normally use.  No, you can't use standard
+	    tools.  And, no you can't build from the command line: well,
+	    you can but the commands are insane.
+	  </para>
+	  <para>
+	    <quote>But this is the right way to do it.  In fact it's the only
+	    way.</quote>
+	  </para>
+	  <para>
+	    That's the attitude I'm talking about.  And it sucks.
+	  </para>
+	  <para>
+	    IDEs all have that attitude.  And many of their users buy
+	    in to it.  You will often here the question, <quote>why
+	    would you not use <emphasis>whatever</emphasis>?</quote>,
+	    when the real question should be <quote>why can't I use
+	    tools that I am familiar with?</quote>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    its inflexibility.
+	  </para>
+	  <para>
+	    The editor has no flexibility.  It is neither powerful nor
+	    customisable.  It doesn't, by default access your normal
+	    files.
+	  </para>
+	  <para>
+	    The IDE provides no way to actually develop libraries.
+	    You can write them, but you can't test them or document
+	    them.  It's a toy development environment for toy
+	    devlopment.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </para>
+    <section>
+      <title>And How?</title>
+      <para>
+	So, I didn't like the IDE.  I tried using a proper editor and
+	cutting and pasting my code into the IDE.  That sucked.
+      </para>
+      <para>
+	I tried using the CLI.  But the commands are pure mental: way
+	too many parameters.  That sucked.
+      </para>
+      <para>
+	I found <literal>Arduino.mk</literal>.  Finally, something that
+	didn't suck.  It showed that normal tools like
+	<literal>make</literal> <emphasis>could</emphasis> be used.
+	But it was really stuck in the <literal>avr</literal> world,
+	and it still required a bit too much hand-holding, particulary
+	around library use.
+      </para>
+      <para>
+	I looked at hacking it, and discovered a lot about
+	<literal>make</literal> that I didn't know.  It was a very
+	good piece of work, but still not quite right.
+      </para>
+      <para>
+	I developed my own version of <literal>Arduino.mk</literal>
+	that tackled some of the problems, but it still didn't feel
+	right.  Copies of the makefile had to be put in place in each
+	directory.  But library discovery worked pretty well.
+      </para>
+      <para>
+	It all came together when I was trying to parse the
+	<literal>platform.txt</literal> file.  I finally realised that
+	a simple transform could turn it into makefile syntax.  And
+	then I discovered make's <literal>eval</literal> function and
+	everything was suddenly possible.
+      </para>
+    </section>
   </chapter>
   <xi:include href="parts/dno.xml"/>
   <xi:include href="parts/dno_bpp.xml"/>

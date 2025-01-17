@@ -91,19 +91,18 @@ blink$
       </programlisting>
     </para>
     <para>
-      This tells us that <literal>dno</literal> does not know what
-      sort of Arduino board to build for.  You can get more
-      information about this using <literal>dno info</literal> or
-      <literal>dno help</literal>.
+      This tells us that dno does not know what sort of Arduino board
+      to build for.  You can get more information about this using
+      <literal>dno info</literal> or <literal>dno help</literal>.
     </para>
   </section>
   <section>
     <title>Select Our Board</title>
     <para>
-      We can tell <literal>dno</literal> what sort of board to build
-      for by creating a BOARD_TYPE file.  The simplest way to do this
-      is using <literal>dno</literal>'s <literal>BOARD_TYPE</literal>
-      <link linkend='targets'>target</link>.
+      We can tell dno what sort of board to build for by creating a
+      <literal>BOARD_TYPE</literal> file.  The simplest way to do this
+      is using dno's <literal>BOARD_TYPE</literal> <link
+      linkend='targets'>target</link>.
     </para>
     <para>
       To see what boards are available use <literal>dno
@@ -127,7 +126,7 @@ pro                   Arduino Pro or Pro Mini
 blink$
       </programlisting>
     </para>
-    <para>
+    <para xml:id="create_board_type">
       We create our <literal>BOARD_TYPE</literal> file as follows:
       <programlisting>
 blink$ dno BOARD_TYPE BOARD=pro CPU=8MHzatmega328
@@ -138,9 +137,9 @@ blink$
       </programlisting>
     </para>
     <para>
-      We can see that <literal>dno</literal> has created a BOARD_TYPE
-      file, which identifies the type of board that we are to compile
-      for.  Looking at it:
+      We can see that dno has created a BOARD_TYPE file, which
+      identifies the type of board that we are to compile for.
+      Looking at it:
       <programlisting>
 blink$ cat BOARD_TYPE
 pro.8MHzatmega328
@@ -198,16 +197,16 @@ blink$
       </programlisting>
     </para>
     <para>
-      From <literal>dno</literal>'s output we can see that
-      <literal>BOARD_INFO</literal> was created, and then a bunch of
-      compilation and other commands were executed.  In addition to
-      compiling the sketch <literal>blink.ino</literal>, the
-      components of the <literal>core</literal> library were built, an
-      archive file was built from those
-      components (<literal>AR</literal>), the whole thing was linked
-      together to create an executable (<literal>LD</literal>), and
-      then, finally, a downloadable version of the executable was
-      created (<literal>OBJCOPY</literal>).
+      From dno's output we can see that <literal>BOARD_INFO</literal>
+      was created, and then a bunch of compilation and other commands
+      were executed.  In addition to compiling the sketch
+      <literal>blink.ino</literal>, the components of the
+      <literal>core</literal> library were built, an archive file was
+      built from those components (<literal>AR</literal>), the whole
+      thing was linked together to create an executable
+      (<literal>LD</literal>), and then, finally, a downloadable
+      version of the executable was created
+      (<literal>OBJCOPY</literal>).
     </para>
     <para>
       From our directory listing we can also see that a
@@ -240,8 +239,8 @@ blink$
       </programlisting>
     </para>
     <para>
-      Note that once everything is built, <literal>dno</literal> will
-      not rebuild it unless something changes:
+      Note that once everything is built, dno will not rebuild it
+      unless something changes:
       <programlisting>
 blink$ dno
 make: Nothing to be done for 'build'.
@@ -250,13 +249,12 @@ blink$
     </para>
     <para>
       Note that the message says <literal>make:...</literal>.  This is
-      because <literal>dno</literal> is <link
-      linkend='dno_is_make'>implemented using
+      because dno is <link linkend='dno_is_make'>implemented using
       <literal>make</literal></link>.
     </para>
   </section>
-  <section>
-    <title>Uploading To A Board</title>
+  <section xml:id="upload">
+    <title xml:id="upload.title" >Uploading To A Board</title>
     <para>
       Now we need to connect our <literal>Arduino</literal> device to
       our computer.  Typically, this is through a USB connection.
@@ -314,7 +312,7 @@ blink$
     </para>
     <para>
       Please note that the ridiculous verbosity of this is outside of
-      <literal>dno</literal>'s control.
+      dno's control.
     </para>
   </section>
   <section>
@@ -322,11 +320,11 @@ blink$
     <para>
       In summary, to create a brand new project, blink, from scratch,
       and upload it to an Arduino board takes only the following steps
-      (<literal>dno</literal> output not shown):
+      (dno output not shown):
       <programlisting>
 ~$ mkdir blink
 ~$ cd blink
-blink$ [create blink.cpp using your favorite editor]
+blink$ [create blink.cpp using your favourite editor]
 blink$ dno BOARD_TYPE BOARD=pro CPU=8MHzatmega328
 [ . . . ]
 blink$ dno

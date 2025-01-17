@@ -21,16 +21,17 @@
       </title>
       <para>
 	You will want to first ensure that all installed packages are
-	up to date (as root - you can use <command>sudo</command> to
-	run a command as root but please note <link
-	linkend='sudo-wassup'>this objection</link>):
+	up to date (do this as root: you can use
+	<literal>sudo</literal> to run a command as root but please
+	note <link linkend='sudo-wassup'>this objection</link>):
 	<programlisting>
 ~# apt update
 ~# apt upgrade
 	</programlisting>
       </para>
       <para>
-	Now, again as root, we install the arduino package:
+	Now, again as root, we install the <literal>arduino</literal>
+	package:
 	<programlisting>
 ~# apt install arduino
 Reading package lists... Done
@@ -498,12 +499,12 @@ one                   Linino One
 	everything.
       </para>
       <para>
-	On <literal>debian</literal>, the files are installed in the
+	On <literal>Debian</literal>, the files are installed in the
 	user's home directory in a hidden directory named
 	<literal>.arduino15</literal>.
       </para>
       <para>
-	You can identify this directory using the
+	You can identify this directory using 
 	<literal>ls</literal> from your home directory:
 	<programlisting>
 ~$ ls -ltr
@@ -565,7 +566,7 @@ Supplemental boards.txt directories:
       </para>
       <para>
 	In the Boards Manager, scroll down to the set of boards you
-	are interested in, mouse over the aprpriate block and click on
+	are interested in, mouse over the appropriate block and click on
 	<literal>Install</literal>.  The example below shows us
 	selecting <literal>esp32</literal> boards.
 	<mediaobject>

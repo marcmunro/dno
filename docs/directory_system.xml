@@ -1,9 +1,11 @@
 <?xml version="1.0"?>
 <chapter xmlns:d="http://docbook.org/ns/docbook" version="5.0"
-	 xmlns:xlink="http://www.w3.org/1999/xlink">
+	 xmlns:xlink="http://www.w3.org/1999/xlink"
+	 xml:id="directory-system">
   <title>The Dno Directory System</title>
   <para>
-    Blah blah blah.  Intro to this.
+    Each dno project must have its own set of directories.  This
+    section describes the organisation of a dno directory system.
   </para>
   <section xml:id="project_dir">
     <title>The Project/Root Directory</title>
@@ -58,7 +60,9 @@
       there.
     </para>
     <section>
-      <title>Running <literal>dno</literal></title>
+      <title>
+	Running <literal>dno</literal> in the Project/Root Directory
+      </title>
       <para>
 	There are two significant, explicit dno targets that can be
 	run in the Project/Root directory:
@@ -78,8 +82,8 @@
 	    docs.
 	    <para>
 	      The docs target attempts to build
-	      <literal>Doxygen</literal> documentation for the whole
-	      project.  See XXXXX
+	      <literal>Doxygen</literal> documentation for the <link
+	      linkend='building_docs'>whole project</link>.
 	    </para>
 	  </listitem>
 	</itemizedlist>
@@ -106,7 +110,7 @@
 	  to build anything:
 	  <programlisting>
 blink$ dno
-Nothing to be done here (in /home/marc/proj/blink).
+Nothing to be done here (in .../blink).
 Try dno ./BOARD_TYPE or dno tests
 blink$ 
 	  </programlisting>
@@ -114,7 +118,7 @@ blink$
       </section>
     </section>
   </section>
-  <section>
+  <section xml:id="board_dir">
     <title>Board Subdirectories</title>
     <para>
       A board subdirectory is used as the home directory for builds
@@ -129,13 +133,12 @@ blink$
       precedence over the project directories version.
     </para>
     <section>
-      <title>Running <literal>dno</literal></title>
+      <title>Running <literal>dno</literal> in a Board Directory</title>
       <para>
-	Running <literal>dno</literal> without an explicit target in
-	the project/root directory will compile and link any code that
-	needs to be compiled/linked.  As always, the object files,
-	etc, will be created in a directory called
-	<literal>build</literal>.
+	Running <literal>dno</literal> without an explicit target in a
+	board directory will compile and link any code that needs to
+	be compiled/linked.  As always, the object files, etc, will be
+	created in a directory called <literal>build</literal>.
       </para>
       <para>
 	Explicit targets that you are likely to use in a a board
@@ -145,14 +148,16 @@ blink$
 	    upload;
 	    <para>
 	      This will attempt to upload the latest executable to a
-	      connected Arduino board.  See XXX
+	      connected Arduino board.  See
+	      <link linkend='upload' endterm="upload.title"/>.
 	    </para>
 	  </listitem>
 	  <listitem>
 	    eeprom.
 	    <para>
 	      This will attempt to upload an eeprom image to a 
-	      connected Arduino board.  See XXX
+	      connected Arduino board.  See
+	      <link linkend='eeprom' endterm="eeprom.title"/>.
 	    </para>
 	  </listitem>
 	</itemizedlist>
@@ -179,11 +184,12 @@ blink$
       contain the source code.
     </para>
     <section>
-      <title>Running <literal>dno</literal></title>
+      <title>Running <literal>dno</literal> in a Library Directory</title>
       <para>
-	Running <literal>dno</literal> without an explicit target in
-	a library subdirectory will attempt to build and run any unit
-	tests that have defined.  See XXXX.
+	Running <literal>dno</literal> without an explicit target in a
+	library subdirectory will attempt to build and run any unit
+	tests that have defined.  See <link linkend='unit_tests'
+	endterm="unit_tests.title"/>.
       </para>
       <para>
 	If no unit tests have been defined, <literal>dno</literal>
@@ -208,14 +214,18 @@ blink$
       libraries have their own separate library specific documentation.
     </para>
     <para>
-      This is covered in detail in XXXX.
+      This is covered in detail in <link linkend='docs'
+	endterm="docs.title"/>.
     </para>
     <para>
       Note that individual libraries may also contain docs
       directories.  These are for library-specific documentation.
     </para>
     <section>
-      <title>Running <literal>dno</literal></title>
+      <title>
+	Running <literal>dno</literal>in a <literal>docs</literal>
+	Directory
+      </title>
       <para>
 	The only target that makes sense in the docs subdirectory is
 	the <literal>docs</literal> target.  Running

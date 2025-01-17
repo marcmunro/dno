@@ -646,9 +646,27 @@ file_parser()
 	{
 	    record_line($0)
 	}
+	/^menu\.cpu\./ {
+	    # Handle cpu menu entries as a special case.  We only need
+	    # to print and record details for the selected case
+	    entry = "cpu"
+	    option = menu_option($0)
+	    if (option == CPU) {
+	        if (entry != cur_entry) {
+		    # This is the first entry for this cpu so record
+		    # it as the selected cpu. 
+		    cur_entry = entry
+		    record_line("menuselection." entry "=" option)
+		}
+		else {
+		    record_line(menu_selection($0))
+		}
+	    }	    
+	    next # Do not process the following stanza
+        }
 	/^menu\.[^\.]*\./ {
-	    # The first occurrence of a particular menu entry provides
-	    # the default value.
+	    # The first occurrence of a particular, non-cpu, menu
+	    # entry provides the default value.
 	    entry = menu_entry($0)
 	    option = menu_option($0)
 	    if (entry != cur_entry) {
@@ -754,6 +772,7 @@ parse_board_platform()
     platform_file="${platform_path}/platform.txt"
     board_file="$1"
     board="$2"
+    cpu="$3"
     shift
     
     platform_parameters "${board_file}" "${platform_file}" "$@"
@@ -771,7 +790,7 @@ parse_board_platform()
 	return ${status}
     fi
 
-    file_parser BOARD="${board}" OS=${HOST_OS} \
+    file_parser BOARD="${board}" CPU="${cpu}" OS=${HOST_OS} \
 		PLATFORM_PATH="${platform_path}" \
 		ARCH_NAME="${arch_name}" HARDWARE_PATH="${hardware_path}" \
 		DNO_IDE_VERSION=${DNO_IDE_VERSION} \

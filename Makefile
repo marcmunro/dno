@@ -202,7 +202,8 @@ ifdef PANDOC
 else
   PANDOC_FEEDBACK = @\#
   PANDOC2MAN = $(if $(wildcard $@),\
-	           touch $@; echo "    Using distributed version of $@",false)
+		   touch $@; echo "    Using distributed version of $@",\
+		   echo "pandoc not installed.  Baling out..." 1>&2; false)
   PANDOC2DOCBOOK = $(PANDOC2MAN)
 endif
 
@@ -229,7 +230,8 @@ HTMLDIR = html
 DOC_SOURCES = docs/dno_doc.xml docs/installation.xml \
 	      docs/toolsets.xml docs/getting_started.xml \
 	      docs/a_little_exploration.xml docs/directory_system.xml \
-	      docs/libraries.xml docs/documentation.xml
+	      docs/libraries.xml docs/documentation.xml \
+	      docs/other.xml
 DOC_IMAGES = $(wildcard docs/*.png)
 
 COMBINED_DOC = docs/full_doc.xml

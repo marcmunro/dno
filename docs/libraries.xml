@@ -647,8 +647,8 @@ pro.8MHzatmega328$
       to test all code paths, no matter how unlikely to be triggered.
       As a bonus the tests also become automated and repeatable.
     </para>
-    <section>
-      <title>Unit Testing With Dno</title>
+    <section xml:id="unit_tests">
+      <title xml:id="unit_tests.title">Unit Testing With Dno</title>
       <para>
 	When run in a library or its tests subdirectory, dno will
 	attempt to create a file called

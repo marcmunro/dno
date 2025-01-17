@@ -57,8 +57,6 @@ BUILD_DIR = build
 # Define REPORT to cause each target to be reported upon.  This is
 # automatically done when VERBOSE is defined.
 #
-# Define QUIET to prevent the automatic display of object size information.
-#
 # Define SHOW_RULES to show the generation of automatically created rules.
 #
 # Define DEBUG to show the calculated values of key variables.  This can be Y,
@@ -752,6 +750,7 @@ define ALL_BUILD_RULES
 
   $$(call $7,$$(RULE_DEPS))
   $$(eval ALL_DEPS += $$(RULE_DEPS))
+  $$(eval ALL_SOURCES += $$(RULE_SOURCES))
   $$(call feedback,$(space) INCLUDING: $$(RULE_DEPS))
   include $$(RULE_DEPS)
 
@@ -829,7 +828,7 @@ ifeq "$(CROSS_BUILD)" "yes"
     recipe.eep.upload.pattern = \
 	        $(subst flash:w,eeprom:w,\
 		        $(subst .hex:i,.eep:i,\
-				$(tools.$(upload.tool).upload.pattern))))
+				$(tools.$(upload.tool).upload.pattern)))
 
     source_file = $<
     object_file = $(@:.d=.o)
@@ -1303,7 +1302,7 @@ menu options:
 # Device-handling targets
 #
 .PHONY: devices check_device_path reset monitor no_screen noscreen upload \
-        eeprom_image eeprom do_upload do_eeprom
+        eeprom_image eeprom do_upload do_eeprom check_baud
 
 # Attempt to determine the serial device to use for uploads and monitoring for
 # DEVICE_PATH.  This is a best guess.  The caller may provide a definitive
@@ -1353,35 +1352,20 @@ reset: check_device_path
 #
 ifndef MONITOR_BAUD
    SPEEDS = 300 1200 2400 4800 9600 14400 19200 28800 38400 57600 115200
+   SPEED_REGEXP = [^0-9]\($(subst $(space),\|,$(SPEEDS))\)\([^0-9]\|$$\)
    USER_SOURCES = $(call matching_files,*.ino *.cpp *.c *.S, $(SRC_DIRS))
 endif
 
-# Figure out the baud rate for our monitor.  If manually provided, we use
-# that, otherwise we try to find a string in the code that looks promising,
-# otherwise we default to 9600.  This automatic determination of speed on the
-# face of it seems like it should be pretty fragile but is suprisingly
-# effective.  If we get it wrong, the user can supply it manually.
-#
-.baud:
-	$(TARGET)
-	$(AT)if [ "x$(MONITOR_BAUD)" = "x" ]; then \
-	  speed=`grep "\($(subst $(space),\|,$(SPEEDS))\)" $(USER_SOURCES) | \
-	    head -1 | sed -e 's/[^0-9]*\([0-9][0-9]*\).*/\1/'`; \
-	  if [ "x$${speed}" = "x" ]; then \
-	    echo 9600; \
-	  else \
-	    echo $${speed}; \
-	  fi; \
-	else \
-	    echo $(MONITOR_BAUD); \
-	fi >$@
-
 # Run a serial monitor in screen.
 #
-monitor: check_device_path .baud
+monitor: check_device_path
 	$(TARGET)
 	@$(FEEDBACK) "Running screen: C-a k to exit"
-	$(AT)screen $(DEVICE_PATH) `cat .baud`
+	$(AT)screen $(DEVICE_PATH) \
+	    $(or $(MONITOR_BAUD), \
+	         $(shell grep "$(SPEED_REGEXP)" $(USER_SOURCES) | \
+                         head -1 | sed -e 's/[^0-9]*\([0-9][0-9]*\).*/\1/' ),\
+	         9600)
 
 # Ensure there is no screen connected to the DEVICE.  Kill the screen if
 # KILLSCREEN has been provided.
@@ -1431,8 +1415,9 @@ eeprom:	$(TARGET_EEP) verify_size reset
 
 do_eeprom: no_screen
 	$(TARGET)
-	$(FEEDBACK) "\n  writing eeprom from $(notdir $(TARGET_EEP))" \
-		"using $(DEVICE_PATH)\n"
+	$(FEEDBACK)
+	$(FEEDBACK) "  writing eeprom from $(notdir $(TARGET_EEP))" \
+		"using $(DEVICE_PATH)"
 	$(AT) $(recipe.eep.upload.pattern)
 
 

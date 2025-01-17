@@ -4,8 +4,8 @@
   <title>A Little Exploration</title>
   <para>
     The previous section shows how to get started with
-    <literal>dno</literal> for a simple project.  It intoduces a lot of
-    <literal>dno</literal>'s features and capabiliies without really
+    <literal>dno</literal> for a simple project.  It introduces a lot of
+    <literal>dno</literal>'s features and capabilities without really
     explaining or delving into them.  So, let's look a little closer.
   </para>
   <section xml:id="dno_is_make">
@@ -19,15 +19,16 @@
       </para>
       <para>
 	This is because <literal>dno</literal> is based on
-	<literal>make</literal> and understands the dependencies
-	between <emphasis>everything</emphasis> that it builds.  If
-	you update a source file, <literal>dno</literal> knows that
-	the object for that source file has to be recreated because
-	the object <emphasis>depends</emphasis> on that source file.
-	Similarly, if that object file is part of a library, then the
-	library <emphasis>depends</emphasis> on the object and must
-	also be rebuilt.  And if the library or object is part of an
-	image file, then the image <emphasis>depends</emphasis> on the
+	<literal>make</literal> (specifically <literal>GNU
+	make</literal>) and understands the dependencies between
+	<emphasis>everything</emphasis> that it builds.  If you update
+	a source file, <literal>dno</literal> knows that the object
+	for that source file has to be recreated because the object
+	<emphasis>depends</emphasis> on that source file.  Similarly,
+	if that object file is part of a library, then the library
+	<emphasis>depends</emphasis> on the object and must also be
+	rebuilt.  And if the library or object is part of an image
+	file, then the image <emphasis>depends</emphasis> on the
 	library or object, and dno will re-link it.
       </para>
       <para>
@@ -40,9 +41,6 @@
 	anything.  This makes compilations much faster and more
 	efficient, making <literal>dno</literal> more pleasant to use
 	than the standard, much slower, tools.
-      </para>
-      <para>
-	XXX more on performance
       </para>
     </section>
     <section xml:id="targets">
@@ -73,11 +71,11 @@
 	make parlance, called targets.
       </para>
       <para>
-	A target is something that make, and hence dno, knows how to
-	build.  There is a recipe for building that target, and a set of
-	dependencies.  Providing a target on the
-	<literal>dno</literal> command line, tells it what you want it
-	to do.
+	A target is something that <literal>make</literal>, and hence
+	<literal>dno</literal>, knows how to build.  There is a recipe
+	for building that target, and a set of dependencies.
+	Providing a target on the dno command line, tells it what you
+	want it to do.
       </para>
       <para>
 	Some targets are files, eg BOARD_TYPE, some are higher level,
@@ -91,7 +89,8 @@
       <para>
 	If you run <literal>dno</literal> without an explicit target,
 	it will attempt to build the default target.  What this will
-	do, will depend on the type of directory you are in.   XXXX ref:
+	do, will depend on the <link linkend="directory-system">type
+	of directory</link> you are in.
       </para>
     </section>
     <section>
@@ -100,24 +99,200 @@
 	Of particular interest here is the <literal>-j N</literal>
 	option.  This allows make to perform multiple actions ("jobs")
 	in parallel.  This can greatly reduce the compilation time for
-	a large piece of software.  See man <literal>make</literal>
+	a large piece of software.  See the <literal>make</literal>
 	manual page for more on this.
+      </para>
+    </section>
+    <section>
+      <title>Dno Variables</title>
+      <para>
+	There are a number of variables that can be defined on the dno
+	command line that provide information to
+	<literal>dno</literal> or otherwise affect its behaviour.  We
+	have already seen an <link
+	linkend="create_board_type">example</link> of this with the
+	command:
+	<programlisting>
+blink$ dno BOARD_TYPE BOARD=pro CPU=8MHzatmega328
+  Creating BOARD_TYPE...
+blink$
+	</programlisting>
+	which creates a <literal>BOARD_TYPE</literal> file containing
+	a definition matching the provided values for the
+	<literal>BOARD</literal> and <literal>CPU</literal>
+	variables. 
+      </para>
+      <para>
+	The most important and useful variables are:
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      <literal>BOARD</literal>
+	    </para>
+	    <para>
+	      This is used to identify a specific type of Arduino
+	      board.  For boards that have multiple CPU options, the
+	      cpu can also be specified within this variable following
+	      a period (".").  The following are therefore equivalent:
+	      <itemizedlist>
+		<listitem>
+		  <literal>BOARD=pro CPU=8MHzatmega328</literal>;
+		</listitem>
+		<listitem>
+		  <literal>BOARD=pro.8MHzatmega328</literal>.
+		</listitem>
+	      </itemizedlist>
+	    </para>
+	    <para>
+	      Targets which make use of this variable are:
+	      <itemizedlist>
+		<listitem>
+		  <literal>BOARD_TYPE</literal>;
+		</listitem>
+		<listitem>
+		  <literal>BOARD_INFO</literal>;
+		</listitem>
+		<listitem>
+		  <literal>show_boards</literal>.
+		</listitem>
+	      </itemizedlist>
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      <literal>CPU</literal>
+	    </para>
+	    <para>
+	      This is used to identify the cpu variant for board
+	      specified by the <literal>BOARD</literal> variable.
+	    </para>
+	  </listitem>
+	  <listitem xml:id="device_path">
+	    <para>
+	      <literal>DEVICE_PATH</literal>
+	    </para>
+	    <para>
+	      This is used to specify the host device to which a
+	      target Arduino board is connected.  Generally, this will
+	      not be needed as dno will figure it out for itself, but
+	      if you have multiple serial devices connected, this
+	      allows you to specify which one you are interested in.
+	      Note that this overrides any value that dno might have
+	      discovered for itself.
+	    </para>
+	    <para>
+	      Targets which make use of this variable are:
+	      <itemizedlist>
+		<listitem>
+		  <literal>reset</literal>;
+		</listitem>
+		<listitem>
+		  <literal>upload</literal>;
+		</listitem>
+		<listitem>
+		  <literal>eeprom</literal>;
+		</listitem>
+		<listitem>
+		  <literal>monitor</literal>.
+		</listitem>
+	      </itemizedlist>
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      <literal>MONITOR_BAUD</literal>
+	    </para>
+	    <para>
+	      This is used to specify the
+	      <link
+		  xlink:href="https://en.wikipedia.org/wiki/Baud">baud
+	      rate</link> to be used for a serial connection.  This
+	      normally defaults to the correct value but sometimes dno
+	      will get this wrong.
+	    </para>
+	    <para>
+	      This is used by the <literal>monitor</literal> target.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      <literal>KILL_SCREEN</literal>
+	    </para>
+	    <para>
+	      This can be provided to the noscreen target to kill any
+	      <literal>literal</literal> screen instance that is
+	      connected to your Arduino.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      <literal>VERBOSE</literal>
+	    </para>
+	    <para>
+	      This causes <literal>dno</literal>'s activities to become
+	      more verbose.  Usually the commands that dno executes
+	      are summarised:
+	      <programlisting>
+8MHzatmega328$ touch ../blink.cpp
+pro.8MHzatmega328$ dno build/blink.o
+  C++  [..] blink.cpp
+make: 'build/blink.o' is up to date.
+pro.8MHzatmega328$ 
+	      </programlisting>
+	    </para>
+	    <para>
+	      Setting VERBOSE on the command line changes that, and
+	      causes the actual commands to be shown instead of the
+	      summary.  Additionally, it identifies each target that is
+	      actually run:
+	      <programlisting>
+pro.8MHzatmega328$ touch ../blink.cpp
+pro.8MHzatmega328$ dno build/blink.o VERBOSE=y
+BUILDING TARGET[] build/blink.o
+BUILDING TARGET[] prebuild
+BUILDING TARGET[] presketch
+BUILDING TARGET[] build/blink.d
+"/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=00508 -DARDUINO_AVR_PRO -DARDUINO_ARCH_AVR   -I /home/user/.arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino -I /home/user/.arduino15/packages/arduino/hardware/avr/1.8.6/variants/eightanaloginputs -I ../Deferal -I /home/user/.arduino15/packages/arduino/hardware/avr/1.8.6///libraries/EEPROM/src -I /home/user/.arduino15/packages/arduino/hardware/avr/1.8.6///libraries/HID/src -I /home/user/.arduino15/packages/arduino/hardware/avr/1.8.6///libraries/SoftwareSerial/src -I /home/user/.arduino15/packages/arduino/hardware/avr/1.8.6///libraries/SPI/src -I /home/user/.arduino15/packages/arduino/hardware/avr/1.8.6///libraries/Wire/src "..//blink.cpp" -o "build/blink.o" 
+BUILDING TARGET[] postsketch
+BUILDING TARGET[] prelib
+BUILDING TARGET[] postlib
+BUILDING TARGET[] precore
+BUILDING TARGET[1] prebuild
+BUILDING TARGET[1] presketch
+BUILDING TARGET[1] postsketch
+BUILDING TARGET[1] prelib
+BUILDING TARGET[1] postlib
+BUILDING TARGET[1] precore
+make: 'build/blink.o' is up to date.
+pro.8MHzatmega328$ 
+	      </programlisting>
+	    </para>
+	    <para>
+	      This can be useful if you want to run a compilation
+	      manually, to debug some unexpected behaviour etc.
+	    </para>
+	  </listitem>
+	</itemizedlist>
       </para>
     </section>
   </section>
   <section>
     <title>The Project Directory</title>
     <para>
-      The name for a <literal>dno</literal> project comes from the
-      name of the project directory.  The Arduino IDE handles this in
-      much the same way, but setting the name in the Arduino IDE is
-      more cumbersome.
+      The name for a dno project comes from the name of the <link
+      linkend='project_dir'>project directory</link>.  The Arduino IDE
+      handles this in much the same way, but setting the name in the
+      Arduino IDE is more cumbersome.
     </para>
     <para>
       You can change the name of your project by simply changing the
       name of the project directory.  When you next run
       <literal>dno</literal>, it will figure out that the name has
-      changed and will rebuild everything.
+      changed and will rebuild everything <footnote>
+      <para>
+	Yes.  I know.
+      </para>
+    </footnote>.
     </para>
   </section>
   <section xml:id="board_type">
@@ -125,17 +300,16 @@
       The BOARD_TYPE File, And Board Types
     </title>
     <para>
-      A <literal>BOARD_TYPE</literal> file identfies the type of board
-      that <literal>dno</literal> is going to build code for.  Any
-      time this changes <literal>dno</literal> will know it has to
-      rebuild everything.
+      A <literal>BOARD_TYPE</literal> file identifies the type of
+      board that dno is going to build code for.  Any time this
+      changes dno will know it has to rebuild everything.
     </para>
     <para>
       As an alternative to an explicit <literal>BOARD_TYPE</literal>
-      file, <literal>dno</literal> allows board-specific
-      subdirectories to be added to a project.  These directories are
-      given the name of the board in the same format as the contents
-      of a <literal>BOARD_TYPE</literal> file.
+      file, dno allows board-specific subdirectories to be added to a
+      project.  These directories are given the name of the board in
+      the same format as the contents of a
+      <literal>BOARD_TYPE</literal> file.
     </para>
     <para>
       This allows you to build code for multiple types of boards
@@ -143,10 +317,10 @@
       approach.  We'll start by looking at our current directory:
       <programlisting>
 blink$ ls -l
-- rw-r--r-- 1 marc marc  1233 Jan  6 11:04 blink.ino
--rw-r--r-- 1 marc marc 12860 Jan 10 16:33 BOARD_INFO
--rw-r--r-- 1 marc marc    18 Jan 10 16:33 BOARD_TYPE
-drwxr-xr-x 3 marc marc  4096 Jan 10 16:33 build
+- rw-r--r-- 1 user user  1233 Jan  6 11:04 blink.ino
+-rw-r--r-- 1 user user 12860 Jan 10 16:33 BOARD_INFO
+-rw-r--r-- 1 user user    18 Jan 10 16:33 BOARD_TYPE
+drwxr-xr-x 3 user user  4096 Jan 10 16:33 build
 blink$
       </programlisting>
     </para>
@@ -161,23 +335,23 @@ blink$
       We'll want to clean this up before we create our new directory,
       as subsequent builds will be done there.  We could do this
       manually (with <literal>rm</literal> commands), or we can use a
-      <literal>dno</literal> target to do this for us:
+      dno target to do this for us:
       <programlisting>
 blink$ dno pristine
 Super-cleaning .
 blink$ ls -l
 total 8
--rw-r--r-- 1 marc marc 1233 Jan  6 11:04 blink.ino
--rw-r--r-- 1 marc marc   18 Jan 10 16:42 BOARD_TYPE
+-rw-r--r-- 1 user user 1233 Jan  6 11:04 blink.ino
+-rw-r--r-- 1 user user   18 Jan 10 16:42 BOARD_TYPE
 blink$ rm BOARD_TYPE
 blink$ ls -l
 total 4
--rw-r--r-- 1 marc marc 1233 Jan  6 11:04 blink.ino
+-rw-r--r-- 1 user user 1233 Jan  6 11:04 blink.ino
 blink$
       </programlisting>
     </para>
     <para>
-      The <literal>pristine</literal> target is a slighty souped-up
+      The <literal>pristine</literal> target is a slightly souped-up
       version of the <literal>clean</literal> target.  Clean will
       remove the <literal>build</literal> directory and its contents.
       Pristine additionally removes the <literal>BOARD_INFO</literal>
@@ -231,7 +405,7 @@ pro.8MHzatmega328$
       to use <literal>dno</literal>.
     </para>
   </section>
-  <section>
+  <section xml:id="clean">
     <title>Cleaning</title>
     <para>
       The section above introduced the "clean" and "pristine"
@@ -247,13 +421,13 @@ pro.8MHzatmega328$
     </para>
     <para>
       Note that all of the cleaning targets work in the current
-      directory as well as its descendents.
+      directory as well as its descendant's.
     </para>
     <section>
       <title><literal>Tidy</literal></title>
       <para>
 	The <literal>tidy</literal> target removes all files that look
-	like garbage.  This includes emacs' backup and auto-save files.
+	like garbage.  This includes Emacs' backup and auto-save files.
       </para>
     </section>
     <section>
@@ -266,7 +440,7 @@ pro.8MHzatmega328$
 	<literal>dno</literal> is next run.
       </para>
     </section>
-    <section>
+    <section xml:id="pristine">
       <title><literal>Pristine</literal></title>
       <para>
 	The <literal>pristine</literal> target does all that the
@@ -326,34 +500,380 @@ pro.8MHzatmega328$
     </para>
   </section>
   <section>
-    <title>Devices</title>
+    <title>Connecting to Physical Arduino Boards</title>
     <para>
-      XXXX
-      dno devices
+      Dno provides a number of commands for interfacing with Arduino
+      boards.  It can upload compiled code to a board, modify a
+      board's eeprom (with some limitations), and communicate with a
+      board using its serial interface.
     </para>
-    <para>
-      XXXX
-      Use of screen
-    </para>
-    <para>
-      XXXX
-      Upload and eeprom
-    </para>
-    <para>
-    </para>
+    <section>
+      <title>Identifying Devices</title>
+      <para>
+	Generally, when a single Arduino board is connected to your
+	computer, dno is able to identify the serial device it is
+	connected to.  To see what devices dno thinks are in use, use
+	the <literal>devices</literal> target:
+	<programlisting>
+pro.8MHzatmega328$ dno devices
+DEVICES: /dev/ttyUSB0
+pro.8MHzatmega328$ 
+	</programlisting>
+      </para>
+      <para>
+	Here we see that a single serial device is in use.  In this
+	case dno will be able to identify the device for itself.  If
+	there is more than one device is detected, you will have to
+	tell dno which device to use using the
+	<link linkend='device_path'>
+	  <literal>DEVICE_PATH</literal>
+	</link>variable.
+      </para>
+    </section>
+    <section>
+      <title>Uploading Software</title>
+      <para>
+	Software is uploaded using dno's <literal>upload</literal>
+	target.  More can be found <link linkend="upload">here</link>.
+      </para>
+    </section>
+    <section>
+      <title>Communicating With The Arduino</title>
+      <para>
+	The equivalent to the Arduino IDE's Serial Monitor is invoked
+	by the <literal>monitor</literal> target.  More <link
+	linkend="monitor">here</link>.
+      </para>
+    </section>
+    <section>
+      <title>Writing EEPROM data</title>
+      <para>
+	Writing to an Arduino's EEPROM from outside of a program is a
+	bit hand and miss.  Dno kind-of, mostly, sort-of supports writing
+	eeproms for AVR-architecture boards.  More <link
+	linkend="eeprom">here</link>.
+      </para>
+    </section>
   </section>
   <section>
     <title>Performance</title>
     <para>
-      XXXX
-      Comparisons with the CLI as used by the Arduino IDE
+      Generally speaking dno will easily outperform the Arduino IDE or
+      CLI.  This is because dno:
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    understands dependencies, and so only does work that is
+	    necessary;
+	  </para>
+	  <para>
+	    Compare this with the Arduino IDE, which although it
+	    caches some results, always attempts to recompile your
+	    code, even if nothing has changed.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    retains work that it has already done;
+	  </para>
+	  <para>
+	    For instance the Arduino IDE appears to parse the
+	    <literal>boards.txt</literal> and
+	    <literal>platform.txt</literal> files each time it is
+	    run.  Dno, keeps this information in its
+	    <literal>BOARD_INFO</literal> file in a form that
+	    <literal>make</literal> can understand.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    automatically discovers everything it needs;
+	  </para>
+	  <para>
+	    You don't have to tell dno what libraries to use or where
+	    to find them.  This reduces the cognitive load for the
+	    developer, helping them stay in the zone.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    uses very short commands, which are quick and easy to type;
+	  </para>
+	  <para>
+	    This is generally faster than pointing and clicking through
+	    an IDE interface.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    has very low overhead.
+	  </para>
+	  <para>
+	    Dno does not require massive 3rd party libraries.  It does
+	    not require a massive virtual machine or runtime
+	    environment.  It is lightweight and uses mature,
+	    well-optimised tools.
+	  </para>
+	</listitem>
+      </itemizedlist>
     </para>
-    <para>
-      How to make it even faster
-    </para>
-    <para>
-    </para>
-    <para>
-    </para>
+    <section>
+      <title>Quantified Performance Comparison</title>
+      <para>
+	The following tests were performed using the standard
+	<literal>blink.cpp</literal> sketch, compiled for a
+	<literal>pro.8MHzatmega328</literal> Arduino board on a
+	relatively old x86_64 GNU/Linux desktop machine.
+      </para>
+      <para>
+	Due to the difficulty of timing actions within the IDE, the
+	comparison is between running the commands that the IDE claims
+	to have issued, with a fresh dno directory containing only the
+	sketch and a <literal>BOARD_TYPE</literal> file.
+      </para>
+      <section>
+	<title>Comparing Build Times</title>
+	<section>
+	  <title>Arduino CLI</title>
+	  <para>
+	    To do this we ran the Arduino IDE to show the build
+	    commands.  These commands were extracted into a script,
+	    shown below:
+	    <programlisting>
+#! /usr/bin/env bash
+
+rm -rf /tmp/arduino_build_22206/
+mkdir /tmp/arduino_build_22206/
+
+do_it ()
+{
+arduino-builder -dump-prefs -logger=machine -hardware /usr/share/arduino/hardware -hardware /home/user/.arduino15/packages -tools /usr/share/arduino/hardware/tools/avr -tools /home/user/.arduino15/packages -libraries /home/user/Arduino/libraries -fqbn=arduino:avr:pro:cpu=16MHzatmega328 -vid-pid=0403_6015 -ide-version=10813 -build-path /tmp/arduino_build_22206 -warnings=none -build-cache /tmp/arduino_cache_578139 -prefs=build.warn_data_percentage=75 -prefs=runtime.tools.arduinoOTA.path=/home/user/.arduino15/packages/arduino/tools/arduinoOTA/1.3.0 -prefs=runtime.tools.arduinoOTA-1.3.0.path=/home/user/.arduino15/packages/arduino/tools/arduinoOTA/1.3.0 -prefs=runtime.tools.avr-gcc.path=/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7 -prefs=runtime.tools.avr-gcc-7.3.0-atmel3.6.1-arduino7.path=/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7 -prefs=runtime.tools.avrdude.path=/home/user/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17 -prefs=runtime.tools.avrdude-6.3.0-arduino17.path=/home/user/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17 -verbose /home/user/proj/cli_blink/blink.cpp
+time arduino-builder -compile -logger=machine -hardware /usr/share/arduino/hardware -hardware /home/user/.arduino15/packages -tools /usr/share/arduino/hardware/tools/avr -tools /home/user/.arduino15/packages -libraries /home/user/Arduino/libraries -fqbn=arduino:avr:pro:cpu=16MHzatmega328 -vid-pid=0403_6015 -ide-version=10813 -build-path /tmp/arduino_build_22206 -warnings=none -build-cache /tmp/arduino_cache_578139 -prefs=build.warn_data_percentage=75 -prefs=runtime.tools.arduinoOTA.path=/home/user/.arduino15/packages/arduino/tools/arduinoOTA/1.3.0 -prefs=runtime.tools.arduinoOTA-1.3.0.path=/home/user/.arduino15/packages/arduino/tools/arduinoOTA/1.3.0 -prefs=runtime.tools.avr-gcc.path=/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7 -prefs=runtime.tools.avr-gcc-7.3.0-atmel3.6.1-arduino7.path=/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7 -prefs=runtime.tools.avrdude.path=/home/user/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17 -prefs=runtime.tools.avrdude-6.3.0-arduino17.path=/home/user/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17 -verbose  /home/user/proj/cli_blink/blink.cpp
+
+}
+
+do_it
+	    </programlisting>
+	  </para>
+	  <para>
+	    This script, clears any cached build, rebuilds the build
+	    directory, parses the <literal>platform.txt</literal> file
+	    (at least that's my assumption of what the first
+	    <literal>arduino-builder</literal> command is doing, and
+	    then compiles and links the sketch.  This last command is
+	    executed using the Linux <literal>time</literal> command,
+	    which records how long things take.
+	  </para>
+	  <para>
+	    We run this script 4 times.  The timing results are shown
+	    below:
+	    <programlisting>
+cli_blink$ ./cli.sh 
+[ lots of output removed ]
+real	0m1.304s
+user	0m0.678s
+sys	0m0.732s
+cli_blink$ ./cli.sh 
+[ lots of output removed ]
+real	0m1.373s
+user	0m0.754s
+sys	0m0.775s
+cli_blink$ ./cli.sh 
+[ lots of output removed ]
+real	0m1.344s
+user	0m0.699s
+sys	0m0.744s
+cli_blink$ ./cli.sh 
+[ lots of output removed ]
+real	0m1.263s
+user	0m0.668s
+sys	0m0.696s
+cli_blink$ 	
+	    </programlisting>
+	  </para>
+	</section>
+	<section>
+	  <title>Dno</title>
+	  <para>
+	    We created a directory containing our sketch, and created
+	    <literal>BOARD_TYPE</literal> and
+	    <literal>BOARD_INFO</literal> files:
+	    <programlisting>
+dno_blink$ ls
+blink.ino
+dno_blink$ dno BOARD_TYPE BOARD=pro.8MHzatmega328
+  Creating BOARD_TYPE...
+dno_blink$ ls
+blink.ino  BOARD_TYPE
+dno_blink$ 
+	    </programlisting>
+	  </para>
+	  <para>
+	    This is equivalent to the setup above.  Then we run the
+	    following commands:
+	    <programlisting>
+dno pristine; dno BOARD_INFO; time dno
+	    </programlisting>
+	  </para>
+	  <para>
+	    The first invocation will remove any
+	    <literal>build</literal> directory and
+	    <literal>BOARD_INFO</literal> file (ensuring that the
+	    contents of BOARD_INFO are not cached by the OS).  The
+	    second, rebuilds <literal>BOARD_INFO</literal>, and the
+	    third, provides our timing run of compilation and
+	    linking.  Here are the results:
+	    <programlisting>
+dno_blink$ dno pristine; dno BOARD_INFO; time dno
+[ relatively little output removed ]
+real	0m1.252s
+user	0m1.044s
+sys	0m0.260s
+no_blink$ dno pristine; dno BOARD_INFO; time dno
+[ relatively little output removed ]
+real	0m1.237s
+user	0m1.009s
+sys	0m0.280s
+dno_blink$ dno pristine; dno BOARD_INFO; time dno
+[ relatively little output removed ]
+real	0m1.262s
+user	0m1.006s
+sys	0m0.310s
+dno_blink$ dno pristine; dno BOARD_INFO; time dno
+[ relatively little output removed ]
+real	0m1.213s
+user	0m1.011s
+sys	0m0.254s
+dno_blink$ 
+	    </programlisting>
+	  </para>
+	</section>
+	<section>
+	  <title>Conclusion</title>
+	  <para>
+	    In a pure compilation and linking invocation, with no
+	    cached results, dno is a little faster (about 6%) than the
+	    Arduino CLI.  This might seem surprising given that most
+	    of the time should be spent by the compiler, linker, etc,
+	    which should be identical in both cases, however dno does
+	    optimise the way it generates archive files when compared
+	    to the Arduino tools.  This may account for the consistent
+	    but small difference.
+	  </para>
+	</section>
+	</section>
+      <section>
+	<title>Comparing Parse and Build Times</title>
+	<para>
+	  Let's now also consider parse times.  This is the time for
+	  <literal>arduino-builder</literal> to dump its preferences,
+	  or for <literal>dno</literal> to create the
+	  <literal>BOARD_INFO</literal> file.
+	</para>
+	<section>
+	  <title>Arduino CLI</title>
+	  <para>
+	    For this test, we modify our script as shown below:
+	    <programlisting>
+#! /usr/bin/env bash
+
+rm -rf /tmp/arduino_build_22206/
+mkdir /tmp/arduino_build_22206/
+
+do_it ()
+{
+arduino-builder -dump-prefs -logger=machine -hardware /usr/share/arduino/hardware -hardware /home/user/.arduino15/packages -tools /usr/share/arduino/hardware/tools/avr -tools /home/user/.arduino15/packages -libraries /home/user/Arduino/libraries -fqbn=arduino:avr:pro:cpu=16MHzatmega328 -vid-pid=0403_6015 -ide-version=10813 -build-path /tmp/arduino_build_22206 -warnings=none -build-cache /tmp/arduino_cache_578139 -prefs=build.warn_data_percentage=75 -prefs=runtime.tools.arduinoOTA.path=/home/user/.arduino15/packages/arduino/tools/arduinoOTA/1.3.0 -prefs=runtime.tools.arduinoOTA-1.3.0.path=/home/user/.arduino15/packages/arduino/tools/arduinoOTA/1.3.0 -prefs=runtime.tools.avr-gcc.path=/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7 -prefs=runtime.tools.avr-gcc-7.3.0-atmel3.6.1-arduino7.path=/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7 -prefs=runtime.tools.avrdude.path=/home/user/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17 -prefs=runtime.tools.avrdude-6.3.0-arduino17.path=/home/user/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17 -verbose /home/user/proj/cli_blink/blink.cpp
+arduino-builder -compile -logger=machine -hardware /usr/share/arduino/hardware -hardware /home/user/.arduino15/packages -tools /usr/share/arduino/hardware/tools/avr -tools /home/user/.arduino15/packages -libraries /home/user/Arduino/libraries -fqbn=arduino:avr:pro:cpu=16MHzatmega328 -vid-pid=0403_6015 -ide-version=10813 -build-path /tmp/arduino_build_22206 -warnings=none -build-cache /tmp/arduino_cache_578139 -prefs=build.warn_data_percentage=75 -prefs=runtime.tools.arduinoOTA.path=/home/user/.arduino15/packages/arduino/tools/arduinoOTA/1.3.0 -prefs=runtime.tools.arduinoOTA-1.3.0.path=/home/user/.arduino15/packages/arduino/tools/arduinoOTA/1.3.0 -prefs=runtime.tools.avr-gcc.path=/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7 -prefs=runtime.tools.avr-gcc-7.3.0-atmel3.6.1-arduino7.path=/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7 -prefs=runtime.tools.avrdude.path=/home/user/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17 -prefs=runtime.tools.avrdude-6.3.0-arduino17.path=/home/user/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17 -verbose  /home/user/proj/cli_blink/blink.cpp
+
+}
+
+time do_it
+	    </programlisting>
+	  </para>
+	  <para>
+	    The Linux <literal>time</literal> command is now applied
+	    to the entire <literal>do_it</literal> function, rather
+	    than just the second <literal>arduino-builder</literal>
+	    invocation.
+	  </para>
+	  <para>
+	    Running this 4 times:
+	    <programlisting>
+cli_blink$ ./cli.sh
+[ output removed ]
+real	0m2.243s
+user	0m1.175s
+sys	0m1.350s
+cli_blink$ ./cli.sh
+[ output removed ]
+real	0m2.489s
+user	0m1.396s
+sys	0m1.426s
+cli_blink$ ./cli.sh
+[ output removed ]
+real	0m2.472s
+user	0m1.333s
+sys	0m1.498s
+cli_blink$ ./cli.sh
+[ output removed ]
+real	0m2.438s
+user	0m1.334s
+sys	0m1.464s
+cli_blink$ 
+	    </programlisting>
+	  </para>
+	</section>
+	<section>
+	  <title>Dno</title>
+	  <para>
+	    We slightly modify our previous invocation and, again, run
+	    4 times:
+	    <programlisting>
+dno_blink$ dno pristine; time dno
+[ output removed ]
+real	0m1.414s
+user	0m1.199s
+sys	0m0.308s
+dno_blink$ dno pristine; time dno
+[ output removed ]
+real	0m1.482s
+user	0m1.290s
+sys	0m0.255s
+dno_blink$ dno pristine; time dno
+[ output removed ]
+real	0m1.465s
+user	0m1.286s
+sys	0m0.270s
+dno_blink$ dno pristine; time dno
+[ output removed ]
+real	0m1.464s
+user	0m1.255s
+sys	0m0.301s
+dno_blink$ 
+	    </programlisting>
+	  </para>
+	</section>
+	<section>
+	  <title>Conclusion</title>
+	  <para>
+	    In this test, dno does even better, achieving around 65%
+	    better performance.  This is quite surprising since the
+	    parsing for dno is essentially done by dumb scripting
+	    tools rather than a compiled executable.
+	  </para>
+	</section>
+      </section>
+      <section>
+	<title>Final Conclusions</title>
+	<para>
+	  Even in relatively simple comparisons with simple sketches,
+	  dno outperforms the standard Arduino CLI.  Given that: the
+	  Arduino IDE adds additional overhead, beyond that of the
+	  CLI; that parsing appears to be necessary on each
+	  invocation; and that much unnecessary rebuilding is often
+	  performed; on performance dno wins handsomely.
+	</para>
+      </section>
+    </section>
   </section>
 </chapter>

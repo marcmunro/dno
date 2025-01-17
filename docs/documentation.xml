@@ -1,14 +1,17 @@
 <?xml version="1.0"?>
 <chapter xmlns:d="http://docbook.org/ns/docbook" version="5.0"
-	 xmlns:xlink="http://www.w3.org/1999/xlink">
+	 xmlns:xlink="http://www.w3.org/1999/xlink"
+	 xml:id="docs">
   <info xmlns="http://docbook.org/ns/docbook">
-    <title>Documentation with Doxygen</title>
+    <title xml:id="docs.title">Documentation with Doxygen</title>
   </info>
   <para>
-    To get started with Doxygen-based documentation for your project
-    you will create a <literal>docs</literal> directory under your
-    project directory, and there create the
-    <literal>Doxyfile</literal> configuration file.
+    To get started with <link
+    xlink:href="https://www.doxygen.nl/index.html">Doxygen</link>-based
+    documentation for your project you will create a
+    <literal>docs</literal> directory under your project directory,
+    and there create the <literal>Doxyfile</literal> configuration
+    file.
   </para>
   <para>
     You can also create any input or resource files that you may need
@@ -17,7 +20,7 @@
   <section>
     <title>Doxygen Configuration</title>
     <para>
-      This section identifies a few Doxgen configuration settings 
+      This section identifies a few Doxgen configuration settings you
       can consider.
     </para>
     <simplesect>
@@ -78,7 +81,7 @@ USE_MDFILE_AS_MAINPAGE = ./docs/README.md
       suitable <literal>Doxyfile</literal>.
     </para>
   </section>
-  <section>
+  <section xml:id="building_docs">
     <title>Building Documentation</title>
     <para>
       Project documentation can be built by invoking:

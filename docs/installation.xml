@@ -20,8 +20,9 @@
     <para>
       It is built using <acronym>GNU</acronym>
       <literal>autotools</literal>, so any OS supported by
-      <literal>autotools</literal> should work.  It is unlikely that
-      Windows(Tm) will ever be supported.
+      <link xlink:href="https://en.wikipedia.org/wiki/GNU_Autotools">
+      <literal>autotools</literal></link> should work.  It is unlikely
+      that Windows(Tm) will ever be supported.
     </para>
   </section>
   <section><title>Dependencies</title>
@@ -160,7 +161,7 @@ dno$
     <section>
       <title>Make Install</title>
       <para>
-	Installation, needs to be done as root.  You can use
+	Installation needs to be done as root.  You can use
 	<literal>sudo</literal> if you must
 	<footnote xml:id='sudo-wassup'>
 	  <para>
@@ -209,9 +210,208 @@ dno$
   </section>
   <section>
     <title>Installing By Cloning From Github</title>
-    <para>
-      TODO
-    </para>
+    <section>
+      <title>Pre-requisites</title>
+      <para>
+	The steps for this are much the same as for installing from
+	the tarball, but <emphasis>all</emphasis> build tools
+	<emphasis>must</emphasis> be installed.  This means that in
+	addition to <literal>gawk</literal>, <literal>sed</literal>
+	and <literal>gcc</literal>, the following must also be
+	present:
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      <literal>pandoc</literal>;
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      <literal>xmllint</literal>;
+	    </para>
+	    <para>
+	      This can often be found in a package called
+	      <literal>libxml2-utils</literal>.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      <literal>xsltproc</literal>;
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      docbook5 stylesheets.
+	    </para>
+	    <para>
+	      You may find these in a package called
+	      <literal>docbook-xsl-ns</literal>.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+    </section>
+    <section>
+      <title>Clone From Github</title>
+      <para>
+	When you run the following clone operation a new directory
+	will be created under your current directory:
+	<programlisting>
+~$ git clone https://github.com/marcmunro/dno.git
+Cloning into 'dno'...
+remote: Enumerating objects: 278, done.
+remote: Counting objects: 100% (58/58), done.
+remote: Compressing objects: 100% (43/43), done.
+remote: Total 278 (delta 23), reused 42 (delta 15), pack-reused 220 (from 1)
+Receiving objects: 100% (278/278), 30.90 MiB | 4.29 MiB/s, done.
+Resolving deltas: 100% (157/157), done.
+~$ 
+	</programlisting>
+      </para>
+    </section>
+    <section>
+      <title>Configure</title>
+      <para>
+	Move to the new <literal>dno</literal> directory and run
+	<literal>./configure</literal>.  Be sure to check the output
+	for any indication that our pre-requisites are not installed.
+      </para>
+    </section>
+    <section>
+      <title>Make</title>
+      <para>
+	Run <literal>make</literal>.  This should build everything,
+	including documentation and man pages from scratch:
+	<programlisting>
+dno$ make
+  PANDOC man/dno_bpp.1
+  PANDOC man/dno_checksize.1
+  PANDOC man/dno_commands_for.1
+  PANDOC man/dno_dirinfo.1
+  PANDOC man/dno.1
+  PANDOC man/dno_menu.1
+  PANDOC man/dno_requote.1
+  PANDOC man/BOARD_INFO.5
+  PANDOC man/BOARD_OPTIONS.5
+  PANDOC man/BOARD_TYPE.5
+  PANDOC docs/parts/BOARD_INFO.xml
+  PANDOC docs/parts/BOARD_OPTIONS.xml
+  PANDOC docs/parts/BOARD_TYPE.xml
+  PANDOC docs/parts/dno_bpp.xml
+  PANDOC docs/parts/dno_checksize.xml
+  PANDOC docs/parts/dno_commands_for.xml
+  PANDOC docs/parts/dno_dirinfo.xml
+  PANDOC docs/parts/dno.xml
+  PANDOC docs/parts/dno_menu.xml
+  PANDOC docs/parts/dno_requote.xml
+  XMLLINT docs/full_doc.xml
+Creating importer for system base stylesheet for docs...
+  /usr/bin/xsltproc &lt;docbook sources&gt;.xml --> html/index.html
+Computing chunks...
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing pr01.html for preface(introduction)
+Writing ch01.html for chapter
+Writing ch02.html for chapter
+Writing ch03.html for chapter
+Writing ch04.html for chapter
+Writing ch05.html for chapter
+Writing ch06.html for chapter
+Writing ch07.html for chapter
+Writing ch08.html for chapter
+Writing ch09.html for chapter
+Writing ch10.html for chapter
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing ch11.html for chapter
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apa.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apb.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apc.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apd.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing ape.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apf.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apg.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing aph.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing api.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apj.html for appendix(gpl)
+Writing index.html for book
+Writing dno.css for book
+dno$ 
+	</programlisting>
+      </para>
+    </section>
+    <section>
+      <title>Make Install</title>
+      <para>
+	Installation needs to be done as root.  Run <literal>make
+	install</literal>.
+      </para>
+    </section>
   </section>
 </chapter>
 
