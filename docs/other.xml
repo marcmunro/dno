@@ -1,0 +1,470 @@
+<?xml version="1.0"?>
+<chapter xmlns:d="http://docbook.org/ns/docbook" version="5.0"
+	 xmlns:xlink="http://www.w3.org/1999/xlink">
+  <info xmlns="http://docbook.org/ns/docbook">
+    <title>Other Features and Capabilities</title>
+  </info>
+  <section>
+    <title>Revision Control</title>
+    <para>
+      Dno projects are simply directory systems.  As such they are
+      compatible with all known, sane, revision control systems.  <link
+      xlink:href="https://git-scm.com">Git</link> in
+      particular, works just fine.
+    </para>
+  </section>
+  <section>
+    <title>Configuration Options</title>
+    <para>
+      Each Arduino board has a number of user-selectable configuration
+      options.  For some boards, like the esp32, there can be many,
+      many options.
+    </para>
+    <para>
+      To view and modify the options for your selected Arduino board,
+      use <literal>dno menu</literal>.  This presents the user with a
+      menu-based interface for selecting from the available options.
+    </para>
+    <para>
+      The selected options become compiler flags for the next build.
+      They are recorded in a file called
+      <literal>BOARD_OPTIONS</literal>, which becomes a dependency
+      for all object files in the build.  This means that changing an
+      option will cause the next build to recompile everything.
+    </para>
+  </section>
+  <section>
+    <title><literal>.ino</literal> files</title>
+    <para>
+      Typically, Arduino sketches are presented as
+      <literal>.ino</literal> files.  They need to contain only the
+      functions <literal>setup()</literal> and <literal>loop()</literal>.
+    </para>
+    <para>
+      Dno, naturally, supports the <literal>.ino</literal> file format
+      but it does not require it.
+    </para>
+    <para>
+      If you would rather code your own <literal>main()</literal>
+      function, you can.  There does not have to be a
+      <literal>.ino</literal> file in your Arduino program.
+    </para>
+  </section>
+  <section>
+    <title>Tags</title>
+    <para>
+      Tag files are reference files that tell your favourite editor
+      where various symbols can be found in your source code.  They
+      enable you to rapidly move to places of interest in your code.
+    </para>
+    <para>
+      There are 2 major flavours of tag files: ctags and etags.  If
+      you have a need for tagfiles, you will know which you prefer.
+    </para>
+    <para>
+      Dno creates tagfiles using the targets: <literal>ctags</literal>
+      and <literal>etags</literal>.  These targets should be invoked
+      in a code directory: either a <link linkend="board_dir">board
+      directory</link>, or the <link linkend="project_dir">project
+      directory</link> if you are not using board directories.
+    </para>
+    <para>
+      The <literal>ctags</literal> target will create a file called
+      <literal>tags</literal>, while the <literal>etags</literal>
+      target creates a file called <literal>TAGS</literal>.
+    </para>
+    <para>
+      Once these files have been created, dno will automatically keep
+      them up to date.  Note that the <link
+      linkend="clean"><literal>clean</literal></link> target will
+      leave any tags files in place, while the <link
+      linkend="pristine"><literal>pristine</literal></link> target
+      will remove them.
+    </para>
+  </section>
+  <section xml:id="monitor">
+    <title>Serial Communication</title>
+    <para>
+      You can monitor and interact with your Arduino's serial
+      connection using <literal>dno monitor</literal>.
+    </para>
+    <para>
+      This creates a connection to your Arduino using the Linux
+      <literal>screen</literal> command.
+    </para>
+      <para>
+      You should read the <literal>screen</literal> man page if you
+      are unfamiliar with screen.
+    </para>
+    <section>
+      <title>Getting Out of <literal>screen</literal></title>
+      <para>
+	If you are unfamiliar with <literal>screen</literal> you will
+	quickly find yourself wondering, "how do I get out of this"?
+      </para>
+      <para>
+	If you find yourself in the monitor and want to get out, use
+	<literal>C-a k</literal>.  That is Control-A followed by k.
+      </para>
+      <para>
+	Another way to kill the screen program is by running
+	<literal>dno noscreen</literal> from another session.
+      </para>
+    </section>
+    <section>
+      <title>Why <literal>screen</literal>?</title>
+      <para>
+	The screen utility provides multiplexed virtual terminals.
+	This allows you to run multiple sessions from a single
+	terminal.
+      </para>
+      <para>
+	By using screen as our monitor tool, we allow the user to
+	switch between a command line session and the connection to
+	the Arduino serial interface.  This seemed like a good idea.
+      </para>
+    </section>
+  </section>
+  <section xml:id="eeprom">
+    <title xml:id="eeprom.title">EEPROMs</title>
+    <para>
+      Dno provides limited support for writing to an Arduino's EEPROM.
+    </para>
+    <para>
+      The reason that it is limited is that the
+      <literal>platform.txt</literal> file (and the Arduino platform
+      specification) does not provide support.
+    </para>
+    <para>
+      For AVR-architecture boards (the traditional Arduinos), dno
+      provides the <literal>eeprom</literal> target, which will
+      attempt to burn an eeprom image to a connected Arduino.  Use
+      this in much the same way as you use the
+      <literal>upload</literal> target.
+    </para>
+    <para>
+      A typical use-case for this would be to give each Arduino in a
+      connected cluster its own unique identifier or key.  This would
+      mean the same image could be uploaded to each member of the
+      cluster, but a separate eeprom image provided for the individual
+      members.
+    </para>
+    <section>
+      <title>Coding For EEPROMs</title>
+      <para>
+	There is much online documentation about using Arduino
+	EEPROMs.  Little of it seems to cover how to create eeprom
+	images for directly writing to a board.
+      </para>
+      <para>
+	We'll take our blink sketch as the basis for the example below.
+      </para>
+      <section>
+	<title>Include the <literal>eeprom</literal> Header</title>
+	<para>
+	  Add <literal>#include &lt;avr/eeprom.h&gt;</literal>.
+	  Something like this:
+	  <programlisting>
+. . . 
+
+#include &lt;Deferal.h&gt;
+#include &lt;avr/eeprom.h&gt;
+
+. . . 
+	  </programlisting>
+	</para>
+      </section>
+      <section>
+	<title>Create a Struct Representing the EEPROM Contents</title>
+	<para>
+	  We add a struct definition, with some initialisation.  Note
+	  the use of the EEMEM directive.  This is the crucial
+	  element, and for more information on using Arduino EEPROMs,
+	  this appears to be the best term to search for.
+	</para>
+	<para>
+	  Our code now looks like this:
+	  <programlisting>
+. . . 
+
+#include &lt;Deferal.h&gt;
+#include &lt;avr/eeprom.h&gt;
+
+static bool led_is_on;
+static Deferal myTimer(500);
+
+#define SENTINEL 0xdeadbeef
+
+struct {
+    uint32_t sentinel;
+    char my_nodename[40];
+    uint16_t my_node_id;
+} eeprom EEMEM = {
+  	          SENTINEL,
+		  "Here, put this fish in your ear",
+		  42}; 
+. . . 
+	  </programlisting>
+	</para>
+      </section>
+      <section>
+	<title>Using the EEPROM Contents</title>
+	<para>
+	  Now, we need to make use of the contents.  We will read the
+	  eeprom structure, and write the values we have found to our
+	  serial line.  Let's do this on each blink.
+	</para>
+	<para>
+	  To ensure that we are not reading uninitialised junk, we
+	  will test that the sentinel field contains our
+	  expected value.  If not, then the EEPROM has not been
+	  written. 
+	</para>
+	<para>
+	  This is the final program.  Note that it is poorly
+	  commented.  Adding Doxygen comments is left as an exercise
+	  for the reader.
+	  <programlisting>
+/*
+  Blink
+
+*/
+
+#include &lt;Deferal.h&gt;
+#include &lt;avr/eeprom.h&gt;
+static bool led_is_on;
+static Deferal myTimer(500);
+
+#define SENTINEL 0xdeadbeef
+#define SERIAL_BAUD_RATE 57600
+
+struct {
+    uint32_t sentinel;
+    char my_msg[40];
+    uint16_t my_node_id;
+} eeprom EEMEM = {
+  	          SENTINEL,
+		  "Here, put this fish in your ear",
+		  42}; 
+
+static void
+led_on(int led)
+{
+    digitalWrite(led, HIGH);
+    led_is_on = true;
+}
+
+static void
+led_off(int led)
+{
+    digitalWrite(led, LOW);
+    led_is_on = false;
+}
+
+static void
+toggle_led(int led)
+{
+    if (led_is_on) {
+	led_off(led);
+    }
+    else {
+	led_on(led);
+    }
+}
+
+void setup()
+{
+    pinMode(LED_BUILTIN, OUTPUT);
+    led_off(LED_BUILTIN);
+    Serial.begin(SERIAL_BAUD_RATE);
+}
+
+
+void
+send_msg()
+{
+    char c;
+    if (eeprom_read_dword(&amp;eeprom.sentinel) == SENTINEL) {
+        Serial.print("Node ");
+        Serial.print(eeprom_read_word(&amp;eeprom.my_node_id));
+        Serial.print(" says ");
+	for (int i = 0;
+	     c = eeprom_read_byte(&amp;(eeprom.my_msg[i]));
+	     i++) {
+	    Serial.print(c);
+	}
+	Serial.println();
+    }
+    else {
+        Serial.print("eeprom not initialised: ");
+        Serial.println(eeprom.sentinel);
+    }
+}
+
+void loop()
+{
+    if (!myTimer.running()) {
+	toggle_led(LED_BUILTIN);
+	myTimer.again();
+	send_msg();
+    }
+    // We can add code to do all sorts of things here, without the
+    // timing of our led blinks being affected.
+    
+}
+	  </programlisting>
+	</para>
+      </section>
+      <section>
+	<title>Build and Test</title>
+	<para>
+	  Let's compile and upload:
+	  <programlisting>
+pro.8MHzatmega328$ dno
+  C++  [..] blink.ino
+  LD blink.ino.o Deferal.o
+  OBJCOPY (hex) blink.elf
+pro.8MHzatmega328$ dno upload
+  Resetting device attached to (/dev/ttyUSB0)...
+/usr/local/bin/dno do_upload
+make[1]: Entering directory '.../blink/pro.8MHzatmega328'
+ 
+    Uploading blink.hex to /dev/ttyUSB0
+
+avrdude: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.01s
+
+avrdude: Device signature = 0x1e950f (probably m328p)
+avrdude: reading input file "build/blink.hex"
+avrdude: writing flash (2740 bytes):
+
+Writing | ################################################## | 100% 1.41s
+
+avrdude: 2740 bytes of flash written
+avrdude: verifying flash memory against build/blink.hex:
+avrdude: load data flash data from input file build/blink.hex:
+avrdude: input file build/blink.hex contains 2740 bytes
+avrdude: reading on-chip flash data:
+
+Reading | ################################################## | 100% 1.19s
+
+avrdude: verifying ...
+avrdude: 2740 bytes of flash verified
+
+avrdude: safemode: Fuses OK (E:00, H:00, L:00)
+
+avrdude done.  Thank you.
+
+make[1]: Leaving directory '.../pro.8MHzatmega328'
+pro.8MHzatmega328$ 
+	  </programlisting>
+	</para>
+	<para>
+	  Now, we connect out monitor using <literal>dno
+	  monitor</literal>.  This is what we see:
+	  <programlisting>
+�eeprom not initialised
+eeprom not initialised
+eeprom not initialised
+eeprom not initialised
+eeprom not initialised
+eeprom not initialised
+	  </programlisting>
+	</para>
+	<para>
+	  So, it appears to work, though the eeprom is uninitialised.
+	</para>
+      </section>
+      <section>
+	<title>Burn the Eeprom</title>
+	<para>
+	  Please note again that this operation is only supported
+	  under the AVR architecture.  It may be possible to do
+	  something similar with other architectures but since the
+	  Arduino platform specification does not seem to offer it,
+	  its unlikely that dno will support it.
+	</para>
+	<para>
+	  To burn the eeprom (for an AVR architecture Arduino board)
+	  we can simply use <literal>dno eeprom</literal>.  However
+	  for demonstration and documentation purposes we will split
+	  this into two steps: <literal>dno eeprom_image</literal> and
+	  then <literal>dno eeprom</literal>.
+	</para>
+	<para>
+	  The <literal>eeprom_image</literal> target creates the image
+	  that will be written to the board.  The
+	  <literal>eeprom</literal> target writes the image.
+	</para>
+	<para>
+	  <programlisting>
+pro.8MHzatmega328$ dno eeprom_image
+  OBJCOPY (eep) blink.elf
+pro.8MHzatmega328$ dno eeprom
+  Resetting device attached to (/dev/ttyUSB0)...
+/usr/local/bin/dno do_eeprom
+make[1]: Entering directory '.../blink/pro.8MHzatmega328'
+ 
+    writing eeprom from blink.eep using /dev/ttyUSB0
+
+avrdude: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.01s
+
+avrdude: Device signature = 0x1e950f (probably m328p)
+avrdude: reading input file "build/blink.eep"
+avrdude: writing eeprom (46 bytes):
+
+Writing | ################################################## | 100% 0.38s
+
+avrdude: 46 bytes of eeprom written
+avrdude: verifying eeprom memory against build/blink.eep:
+avrdude: load data eeprom data from input file build/blink.eep:
+avrdude: input file build/blink.eep contains 46 bytes
+avrdude: reading on-chip eeprom data:
+
+Reading | ################################################## | 100% 0.38s
+
+avrdude: verifying ...
+avrdude: verification error, first mismatch at byte 0x001a
+         0x22 != 0x20
+avrdude: verification error; content mismatch
+
+avrdude: safemode: Fuses OK (E:00, H:00, L:00)
+
+avrdude done.  Thank you.
+
+make[1]: *** [/usr/local/bin/dno:1420: do_eeprom] Error 1
+make[1]: Leaving directory '.../blink/pro.8MHzatmega328'
+make: *** [/usr/local/bin/dno:1414: eeprom] Error 2
+pro.8MHzatmega328$ 
+	  </programlisting>
+	</para>
+      </section>
+      <section>
+	<title>Are We There Yet?</title>
+	<para>
+	  Well, let's try the monitor again:
+	  <programlisting>
+	    Node 554 says Here, put this fish in your ear
+Node 554 says Here, put this fish in your ear
+Node 554 says Here, put this fish in your ear
+Node 554 says Here, put this fish in your ear
+Node 42 says Here, put this fish in your ear
+Node 554 says Here, put this fish in your ear
+Node 554 says Here, put this fish in your ear
+. . .
+	  </programlisting>
+	</para>
+	<para>
+	  Well, something is a bit off, but it has mostly worked.  The
+	  <literal>node_id</literal> value is usually wrong but
+	  sometimes ok.  Whether this is a hardware problem (tired
+	  eeprom), or something else is difficult to say.  Either way,
+	  writing to the eeprom achieved something at least.
+	</para>
+      </section>
+    </section>
+  </section>
+</chapter>
