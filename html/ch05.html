@@ -4,8 +4,8 @@
 <title>Chapter 5. The Dno Directory System</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno User Guide">
-<link rel="up" href="index.html" title="Dno User Guide">
+<link rel="home" href="index.html" title="Dno (0.7.3) User Guide">
+<link rel="up" href="index.html" title="Dno (0.7.3) User Guide">
 <link rel="prev" href="ch04.html" title="Chapter 4. A Little Exploration">
 <link rel="next" href="ch06.html" title="Chapter 6. Libraries">
 </head>
@@ -89,7 +89,7 @@
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm659"></a>1.1. 
+<a name="idm662"></a>1.1. 
 	Running <code class="literal">dno</code> in the Project/Root Directory
       </h3></div></div></div>
 <p>
@@ -125,7 +125,7 @@
       </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm673"></a>1.1.1. With A <code class="literal">BOARD_TYPE</code> File</h4></div></div></div>
+<a name="idm676"></a>1.1.1. With A <code class="literal">BOARD_TYPE</code> File</h4></div></div></div>
 <p>
 	  When a <code class="literal">BOARD_TYPE</code> file is present in the
 	  project directory, <code class="literal">dno</code> will attempt to
@@ -135,7 +135,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm680"></a>1.1.2. Without A <code class="literal">BOARD_TYPE</code> File</h4></div></div></div>
+<a name="idm683"></a>1.1.2. Without A <code class="literal">BOARD_TYPE</code> File</h4></div></div></div>
 <p>
 	  In the absence of a <code class="literal">BOARD_TYPE</code> file in the
 	  project directory, <code class="literal">dno</code> will not be able
@@ -162,14 +162,14 @@ blink$
     </p>
 <p>
       Usually all sketch source and header files will be placed in the
-      project root directory, however if board-specific customisations
+      project root directory however, if board-specific customisations
       are required, modified versions of source files can be placed in
       these directories.  The local version of any file always takes
-      precedence over the project directories version.
+      precedence over the project directory's version.
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm692"></a>2.1. Running <code class="literal">dno</code> in a Board Directory</h3></div></div></div>
+<a name="idm695"></a>2.1. Running <code class="literal">dno</code> in a Board Directory</h3></div></div></div>
 <p>
 	Running <code class="literal">dno</code> without an explicit target in a
 	board directory will compile and link any code that needs to
@@ -204,7 +204,7 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm706"></a>3. Library Subdirectories</h2></div></div></div>
+<a name="idm709"></a>3. Library Subdirectories</h2></div></div></div>
 <p>
       A library subdirectory contains the source code for a library.
       This may be a locally modified version of one of the standard
@@ -224,7 +224,7 @@ blink$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm715"></a>3.1. Running <code class="literal">dno</code> in a Library Directory</h3></div></div></div>
+<a name="idm718"></a>3.1. Running <code class="literal">dno</code> in a Library Directory</h3></div></div></div>
 <p>
 	Running <code class="literal">dno</code> without an explicit target in a
 	library subdirectory will attempt to build and run any unit
@@ -246,7 +246,7 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm726"></a>4. The docs Subdirectory</h2></div></div></div>
+<a name="idm729"></a>4. The docs Subdirectory</h2></div></div></div>
 <p>
       The docs subdirectory is where Doxygen-based documentation will
       be prepared.  Documentation created here will be for everything
@@ -262,8 +262,8 @@ blink$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm732"></a>4.1. 
-	Running <code class="literal">dno</code>in a <code class="literal">docs</code>
+<a name="idm735"></a>4.1. 
+	Running <code class="literal">dno</code> in a <code class="literal">docs</code>
 	Directory
       </h3></div></div></div>
 <p>

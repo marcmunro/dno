@@ -4,8 +4,8 @@
 <title>Chapter 4. A Little Exploration</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno User Guide">
-<link rel="up" href="index.html" title="Dno User Guide">
+<link rel="home" href="index.html" title="Dno (0.7.3) User Guide">
+<link rel="up" href="index.html" title="Dno (0.7.3) User Guide">
 <link rel="prev" href="ch03.html" title="Chapter 3. Getting Started">
 <link rel="next" href="ch05.html" title="Chapter 5. The Dno Directory System">
 </head>
@@ -25,7 +25,7 @@
 </div>
 <div class="chapter">
 <div class="titlepage"><div><div><h1 class="title">
-<a name="idm308"></a>Chapter 4. A Little Exploration</h1></div></div></div>
+<a name="idm311"></a>Chapter 4. A Little Exploration</h1></div></div></div>
 <p>
     The previous section shows how to get started with
     <code class="literal">dno</code> for a simple project.  It introduces a lot of
@@ -38,7 +38,7 @@
 </h2></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm316"></a>1.1. Dno Rebuilds Only What It Needs To</h3></div></div></div>
+<a name="idm319"></a>1.1. Dno Rebuilds Only What It Needs To</h3></div></div></div>
 <p>
 	We saw in the previous section that after everything had been
 	compiled and linked, running <code class="literal">dno</code> again didn't
@@ -125,7 +125,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm361"></a>1.3. Dno Accepts All Make Options</h3></div></div></div>
+<a name="idm364"></a>1.3. Dno Accepts All Make Options</h3></div></div></div>
 <p>
 	Of particular interest here is the <code class="literal">-j N</code>
 	option.  This allows make to perform multiple actions ("jobs")
@@ -136,7 +136,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm366"></a>1.4. Dno Variables</h3></div></div></div>
+<a name="idm369"></a>1.4. Dno Variables</h3></div></div></div>
 <p>
 	There are a number of variables that can be defined on the dno
 	command line that provide information to
@@ -264,7 +264,7 @@ blink$
 	    </p>
 </li>
 <li class="listitem">
-<p>
+<p><a name="VERBOSE"></a>
 	      <code class="literal">VERBOSE</code>
 	    </p>
 <p>
@@ -322,7 +322,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm434"></a>2. The Project Directory</h2></div></div></div>
+<a name="idm437"></a>2. The Project Directory</h2></div></div></div>
 <p>
       The name for a dno project comes from the name of the <a class="link" href="ch05.html#project_dir" title="1. The Project/Root Directory">project directory</a>.  The Arduino IDE
       handles this in much the same way, but setting the name in the
@@ -332,7 +332,7 @@ pro.8MHzatmega328$
       You can change the name of your project by simply changing the
       name of the project directory.  When you next run
       <code class="literal">dno</code>, it will figure out that the name has
-      changed and will rebuild everything <a href="#ftn.idm440" class="footnote" name="idm440"><sup class="footnote">[2]</sup></a>.
+      changed and will rebuild everything <a href="#ftn.idm443" class="footnote" name="idm443"><sup class="footnote">[2]</sup></a>.
     </p>
 </div>
 <div class="section">
@@ -473,7 +473,7 @@ pro.8MHzatmega328$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm478"></a>4.1. <code class="literal">Tidy</code>
+<a name="idm481"></a>4.1. <code class="literal">Tidy</code>
 </h3></div></div></div>
 <p>
 	The <code class="literal">tidy</code> target removes all files that look
@@ -482,7 +482,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm483"></a>4.2. <code class="literal">Clean</code>
+<a name="idm486"></a>4.2. <code class="literal">Clean</code>
 </h3></div></div></div>
 <p>
 	The <code class="literal">Clean</code> target does all that the
@@ -509,7 +509,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm500"></a>5. The BOARD_INFO file</h2></div></div></div>
+<a name="idm503"></a>5. The BOARD_INFO file</h2></div></div></div>
 <p>
       The <code class="literal">BOARD_INFO</code> file is derived from the
       files:
@@ -544,7 +544,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm516"></a>6. The BOARD_OPTIONS file</h2></div></div></div>
+<a name="idm519"></a>6. The BOARD_OPTIONS file</h2></div></div></div>
 <p>
       The <code class="literal">BOARD_OPTIONS</code> file describes selected,
       non-default, board-specific configuration values.
@@ -559,7 +559,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm523"></a>7. Connecting to Physical Arduino Boards</h2></div></div></div>
+<a name="idm526"></a>7. Connecting to Physical Arduino Boards</h2></div></div></div>
 <p>
       Dno provides a number of commands for interfacing with Arduino
       boards.  It can upload compiled code to a board, modify a
@@ -568,7 +568,7 @@ pro.8MHzatmega328$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm526"></a>7.1. Identifying Devices</h3></div></div></div>
+<a name="idm529"></a>7.1. Identifying Devices</h3></div></div></div>
 <p>
 	Generally, when a single Arduino board is connected to your
 	computer, dno is able to identify the serial device it is
@@ -594,7 +594,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm534"></a>7.2. Uploading Software</h3></div></div></div>
+<a name="idm537"></a>7.2. Uploading Software</h3></div></div></div>
 <p>
 	Software is uploaded using dno's <code class="literal">upload</code>
 	target.  More can be found <a class="link" href="ch03.html#upload" title="5. Uploading To A Board">here</a>.
@@ -602,7 +602,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm539"></a>7.3. Communicating With The Arduino</h3></div></div></div>
+<a name="idm542"></a>7.3. Communicating With The Arduino</h3></div></div></div>
 <p>
 	The equivalent to the Arduino IDE's Serial Monitor is invoked
 	by the <code class="literal">monitor</code> target.  More <a class="link" href="ch08.html#monitor" title="5. Serial Communication">here</a>.
@@ -610,7 +610,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm544"></a>7.4. Writing EEPROM data</h3></div></div></div>
+<a name="idm547"></a>7.4. Writing EEPROM data</h3></div></div></div>
 <p>
 	Writing to an Arduino's EEPROM from outside of a program is a
 	bit hand and miss.  Dno kind-of, mostly, sort-of supports writing
@@ -620,7 +620,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm548"></a>8. Performance</h2></div></div></div>
+<a name="idm551"></a>8. Performance</h2></div></div></div>
 <p>
       Generally speaking dno will easily outperform the Arduino IDE or
       CLI.  This is because dno:
@@ -685,7 +685,7 @@ pro.8MHzatmega328$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm571"></a>8.1. Quantified Performance Comparison</h3></div></div></div>
+<a name="idm574"></a>8.1. Quantified Performance Comparison</h3></div></div></div>
 <p>
 	The following tests were performed using the standard
 	<code class="literal">blink.cpp</code> sketch, compiled for a
@@ -700,10 +700,10 @@ pro.8MHzatmega328$
       </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm578"></a>8.1.1. Comparing Build Times</h4></div></div></div>
+<a name="idm581"></a>8.1.1. Comparing Build Times</h4></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="idm580"></a>Arduino CLI</h5></div></div></div>
+<a name="idm583"></a>Arduino CLI</h5></div></div></div>
 <p>
 	    To do this we ran the Arduino IDE to show the build
 	    commands.  These commands were extracted into a script,
@@ -767,7 +767,7 @@ cli_blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="idm590"></a>Dno</h5></div></div></div>
+<a name="idm593"></a>Dno</h5></div></div></div>
 <p>
 	    We created a directory containing our sketch, and created
 	    <code class="literal">BOARD_TYPE</code> and
@@ -830,7 +830,7 @@ dno_blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="idm603"></a>Conclusion</h5></div></div></div>
+<a name="idm606"></a>Conclusion</h5></div></div></div>
 <p>
 	    In a pure compilation and linking invocation, with no
 	    cached results, dno is a little faster (about 6%) than the
@@ -845,7 +845,7 @@ dno_blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm606"></a>8.1.2. Comparing Parse and Build Times</h4></div></div></div>
+<a name="idm609"></a>8.1.2. Comparing Parse and Build Times</h4></div></div></div>
 <p>
 	  Let's now also consider parse times.  This is the time for
 	  <code class="literal">arduino-builder</code> to dump its preferences,
@@ -854,7 +854,7 @@ dno_blink$
 	</p>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="idm612"></a>Arduino CLI</h5></div></div></div>
+<a name="idm615"></a>Arduino CLI</h5></div></div></div>
 <p>
 	    For this test, we modify our script as shown below:
 	    </p>
@@ -912,7 +912,7 @@ cli_blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="idm622"></a>Dno</h5></div></div></div>
+<a name="idm625"></a>Dno</h5></div></div></div>
 <p>
 	    We slightly modify our previous invocation and, again, run
 	    4 times:
@@ -945,7 +945,7 @@ dno_blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="idm626"></a>Conclusion</h5></div></div></div>
+<a name="idm629"></a>Conclusion</h5></div></div></div>
 <p>
 	    In this test, dno does even better, achieving around 65%
 	    better performance.  This is quite surprising since the
@@ -956,7 +956,7 @@ dno_blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm629"></a>8.1.3. Final Conclusions</h4></div></div></div>
+<a name="idm632"></a>8.1.3. Final Conclusions</h4></div></div></div>
 <p>
 	  Even in relatively simple comparisons with simple sketches,
 	  dno outperforms the standard Arduino CLI.  Given that: the
@@ -970,7 +970,7 @@ dno_blink$
 </div>
 <div class="footnotes">
 <br><hr style="width:100; text-align:left;margin-left: 0">
-<div id="ftn.idm440" class="footnote"><p><a href="#idm440" class="para"><sup class="para">[2] </sup></a>
+<div id="ftn.idm443" class="footnote"><p><a href="#idm443" class="para"><sup class="para">[2] </sup></a>
 	Yes.  I know.
       </p></div>
 </div>

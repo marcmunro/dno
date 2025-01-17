@@ -4,8 +4,8 @@
 <title>Chapter 3. Getting Started</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno User Guide">
-<link rel="up" href="index.html" title="Dno User Guide">
+<link rel="home" href="index.html" title="Dno (0.7.3) User Guide">
+<link rel="up" href="index.html" title="Dno (0.7.3) User Guide">
 <link rel="prev" href="ch02.html" title="Chapter 2. Installing And Updating Arduino Toolsets">
 <link rel="next" href="ch04.html" title="Chapter 4. A Little Exploration">
 </head>
@@ -255,6 +255,18 @@ blink$
       (<code class="literal">OBJCOPY</code>).
     </p>
 <p>
+      Note thet the dno output shows a sanitised version of what is
+      actually being done.  This is mainly for aesthetic reasons:
+      showing the full commands that are executed is pretty ugly.  But
+      if that's what you want, you can (as shown <a class="link" href="ch04.html#VERBOSE">here</a>) set the
+      <code class="literal">VERBOSE</code> on the command line:
+      </p>
+<pre class="programlisting">
+blink$ dno VERBOSE=y
+      </pre>
+<p>
+    </p>
+<p>
       From our directory listing we can also see that a
       <code class="literal">build</code> directory was created.  This is where
       all of our object, lib and executable files are created:
@@ -307,10 +319,10 @@ blink$
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="upload"></a>5. Uploading To A Board</h2></div></div></div>
 <p>
-      Now we need to connect our <code class="literal">Arduino</code> device to
-      our computer.  Typically, this is through a USB connection.
-      Once done, we can verify that the device can be seen using
-      <code class="literal">dno devices</code>:
+      Now we need to connect our Arduino device to our computer.
+      Typically, this is through a USB connection.  Once done, we can
+      verify that the device can be seen using <code class="literal">dno
+      devices</code>:
       </p>
 <pre class="programlisting">
 blink$ dno devices
@@ -372,7 +384,7 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm300"></a>6. In Summary</h2></div></div></div>
+<a name="idm303"></a>6. In Summary</h2></div></div></div>
 <p>
       In summary, to create a brand new project, blink, from scratch,
       and upload it to an Arduino board takes only the following steps
