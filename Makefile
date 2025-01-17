@@ -474,7 +474,7 @@ release_tarball:
 	else \
 	    $(FEEDBACK_RAW) Copying tarfile...; \
 	    $(MAKE) dno_$(DNO_VERSION).tgz; \
-	    cp dno_$(DNO_VERSION).tgz releases; \
+	    mv dno_$(DNO_VERSION).tgz releases; \
 	fi
 
 
