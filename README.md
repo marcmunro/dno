@@ -10,9 +10,11 @@ has to following code updates.  It automatically links to standard
 Arduino libraries and allows user-defined libraries to be added
 simply by including them in their own diorectories.
 
-Full documentation will be forthcoming.  In the meantime, check out the
-various man pages in the man subdirectory, or the info and help
-targets in dno itself.
+Dno is [documented here on
+github](https://marcmunro.github.io/dno/html/index.html).
+
+You can also check out the various man pages in the man subdirectory,
+or the info and help targets in dno itself.
 
 ## Installation
 
