@@ -9,7 +9,9 @@
 #  
 #  ----------
 #
-AC_INIT([dno], [0.7.2])
+AC_INIT([dno], [0.7.3 beta],
+        [https://github.com/marcmunro/dno/issues],,
+        [https://github.com/marcmunro/dno])
 
 [DNO_RELEASE_DATE="January 2025"]
 AC_SUBST([DNO_RELEASE_DATE])
@@ -55,19 +57,26 @@ fi
 # Convert the package version into DNO_IDE_VERSION.  This has 2 digits
 # per (non-major) part and has the dots removed.
 #
-AC_DEFUN([DNO_IDE_VERSION2],
-    [`echo "AC_PACKAGE_VERSION" | \
-    	   [sed -e 's/\./.0/g' \
-	        -e 's/[0-9]*\([0-9][0-9]\)/\\1/g' \
-		-e 's/\.//g'`]])
-
 ide_version=`echo "AC_PACKAGE_VERSION" | \
     	   [sed -e 's/\./.0/g' \
 	        -e 's/[0-9]*\([0-9][0-9]\)/\\1/g' \
 		-e 's/\.//g'`]
 
-DNO_VERSION=AC_PACKAGE_VERSION
+dno_version=`echo "AC_PACKAGE_VERSION" | \
+    	   [sed -e 's/[0-9]*\([0-9][0-9]\)/\\1/g'`]
+
+dno_version_no=`echo ${dno_version} |
+    	   [sed -e 's/[^\.0-9]*//g'`]
+
+dno_version_class=`echo ${dno_version} |
+    	   [sed -e 's/[\.0-9\s ]*//g'`]
+
+
+DNO_VERSION=${dno_version_no}
 AC_SUBST([DNO_VERSION])
+
+DNO_VERSION_CLASS=${dno_version_class}
+AC_SUBST([DNO_VERSION_CLASS])
 
 [DNO_IDE_VERSION=${ide_version}]
 AC_SUBST([DNO_IDE_VERSION])
@@ -169,5 +178,6 @@ AC_CONFIG_FILES([man/dno_dirinfo.md])
 AC_CONFIG_FILES([man/dno_menu.md])
 AC_CONFIG_FILES([man/dno_requote.md])
 AC_CONFIG_FILES([README.md])
+AC_CONFIG_FILES([docs/dno_vars.ent])
 AC_OUTPUT
  

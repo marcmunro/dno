@@ -146,7 +146,6 @@ make[1]: Leaving directory '.../Deferal/tests'
 	run, and they appear to pass.  We should assume that's good.
       </para>
       <para>
-	We'll look at these unit tests in more detail later XXXXX.
 	What about the docs?
       </para>
       <para>
@@ -642,10 +641,11 @@ pro.8MHzatmega328$
     </para>
     <para>
       The solution to this is to put as much code as possible into
-      libraries, which can be unit-tested on your host computer.  If
+      libraries as these can be unit-tested on your host computer.  If
       the library's unit tests are well designed, you should be able
-      to test all code paths, no matter how unlikely to be triggered.
-      As a bonus the tests also become automated and repeatable.
+      to test <emphasis>all</emphasis> code paths, no matter how
+      unlikely to be triggered.  As a bonus, the tests also become
+      automated and repeatable.
     </para>
     <section xml:id="unit_tests">
       <title xml:id="unit_tests.title">Unit Testing With Dno</title>

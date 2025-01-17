@@ -1,5 +1,11 @@
-<?xml version='1.0'?>
-<!DOCTYPE book []>
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE book [
+
+<!ENTITY % dno_vars SYSTEM "dno_vars.ent">
+%dno_vars;
+
+
+]>
 
 <!--
        The docbook5 dno user guide.
@@ -11,18 +17,17 @@
 
 -->
 
-<book version="5.0"
-      xmlns="http://docbook.org/ns/docbook" 
+<book xmlns="http://docbook.org/ns/docbook" version="5.0"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:xlink="http://www.w3.org/1999/xlink">
   <info>
-    <title>Dno User Guide</title>
+    <title>Dno (&version;) User Guide</title>
     <subtitle>
       The <command>dno</command> command-line build system for Arduino
       software
     </subtitle>
-    <edition>0.5.6</edition>
-    <pubdate>January 2025</pubdate>
+    <edition>&version;</edition>
+    <pubdate>&release_date;</pubdate>
   </info>
   <preface xml:id="introduction">
     <info>

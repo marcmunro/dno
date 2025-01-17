@@ -209,6 +209,17 @@ blink$
       (<literal>OBJCOPY</literal>).
     </para>
     <para>
+      Note thet the dno output shows a sanitised version of what is
+      actually being done.  This is mainly for aesthetic reasons:
+      showing the full commands that are executed is pretty ugly.  But
+      if that's what you want, you can (as shown <link
+      linkend='VERBOSE'>here</link>) set the
+      <literal>VERBOSE</literal> on the command line:
+      <programlisting>
+blink$ dno VERBOSE=y
+      </programlisting>
+    </para>
+    <para>
       From our directory listing we can also see that a
       <literal>build</literal> directory was created.  This is where
       all of our object, lib and executable files are created:
@@ -256,10 +267,10 @@ blink$
   <section xml:id="upload">
     <title xml:id="upload.title" >Uploading To A Board</title>
     <para>
-      Now we need to connect our <literal>Arduino</literal> device to
-      our computer.  Typically, this is through a USB connection.
-      Once done, we can verify that the device can be seen using
-      <literal>dno devices</literal>:
+      Now we need to connect our Arduino device to our computer.
+      Typically, this is through a USB connection.  Once done, we can
+      verify that the device can be seen using <literal>dno
+      devices</literal>:
       <programlisting>
 blink$ dno devices
 DEVICES: /dev/ttyUSB0

@@ -17,7 +17,7 @@
 #  make clean
 #  git commit -a
 #  git checkout gh-pages
-#  git marge main
+#  git merge main
 #  make docs
 #  git commit -a
 #  git push github gh-pages
@@ -97,6 +97,8 @@ SCRIPT_TARGETS = $(SCRIPT_SOURCES:%.in=%)
 MAN_INPUTS = $(wildcard man/*.md.in)
 MAN_INTERMEDIATES = $(MAN_INPUTS:%.md.in=%.md)
 
+DOC_INPUTS = $(wildcard doc/*.ent.in) $(wildcard README*.in)
+
 MAN_1_TARGETS = $(patsubst %.md.in,%.1,$(wildcard man/dno*.md.in))
 MAN_5_TARGETS = $(patsubst %.md.in,%.5,$(wildcard man/BOARD*.md.in))
 MAN_TARGETS = $(MAN_1_TARGETS) $(MAN_5_TARGETS)
@@ -104,7 +106,8 @@ MAN_TARGETS = $(MAN_1_TARGETS) $(MAN_5_TARGETS)
 EXECUTABLE_SOURCES = src/dno_requote.c
 EXECUTABLE_TARGETS = bin/dno_requote
 
-CONFIGURE_INPUTS := Makefile.global.in $(SCRIPT_INPUTS) $(MAN_INPUTS)
+CONFIGURE_INPUTS := Makefile.global.in $(SCRIPT_INPUTS) \
+		      $(MAN_INPUTS) $(DOC_INPUTS)
 CONFIGURE_TARGETS := Makefile.global $(SCRIPT_TARGETS) $(MAN_INTERMEDIATES)
 CONFIGURE_OUTPUTS := config.status
 
@@ -265,7 +268,8 @@ docs: $(HTMLDIR)/index.html configure $(DNO_CORE_STYLESHEET)
 
 $(COMBINED_DOC): $(DOC_SOURCES) $(DOC_MANPAGES) docs/man2db.xsl
 	$(FEEDBACK) XMLLINT $@
-	$(AT) xmllint --xinclude --output $@ docs/dno_doc.xml || \
+	$(AT) xmllint --loaddtd --noent --dropdtd \
+		      --xinclude --output $@ docs/dno_doc.xml || \
 	    (rm -f $@; false)
 
 $(HTMLDIR)/index.html: $(COMBINED_DOC) \
@@ -410,12 +414,21 @@ uninstall:
 # 
 
 .PHONY: release tarball check_commit check_remote check_tag \
-	check_tarball release_tarball
+	check_tarball release_tarball release_docs
 
 GIT_UPSTREAM = github origin
 
 release: check_tarball check_commit check_remote check_tag 
-	@echo RELEASE APPEARS OK
+	@echo RELEASE APPEARS OK.  
+
+release_docs: release clean
+	-git commit -a
+	-git checkout gh-pages
+	-git merge main
+	make docs
+	-git commit -a
+	-git push github gh-pages
+	-git checkout main
 
 # Check that there are no uncomitted changes.
 check_commit:
@@ -461,7 +474,7 @@ release_tarball:
 	else \
 	    $(FEEDBACK_RAW) Copying tarfile...; \
 	    $(MAKE) dno_$(DNO_VERSION).tgz; \
-	    cp dno_$(DNO_VERSION).tgz releases; \
+	    mv dno_$(DNO_VERSION).tgz releases; \
 	fi
 
 
