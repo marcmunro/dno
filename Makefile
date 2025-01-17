@@ -8,6 +8,21 @@
 #  
 #
 
+# To publish documentation to github pages do the following:
+#   (the pages will appear under  https://marcmunro.github.io/dno/docs/html)
+#
+# We use a special branch to contain the html as we don't want it in
+# our main branch.  This is gh-pages.  The way to generate the pages
+# is as follows:
+#  make clean
+#  git commit -a
+#  git checkout gh-pages
+#  git marge main
+#  make docs
+#  git commit -a
+#  git push github gh-pages
+#  git checkout main
+
 # TODO:
 # - add links between man pages?
 
