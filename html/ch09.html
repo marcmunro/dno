@@ -1,0 +1,87 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Chapter 9. Developing and Debugging Dno</title>
+<link rel="stylesheet" type="text/css" href="dno.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
+<link rel="home" href="index.html" title="Dno User Guide">
+<link rel="up" href="index.html" title="Dno User Guide">
+<link rel="prev" href="ch08.html" title="Chapter 8. Other Features and Capabilities">
+<link rel="next" href="ch10.html" title="Chapter 10. Why?">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Chapter 9. Developing and Debugging Dno</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ch08.html">Prev</a> </td>
+<th width="60%" align="center"> </th>
+<td width="20%" align="right"> <a accesskey="n" href="ch10.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="idm1009"></a>Chapter 9. Developing and Debugging Dno</h1></div></div></div>
+<p>
+      If you want to hack on dno, feel free.  The
+      <code class="literal">dno</code> executable is a self-executing Makefile
+      and aims to be well commented.
+    </p>
+<p>
+      The various helper tools (see the man page appendices) are all
+      shell and awk scripts, and again should be either well-enough
+      documented, or simple enough that they are relatively easy to
+      work on.
+    </p>
+<p>
+      To get started with hacking on <code class="literal">dno</code> you should
+      familiarise yourself with its debug variables which provide
+      various degrees of feedback:
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+<code class="literal">VERBOSE</code>;
+	</li>
+<li class="listitem">
+<code class="literal">REPORT</code>;
+	</li>
+<li class="listitem">
+<code class="literal">DEBUG</code>;
+	</li>
+<li class="listitem">
+<code class="literal">SHOW_RULES</code>.
+	</li>
+</ul></div>
+<p>
+    </p>
+<p>
+      The real key to understaning dno, is the
+      <code class="literal">ALL_BUILD_RULES</code> macro.  When you understand
+      how this is used, along with the way that make restarts when
+      dependency files (included makefiles) are updated, then you will
+      get dno.
+    </p>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ch08.html">Prev</a> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right"> <a accesskey="n" href="ch10.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 8. Other Features and Capabilities </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 10. Why?</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

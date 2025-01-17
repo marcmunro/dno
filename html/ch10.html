@@ -1,0 +1,160 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Chapter 10. Why?</title>
+<link rel="stylesheet" type="text/css" href="dno.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
+<link rel="home" href="index.html" title="Dno User Guide">
+<link rel="up" href="index.html" title="Dno User Guide">
+<link rel="prev" href="ch09.html" title="Chapter 9. Developing and Debugging Dno">
+<link rel="next" href="apa.html" title="Appendix A. man page for dno(1)">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Chapter 10. Why?</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ch09.html">Prev</a> </td>
+<th width="60%" align="center"> </th>
+<td width="20%" align="right"> <a accesskey="n" href="apa.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="idm1027"></a>Chapter 10. Why?</h1></div></div></div>
+<p>
+      <span class="emphasis"><em>This is one developer's Point Of View</em></span>:
+    </p>
+<p>
+      Dno was created out of frustration with the Arduino IDE.  In
+      particular:
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+<p>
+	    its slowness;
+	  </p>
+<p>
+	    The IDE is slow everywhere.  It's slow to start, slow to
+	    compile, slow to do anything.
+	  </p>
+</li>
+<li class="listitem">
+<p>
+	    its clunkiness;
+	  </p>
+<p>
+	    Everything about it is clunky.  The tiny edit window.  The
+	    wierd buttons.  The way that it always starts up halfway
+	    between my 2 monitors.  The menu entries that look like
+	    headings...
+	  </p>
+</li>
+<li class="listitem">
+<p>
+	    its attitude;
+	  </p>
+<p>
+	    Here's how you write software: you bring up a really
+	    crappy editor that has no interest in how you want to use
+	    your filesystem and that does not have the power of the
+	    tools that you normally use.  No, you can't use standard
+	    tools.  And, no you can't build from the command line: well,
+	    you can but the commands are insane.
+	  </p>
+<p>
+	    <span class="quote">“<span class="quote">But this is the right way to do it.  In fact it's the only
+	    way.</span>”</span>
+	  </p>
+<p>
+	    That's the attitude I'm talking about.  And it sucks.
+	  </p>
+<p>
+	    IDEs all have that attitude.  And many of their users buy
+	    in to it.  You will often here the question, <span class="quote">“<span class="quote">why
+	    would you not use <span class="emphasis"><em>whatever</em></span>?</span>”</span>,
+	    when the real question should be <span class="quote">“<span class="quote">why can't I use
+	    tools that I am familiar with?</span>”</span>
+	  </p>
+</li>
+<li class="listitem">
+<p>
+	    its inflexibility.
+	  </p>
+<p>
+	    The editor has no flexibility.  It is neither powerful nor
+	    customisable.  It doesn't, by default access your normal
+	    files.
+	  </p>
+<p>
+	    The IDE provides no way to actually develop libraries.
+	    You can write them, but you can't test them or document
+	    them.  It's a toy development environment for toy
+	    devlopment.
+	  </p>
+</li>
+</ul></div>
+<p>
+    </p>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm1053"></a>1. And How?</h2></div></div></div>
+<p>
+	So, I didn't like the IDE.  I tried using a proper editor and
+	cutting and pasting my code into the IDE.  That sucked.
+      </p>
+<p>
+	I tried using the CLI.  But the commands are pure mental: way
+	too many parameters.  That sucked.
+      </p>
+<p>
+	I found <code class="literal">Arduino.mk</code>.  Finally, something that
+	didn't suck.  It showed that normal tools like
+	<code class="literal">make</code> <span class="emphasis"><em>could</em></span> be used.
+	But it was really stuck in the <code class="literal">avr</code> world,
+	and it still required a bit too much hand-holding, particulary
+	around library use.
+      </p>
+<p>
+	I looked at hacking it, and discovered a lot about
+	<code class="literal">make</code> that I didn't know.  It was a very
+	good piece of work, but still not quite right.
+      </p>
+<p>
+	I developed my own version of <code class="literal">Arduino.mk</code>
+	that tackled some of the problems, but it still didn't feel
+	right.  Copies of the makefile had to be put in place in each
+	directory.  But library discovery worked pretty well.
+      </p>
+<p>
+	It all came together when I was trying to parse the
+	<code class="literal">platform.txt</code> file.  I finally realised that
+	a simple transform could turn it into makefile syntax.  And
+	then I discovered make's <code class="literal">eval</code> function and
+	everything was suddenly possible.
+      </p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ch09.html">Prev</a> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right"> <a accesskey="n" href="apa.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 9. Developing and Debugging Dno </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Appendix A. man page for dno(1)</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

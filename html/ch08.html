@@ -1,0 +1,538 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Chapter 8. Other Features and Capabilities</title>
+<link rel="stylesheet" type="text/css" href="dno.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
+<link rel="home" href="index.html" title="Dno User Guide">
+<link rel="up" href="index.html" title="Dno User Guide">
+<link rel="prev" href="ch07.html" title="Chapter 7. Documentation with Doxygen">
+<link rel="next" href="ch09.html" title="Chapter 9. Developing and Debugging Dno">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Chapter 8. Other Features and Capabilities</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ch07.html">Prev</a> </td>
+<th width="60%" align="center"> </th>
+<td width="20%" align="right"> <a accesskey="n" href="ch09.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="idm886"></a>Chapter 8. Other Features and Capabilities</h1></div></div></div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm889"></a>1. Revision Control</h2></div></div></div>
+<p>
+      Dno projects are simply directory systems.  As such they are
+      compatible with all known, sane, revision control systems.  <a class="link" href="https://git-scm.com" target="_top">Git</a> in
+      particular, works just fine.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm893"></a>2. Configuration Options</h2></div></div></div>
+<p>
+      Each Arduino board has a number of user-selectable configuration
+      options.  For some boards, like the esp32, there can be many,
+      many options.
+    </p>
+<p>
+      To view and modify the options for your selected Arduino board,
+      use <code class="literal">dno menu</code>.  This presents the user with a
+      menu-based interface for selecting from the available options.
+    </p>
+<p>
+      The selected options become compiler flags for the next build.
+      They are recorded in a file called
+      <code class="literal">BOARD_OPTIONS</code>, which becomes a dependency
+      for all object files in the build.  This means that changing an
+      option will cause the next build to recompile everything.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm900"></a>3. <code class="literal">.ino</code> files</h2></div></div></div>
+<p>
+      Typically, Arduino sketches are presented as
+      <code class="literal">.ino</code> files.  They need to contain only the
+      functions <code class="literal">setup()</code> and <code class="literal">loop()</code>.
+    </p>
+<p>
+      Dno, naturally, supports the <code class="literal">.ino</code> file format
+      but it does not require it.
+    </p>
+<p>
+      If you would rather code your own <code class="literal">main()</code>
+      function, you can.  There does not have to be a
+      <code class="literal">.ino</code> file in your Arduino program.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm912"></a>4. Tags</h2></div></div></div>
+<p>
+      Tag files are reference files that tell your favourite editor
+      where various symbols can be found in your source code.  They
+      enable you to rapidly move to places of interest in your code.
+    </p>
+<p>
+      There are 2 major flavours of tag files: ctags and etags.  If
+      you have a need for tagfiles, you will know which you prefer.
+    </p>
+<p>
+      Dno creates tagfiles using the targets: <code class="literal">ctags</code>
+      and <code class="literal">etags</code>.  These targets should be invoked
+      in a code directory: either a <a class="link" href="ch05.html#board_dir" title="2. Board Subdirectories">board
+      directory</a>, or the <a class="link" href="ch05.html#project_dir" title="1. The Project/Root Directory">project
+      directory</a> if you are not using board directories.
+    </p>
+<p>
+      The <code class="literal">ctags</code> target will create a file called
+      <code class="literal">tags</code>, while the <code class="literal">etags</code>
+      target creates a file called <code class="literal">TAGS</code>.
+    </p>
+<p>
+      Once these files have been created, dno will automatically keep
+      them up to date.  Note that the <a class="link" href="ch04.html#clean" title="4. Cleaning"><code class="literal">clean</code></a> target will
+      leave any tags files in place, while the <a class="link" href="ch04.html#pristine" title="4.3. Pristine"><code class="literal">pristine</code></a> target
+      will remove them.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="monitor"></a>5. Serial Communication</h2></div></div></div>
+<p>
+      You can monitor and interact with your Arduino's serial
+      connection using <code class="literal">dno monitor</code>.
+    </p>
+<p>
+      This creates a connection to your Arduino using the Linux
+      <code class="literal">screen</code> command.
+    </p>
+<p>
+      You should read the <code class="literal">screen</code> man page if you
+      are unfamiliar with screen.
+    </p>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm939"></a>5.1. Getting Out of <code class="literal">screen</code>
+</h3></div></div></div>
+<p>
+	If you are unfamiliar with <code class="literal">screen</code> you will
+	quickly find yourself wondering, "how do I get out of this"?
+      </p>
+<p>
+	If you find yourself in the monitor and want to get out, use
+	<code class="literal">C-a k</code>.  That is Control-A followed by k.
+      </p>
+<p>
+	Another way to kill the screen program is by running
+	<code class="literal">dno noscreen</code> from another session.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm948"></a>5.2. Why <code class="literal">screen</code>?</h3></div></div></div>
+<p>
+	The screen utility provides multiplexed virtual terminals.
+	This allows you to run multiple sessions from a single
+	terminal.
+      </p>
+<p>
+	By using screen as our monitor tool, we allow the user to
+	switch between a command line session and the connection to
+	the Arduino serial interface.  This seemed like a good idea.
+      </p>
+</div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="eeprom"></a>6. EEPROMs</h2></div></div></div>
+<p>
+      Dno provides limited support for writing to an Arduino's EEPROM.
+    </p>
+<p>
+      The reason that it is limited is that the
+      <code class="literal">platform.txt</code> file (and the Arduino platform
+      specification) does not provide support.
+    </p>
+<p>
+      For AVR-architecture boards (the traditional Arduinos), dno
+      provides the <code class="literal">eeprom</code> target, which will
+      attempt to burn an eeprom image to a connected Arduino.  Use
+      this in much the same way as you use the
+      <code class="literal">upload</code> target.
+    </p>
+<p>
+      A typical use-case for this would be to give each Arduino in a
+      connected cluster its own unique identifier or key.  This would
+      mean the same image could be uploaded to each member of the
+      cluster, but a separate eeprom image provided for the individual
+      members.
+    </p>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm962"></a>6.1. Coding For EEPROMs</h3></div></div></div>
+<p>
+	There is much online documentation about using Arduino
+	EEPROMs.  Little of it seems to cover how to create eeprom
+	images for directly writing to a board.
+      </p>
+<p>
+	We'll take our blink sketch as the basis for the example below.
+      </p>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm966"></a>6.1.1. Include the <code class="literal">eeprom</code> Header</h4></div></div></div>
+<p>
+	  Add <code class="literal">#include &lt;avr/eeprom.h&gt;</code>.
+	  Something like this:
+	  </p>
+<pre class="programlisting">
+. . . 
+
+#include &lt;Deferal.h&gt;
+#include &lt;avr/eeprom.h&gt;
+
+. . . 
+	  </pre>
+<p>
+	</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm972"></a>6.1.2. Create a Struct Representing the EEPROM Contents</h4></div></div></div>
+<p>
+	  We add a struct definition, with some initialisation.  Note
+	  the use of the EEMEM directive.  This is the crucial
+	  element, and for more information on using Arduino EEPROMs,
+	  this appears to be the best term to search for.
+	</p>
+<p>
+	  Our code now looks like this:
+	  </p>
+<pre class="programlisting">
+. . . 
+
+#include &lt;Deferal.h&gt;
+#include &lt;avr/eeprom.h&gt;
+
+static bool led_is_on;
+static Deferal myTimer(500);
+
+#define SENTINEL 0xdeadbeef
+
+struct {
+    uint32_t sentinel;
+    char my_nodename[40];
+    uint16_t my_node_id;
+} eeprom EEMEM = {
+  	          SENTINEL,
+		  "Here, put this fish in your ear",
+		  42}; 
+. . . 
+	  </pre>
+<p>
+	</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm977"></a>6.1.3. Using the EEPROM Contents</h4></div></div></div>
+<p>
+	  Now, we need to make use of the contents.  We will read the
+	  eeprom structure, and write the values we have found to our
+	  serial line.  Let's do this on each blink.
+	</p>
+<p>
+	  To ensure that we are not reading uninitialised junk, we
+	  will test that the sentinel field contains our
+	  expected value.  If not, then the EEPROM has not been
+	  written. 
+	</p>
+<p>
+	  This is the final program.  Note that it is poorly
+	  commented.  Adding Doxygen comments is left as an exercise
+	  for the reader.
+	  </p>
+<pre class="programlisting">
+/*
+  Blink
+
+*/
+
+#include &lt;Deferal.h&gt;
+#include &lt;avr/eeprom.h&gt;
+static bool led_is_on;
+static Deferal myTimer(500);
+
+#define SENTINEL 0xdeadbeef
+#define SERIAL_BAUD_RATE 57600
+
+struct {
+    uint32_t sentinel;
+    char my_msg[40];
+    uint16_t my_node_id;
+} eeprom EEMEM = {
+  	          SENTINEL,
+		  "Here, put this fish in your ear",
+		  42}; 
+
+static void
+led_on(int led)
+{
+    digitalWrite(led, HIGH);
+    led_is_on = true;
+}
+
+static void
+led_off(int led)
+{
+    digitalWrite(led, LOW);
+    led_is_on = false;
+}
+
+static void
+toggle_led(int led)
+{
+    if (led_is_on) {
+	led_off(led);
+    }
+    else {
+	led_on(led);
+    }
+}
+
+void setup()
+{
+    pinMode(LED_BUILTIN, OUTPUT);
+    led_off(LED_BUILTIN);
+    Serial.begin(SERIAL_BAUD_RATE);
+}
+
+
+void
+send_msg()
+{
+    char c;
+    if (eeprom_read_dword(&amp;eeprom.sentinel) == SENTINEL) {
+        Serial.print("Node ");
+        Serial.print(eeprom_read_word(&amp;eeprom.my_node_id));
+        Serial.print(" says ");
+	for (int i = 0;
+	     c = eeprom_read_byte(&amp;(eeprom.my_msg[i]));
+	     i++) {
+	    Serial.print(c);
+	}
+	Serial.println();
+    }
+    else {
+        Serial.print("eeprom not initialised: ");
+        Serial.println(eeprom.sentinel);
+    }
+}
+
+void loop()
+{
+    if (!myTimer.running()) {
+	toggle_led(LED_BUILTIN);
+	myTimer.again();
+	send_msg();
+    }
+    // We can add code to do all sorts of things here, without the
+    // timing of our led blinks being affected.
+    
+}
+	  </pre>
+<p>
+	</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm983"></a>6.1.4. Build and Test</h4></div></div></div>
+<p>
+	  Let's compile and upload:
+	  </p>
+<pre class="programlisting">
+pro.8MHzatmega328$ dno
+  C++  [..] blink.ino
+  LD blink.ino.o Deferal.o
+  OBJCOPY (hex) blink.elf
+pro.8MHzatmega328$ dno upload
+  Resetting device attached to (/dev/ttyUSB0)...
+/usr/local/bin/dno do_upload
+make[1]: Entering directory '.../blink/pro.8MHzatmega328'
+ 
+    Uploading blink.hex to /dev/ttyUSB0
+
+avrdude: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.01s
+
+avrdude: Device signature = 0x1e950f (probably m328p)
+avrdude: reading input file "build/blink.hex"
+avrdude: writing flash (2740 bytes):
+
+Writing | ################################################## | 100% 1.41s
+
+avrdude: 2740 bytes of flash written
+avrdude: verifying flash memory against build/blink.hex:
+avrdude: load data flash data from input file build/blink.hex:
+avrdude: input file build/blink.hex contains 2740 bytes
+avrdude: reading on-chip flash data:
+
+Reading | ################################################## | 100% 1.19s
+
+avrdude: verifying ...
+avrdude: 2740 bytes of flash verified
+
+avrdude: safemode: Fuses OK (E:00, H:00, L:00)
+
+avrdude done.  Thank you.
+
+make[1]: Leaving directory '.../pro.8MHzatmega328'
+pro.8MHzatmega328$ 
+	  </pre>
+<p>
+	</p>
+<p>
+	  Now, we connect out monitor using <code class="literal">dno
+	  monitor</code>.  This is what we see:
+	  </p>
+<pre class="programlisting">
+�eeprom not initialised
+eeprom not initialised
+eeprom not initialised
+eeprom not initialised
+eeprom not initialised
+eeprom not initialised
+	  </pre>
+<p>
+	</p>
+<p>
+	  So, it appears to work, though the eeprom is uninitialised.
+	</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm991"></a>6.1.5. Burn the Eeprom</h4></div></div></div>
+<p>
+	  Please note again that this operation is only supported
+	  under the AVR architecture.  It may be possible to do
+	  something similar with other architectures but since the
+	  Arduino platform specification does not seem to offer it,
+	  its unlikely that dno will support it.
+	</p>
+<p>
+	  To burn the eeprom (for an AVR architecture Arduino board)
+	  we can simply use <code class="literal">dno eeprom</code>.  However
+	  for demonstration and documentation purposes we will split
+	  this into two steps: <code class="literal">dno eeprom_image</code> and
+	  then <code class="literal">dno eeprom</code>.
+	</p>
+<p>
+	  The <code class="literal">eeprom_image</code> target creates the image
+	  that will be written to the board.  The
+	  <code class="literal">eeprom</code> target writes the image.
+	</p>
+<p>
+	  </p>
+<pre class="programlisting">
+pro.8MHzatmega328$ dno eeprom_image
+  OBJCOPY (eep) blink.elf
+pro.8MHzatmega328$ dno eeprom
+  Resetting device attached to (/dev/ttyUSB0)...
+/usr/local/bin/dno do_eeprom
+make[1]: Entering directory '.../blink/pro.8MHzatmega328'
+ 
+    writing eeprom from blink.eep using /dev/ttyUSB0
+
+avrdude: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.01s
+
+avrdude: Device signature = 0x1e950f (probably m328p)
+avrdude: reading input file "build/blink.eep"
+avrdude: writing eeprom (46 bytes):
+
+Writing | ################################################## | 100% 0.38s
+
+avrdude: 46 bytes of eeprom written
+avrdude: verifying eeprom memory against build/blink.eep:
+avrdude: load data eeprom data from input file build/blink.eep:
+avrdude: input file build/blink.eep contains 46 bytes
+avrdude: reading on-chip eeprom data:
+
+Reading | ################################################## | 100% 0.38s
+
+avrdude: verifying ...
+avrdude: verification error, first mismatch at byte 0x001a
+         0x22 != 0x20
+avrdude: verification error; content mismatch
+
+avrdude: safemode: Fuses OK (E:00, H:00, L:00)
+
+avrdude done.  Thank you.
+
+make[1]: *** [/usr/local/bin/dno:1420: do_eeprom] Error 1
+make[1]: Leaving directory '.../blink/pro.8MHzatmega328'
+make: *** [/usr/local/bin/dno:1414: eeprom] Error 2
+pro.8MHzatmega328$ 
+	  </pre>
+<p>
+	</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm1003"></a>6.1.6. Are We There Yet?</h4></div></div></div>
+<p>
+	  Well, let's try the monitor again:
+	  </p>
+<pre class="programlisting">
+	    Node 554 says Here, put this fish in your ear
+Node 554 says Here, put this fish in your ear
+Node 554 says Here, put this fish in your ear
+Node 554 says Here, put this fish in your ear
+Node 42 says Here, put this fish in your ear
+Node 554 says Here, put this fish in your ear
+Node 554 says Here, put this fish in your ear
+. . .
+	  </pre>
+<p>
+	</p>
+<p>
+	  Well, something is a bit off, but it has mostly worked.  The
+	  <code class="literal">node_id</code> value is usually wrong but
+	  sometimes ok.  Whether this is a hardware problem (tired
+	  eeprom), or something else is difficult to say.  Either way,
+	  writing to the eeprom achieved something at least.
+	</p>
+</div>
+</div>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ch07.html">Prev</a> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right"> <a accesskey="n" href="ch09.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 7. Documentation with Doxygen </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 9. Developing and Debugging Dno</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Appendix H. man page for board_options(5)</title>
+<link rel="stylesheet" type="text/css" href="dno.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
+<link rel="home" href="index.html" title="Dno User Guide">
+<link rel="up" href="index.html" title="Dno User Guide">
+<link rel="prev" href="apg.html" title="Appendix G. man page for board_info(5)">
+<link rel="next" href="api.html" title="Appendix I. man page for board_type(5)">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Appendix H. man page for board_options(5)</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="apg.html">Prev</a> </td>
+<th width="60%" align="center"> </th>
+<td width="20%" align="right"> <a accesskey="n" href="api.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="appendix">
+<div class="titlepage"><div>
+<div><h1 class="title">
+<a name="idm1719"></a>man page for board_options(5)</h1></div>
+<div><div class="authorgroup"><div class="author"><h3 class="author">
+<span class="firstname">Marc</span> <span class="surname">Munro</span>
+</h3></div></div></div>
+</div></div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="BOARD_OPTIONS-name"></a>NAME</h2></div></div></div>
+<p>
+      BOARD_OPTIONS - file of Arduino menu options in make(1) syntax
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="BOARD_OPTIONS-description"></a>DESCRIPTION</h2></div></div></div>
+<p>
+      BOARD_OPTIONS files are created and used by
+      <span class="strong"><strong>dno</strong></span>(1), or
+      <span class="strong"><strong>dno_menu</strong></span>(1) to define selected
+      build options for an Arduino board.
+    </p>
+<p>
+      The default options are determined from
+      <span class="strong"><strong>BOARD_INFO</strong></span>(5). Running
+      <span class="strong"><strong>dno menu</strong></span> or
+      <span class="strong"><strong>dno_menu</strong></span> allows the user to
+      interactively select desired options from the options available
+      via a terminal-based menu interface. If the selected options are
+      all left as default, then no
+      <span class="strong"><strong>BOARD_OPTIONS</strong></span> file will be
+      created, and any existing one will be deleted. If non-default
+      options are selected, the selected options will be recorded in the
+      <span class="strong"><strong>BOARD_OPTIONS</strong></span> file.
+    </p>
+<p>
+      Note that the available options recorded in
+      <span class="strong"><strong>BOARD_INFO</strong></span> are determined from
+      the boards.txt file for the selected Arduino board.
+    </p>
+<p>
+      FILES boards.txt
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="BOARD_OPTIONS-see-also"></a>SEE ALSO</h2></div></div></div>
+<p>
+      <span class="strong"><strong>make</strong></span>(1)
+      <span class="strong"><strong>dno</strong></span>(1)
+      <span class="strong"><strong>dno_menu</strong></span>(1)
+      <span class="strong"><strong>dno_bpp</strong></span>
+      <span class="strong"><strong>BOARD_INFO</strong></span>(5)
+    </p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="apg.html">Prev</a> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right"> <a accesskey="n" href="api.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Appendix G. man page for board_info(5) </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Appendix I. man page for board_type(5)</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

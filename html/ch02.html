@@ -1,0 +1,1031 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Chapter 2. Installing And Updating Arduino Toolsets</title>
+<link rel="stylesheet" type="text/css" href="dno.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
+<link rel="home" href="index.html" title="Dno User Guide">
+<link rel="up" href="index.html" title="Dno User Guide">
+<link rel="prev" href="ch01.html" title="Chapter 1. Installation">
+<link rel="next" href="ch03.html" title="Chapter 3. Getting Started">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Chapter 2. Installing And Updating Arduino Toolsets</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ch01.html">Prev</a> </td>
+<th width="60%" align="center"> </th>
+<td width="20%" align="right"> <a accesskey="n" href="ch03.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="idm137"></a>Chapter 2. Installing And Updating Arduino Toolsets</h1></div></div></div>
+<p>
+    The easiest, and probably safest, way to install up to date
+    Arduino toolsets is to use the venerable old Arduino IDE.  This
+    allows you to install toolsets for specific boards under your own
+    OS account, and does so without requiring root access to your
+    system.
+  </p>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm140"></a>1. Install The Standard Old Arduino IDE</h2></div></div></div>
+<p>
+      Note: There is a new and improved IDE but since the whole point
+      of dno is to avoid using an IDE we will stick to using the
+      simple old one.  As little as possible.
+    </p>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm143"></a>1.1. 
+	Install On Debian (and relatives) Using Apt
+      </h3></div></div></div>
+<p>
+	You will want to first ensure that all installed packages are
+	up to date (do this as root: you can use
+	<code class="literal">sudo</code> to run a command as root but please
+	note <a class="link" href="ch01.html#sudo-wassup">this objection</a>):
+	</p>
+<pre class="programlisting">
+~# apt update
+~# apt upgrade
+	</pre>
+<p>
+      </p>
+<p>
+	Now, again as root, we install the <code class="literal">arduino</code>
+	package:
+	</p>
+<pre class="programlisting">
+~# apt install arduino
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  arduino-builder arduino-core-avr arduino-ctags avr-libc avrdude binutils-avr
+  extra-xdg-menus gcc-avr java-wrappers libapache-pom-java libastylej-jni
+  libbatik-java libbcpg-java libbcprov-java libcommons-codec-java
+  libcommons-compress-java libcommons-exec-java libcommons-io-java
+  libcommons-lang3-java libcommons-logging-java libcommons-net-java
+  libcommons-parent-java libftdi1 libgoogle-gson-java libhidapi-libusb0
+  libhttpclient-java libhttpcore-java libjackson2-annotations-java
+  libjackson2-core-java libjackson2-databind-java libjaxp1.3-java
+  libjmdns-java libjna-java libjna-jni libjna-platform-java libjsch-java
+  libjssc-java libjzlib-java liblightcouch-java liblistserialsj-dev
+  liblistserialsj1 liblog4j2-java libmongodb-java librsyntaxtextarea-java
+  librxtx-java libsemver-java libserialport0 libslf4j-java libusb-0.1-4
+  libxalan2-java libxerces2-java libxml-commons-external-java
+  libxml-commons-resolver1.1-java libxmlgraphics-commons-java
+Suggested packages:
+  avrdude-doc gcc-doc librhino-java libbcpg-java-doc libbcprov-java-doc
+  libxz-java libcommons-io-java-doc libcommons-lang3-java-doc
+  libavalon-framework-java libcommons-logging-java-doc
+  libexcalibur-logkit-java liblog4j1.2-java libcommons-net-java-doc
+  libgoogle-gson-java-doc libjackson2-annotations-java-doc libjna-java-doc
+  libcommons-csv-java libconversant-disruptor-java libdisruptor-java
+  libgeronimo-jms-1.1-spec-java libjackson2-dataformat-xml-java
+  libjackson2-dataformat-yaml libjansi-java libjctools-java libjeromq-java
+  libmail-java libwoodstox-java librsyntaxtextarea-java-doc libsemver-java-doc
+  libxalan2-java-doc libbsf-java libxsltc-java libxerces2-java-doc
+  libxml-commons-resolver1.1-java-doc libxmlgraphics-commons-java-doc
+The following NEW packages will be installed:
+  arduino arduino-builder arduino-core-avr arduino-ctags avr-libc avrdude
+  binutils-avr extra-xdg-menus gcc-avr java-wrappers libapache-pom-java
+  libastylej-jni libbatik-java libbcpg-java libbcprov-java
+  libcommons-codec-java libcommons-compress-java libcommons-exec-java
+  libcommons-io-java libcommons-lang3-java libcommons-logging-java
+  libcommons-net-java libcommons-parent-java libftdi1 libgoogle-gson-java
+  libhidapi-libusb0 libhttpclient-java libhttpcore-java
+  libjackson2-annotations-java libjackson2-core-java libjackson2-databind-java
+  libjaxp1.3-java libjmdns-java libjna-java libjna-jni libjna-platform-java
+  libjsch-java libjssc-java libjzlib-java liblightcouch-java
+  liblistserialsj-dev liblistserialsj1 liblog4j2-java libmongodb-java
+  librsyntaxtextarea-java librxtx-java libsemver-java libserialport0
+  libslf4j-java libusb-0.1-4 libxalan2-java libxerces2-java
+  libxml-commons-external-java libxml-commons-resolver1.1-java
+  libxmlgraphics-commons-java
+0 upgraded, 55 newly installed, 0 to remove and 5 not upgraded.
+Need to get 57.5 MB of archives.
+After this operation, 189 MB of additional disk space will be used.
+
+[ . . . ]
+
+Do you want to continue? [Y/n] y
+Get:1 http://archive.ubuntu.com/ubuntu jammy/universe amd64 arduino-ctags amd64 5.8-arduino11-1 [123 kB]
+Get:2 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 libbatik-java all 1.14-1ubuntu0.2 [3,866 kB]
+Get:3 http://archive.ubuntu.com/ubuntu jammy/universe amd64 arduino-builder amd64 1.3.25-3 [902 kB]
+Get:4 http://archive.ubuntu.com/ubuntu jammy/universe amd64 binutils-avr amd64 2.26.20160125+Atmel3.6.2-4 [1,697 kB]
+Get:5 http://archive.ubuntu.com/ubuntu jammy/universe amd64 gcc-avr amd64 1:5.4.0+Atmel3.6.2-3 [17.2 MB]
+Get:6 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 libcommons-net-java all 3.6-1+deb11u1build0.22.04.1 [281 kB]
+Get:7 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 libgoogle-gson-java all 2.8.8-1ubuntu0.1 [219 kB]
+Get:8 http://archive.ubuntu.com/ubuntu jammy/universe amd64 avr-libc all 1:2.0.0+Atmel3.6.2-3 [4,859 kB]
+Get:9 http://archive.ubuntu.com/ubuntu jammy/universe amd64 arduino-core-avr all 1.8.4+dfsg1-1 [196 kB]
+Get:10 http://archive.ubuntu.com/ubuntu jammy/main amd64 libusb-0.1-4 amd64 2:0.1.12-32build3 [17.7 kB]
+Get:11 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libftdi1 amd64 0.20-4ubuntu1 [15.4 kB]
+Get:12 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libhidapi-libusb0 amd64 0.11.2-1 [17.8 kB]
+Get:13 http://archive.ubuntu.com/ubuntu jammy/universe amd64 avrdude amd64 6.3-20171130+svn1429-2 [316 kB]
+Get:14 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libastylej-jni amd64 3.1-2build1 [105 kB]
+Get:15 http://archive.ubuntu.com/ubuntu jammy/universe amd64 java-wrappers all 0.3 [9,560 B]
+Get:16 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjaxp1.3-java all 1.3.05-6 [227 kB]
+Get:17 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libxml-commons-external-java all 1.4.01-5 [240 kB]
+Get:18 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libxml-commons-resolver1.1-java all 1.2-11 [97.6 kB]
+Get:19 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libxerces2-java all 2.12.1-1 [1,437 kB]
+Get:20 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libxalan2-java all 2.7.2-4 [3,416 kB]
+Get:21 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libapache-pom-java all 18-1 [4,720 B]
+Get:22 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libcommons-parent-java all 43-1 [10.8 kB]
+Get:23 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libcommons-io-java all 2.11.0-2 [297 kB]
+Get:24 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libcommons-logging-java all 1.2-2 [60.3 kB]
+Get:25 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libxmlgraphics-commons-java all 2.6-1 [612 kB]
+Get:26 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libbcprov-java all 1.68-5 [3,457 kB]
+Get:27 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libbcpg-java all 1.68-5 [267 kB]
+Get:28 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libcommons-codec-java all 1.15-1 [291 kB]
+Get:29 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libcommons-compress-java all 1.21-1 [575 kB]
+Get:30 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libcommons-exec-java all 1.3-2 [48.1 kB]
+Get:31 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libcommons-lang3-java all 3.11-1 [526 kB]
+Get:32 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libhttpcore-java all 4.4.14-2 [606 kB]
+Get:33 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libhttpclient-java all 4.5.13-3 [1,226 kB]
+Get:34 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjackson2-annotations-java all 2.13.0-1 [64.7 kB]
+Get:35 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjackson2-core-java all 2.13.0-2 [354 kB]
+Get:36 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjackson2-databind-java all 2.13.0-2 [1,382 kB]
+Get:37 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libslf4j-java all 1.7.32-1 [141 kB]
+Get:38 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjmdns-java all 3.5.5-1 [201 kB]
+Get:39 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjna-jni amd64 5.9.0-1 [33.1 kB]
+Get:40 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjna-java all 5.9.0-1 [193 kB]
+Get:41 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjna-platform-java all 5.9.0-1 [1,119 kB]
+Get:42 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjzlib-java all 1.1.3-2 [77.5 kB]
+Get:43 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjsch-java all 0.1.55-1 [283 kB]
+Get:44 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libjssc-java amd64 2.8.0-3 [29.3 kB]
+Get:45 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libserialport0 amd64 0.1.1-4 [22.4 kB]
+Get:46 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 liblistserialsj1 amd64 1.4.0-1ubuntu0.22.04.1 [4,664 B]
+Get:47 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 liblistserialsj-dev amd64 1.4.0-1ubuntu0.22.04.1 [1,518 B]
+Get:48 http://archive.ubuntu.com/ubuntu jammy/universe amd64 liblightcouch-java all 0.0.6-1.1 [65.2 kB]
+Get:49 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libmongodb-java all 3.6.3-2 [1,899 kB]
+Get:50 http://archive.ubuntu.com/ubuntu jammy/universe amd64 liblog4j2-java all 2.17.1-1 [2,065 kB]
+Get:51 http://archive.ubuntu.com/ubuntu jammy/universe amd64 librsyntaxtextarea-java all 2.5.8-1 [1,013 kB]
+Get:52 http://archive.ubuntu.com/ubuntu jammy/universe amd64 librxtx-java amd64 2.2pre2+dfsg1-2 [348 kB]
+Get:53 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libsemver-java all 0.9.0-4 [42.2 kB]
+Get:54 http://archive.ubuntu.com/ubuntu jammy/universe amd64 arduino amd64 2:1.8.19+dfsg1-1 [4,905 kB]
+Get:55 http://archive.ubuntu.com/ubuntu jammy/universe amd64 extra-xdg-menus all 1.0-6 [11.9 kB]
+Fetched 57.5 MB in 14s (4,055 kB/s)                                            
+Extracting templates from packages: 100%
+Selecting previously unselected package arduino-ctags.
+(Reading database ... 241774 files and directories currently installed.)
+Preparing to unpack .../00-arduino-ctags_5.8-arduino11-1_amd64.deb ...
+Unpacking arduino-ctags (5.8-arduino11-1) ...
+Selecting previously unselected package arduino-builder.
+Preparing to unpack .../01-arduino-builder_1.3.25-3_amd64.deb ...
+Unpacking arduino-builder (1.3.25-3) ...
+Selecting previously unselected package binutils-avr.
+Preparing to unpack .../02-binutils-avr_2.26.20160125+Atmel3.6.2-4_amd64.deb ...
+Unpacking binutils-avr (2.26.20160125+Atmel3.6.2-4) ...
+Selecting previously unselected package gcc-avr.
+Preparing to unpack .../03-gcc-avr_1%3a5.4.0+Atmel3.6.2-3_amd64.deb ...
+Unpacking gcc-avr (1:5.4.0+Atmel3.6.2-3) ...
+Selecting previously unselected package avr-libc.
+Preparing to unpack .../04-avr-libc_1%3a2.0.0+Atmel3.6.2-3_all.deb ...
+Unpacking avr-libc (1:2.0.0+Atmel3.6.2-3) ...
+Selecting previously unselected package arduino-core-avr.
+Preparing to unpack .../05-arduino-core-avr_1.8.4+dfsg1-1_all.deb ...
+Unpacking arduino-core-avr (1.8.4+dfsg1-1) ...
+Selecting previously unselected package libusb-0.1-4:amd64.
+Preparing to unpack .../06-libusb-0.1-4_2%3a0.1.12-32build3_amd64.deb ...
+Unpacking libusb-0.1-4:amd64 (2:0.1.12-32build3) ...
+Selecting previously unselected package libftdi1:amd64.
+Preparing to unpack .../07-libftdi1_0.20-4ubuntu1_amd64.deb ...
+Unpacking libftdi1:amd64 (0.20-4ubuntu1) ...
+Selecting previously unselected package libhidapi-libusb0:amd64.
+Preparing to unpack .../08-libhidapi-libusb0_0.11.2-1_amd64.deb ...
+Unpacking libhidapi-libusb0:amd64 (0.11.2-1) ...
+Selecting previously unselected package avrdude.
+Preparing to unpack .../09-avrdude_6.3-20171130+svn1429-2_amd64.deb ...
+Unpacking avrdude (6.3-20171130+svn1429-2) ...
+Selecting previously unselected package libastylej-jni:amd64.
+Preparing to unpack .../10-libastylej-jni_3.1-2build1_amd64.deb ...
+Unpacking libastylej-jni:amd64 (3.1-2build1) ...
+Selecting previously unselected package java-wrappers.
+Preparing to unpack .../11-java-wrappers_0.3_all.deb ...
+Unpacking java-wrappers (0.3) ...
+Selecting previously unselected package libjaxp1.3-java.
+Preparing to unpack .../12-libjaxp1.3-java_1.3.05-6_all.deb ...
+Unpacking libjaxp1.3-java (1.3.05-6) ...
+Selecting previously unselected package libxml-commons-external-java.
+Preparing to unpack .../13-libxml-commons-external-java_1.4.01-5_all.deb ...
+Unpacking libxml-commons-external-java (1.4.01-5) ...
+Selecting previously unselected package libxml-commons-resolver1.1-java.
+Preparing to unpack .../14-libxml-commons-resolver1.1-java_1.2-11_all.deb ...
+Unpacking libxml-commons-resolver1.1-java (1.2-11) ...
+Selecting previously unselected package libxerces2-java.
+Preparing to unpack .../15-libxerces2-java_2.12.1-1_all.deb ...
+Unpacking libxerces2-java (2.12.1-1) ...
+Selecting previously unselected package libxalan2-java.
+Preparing to unpack .../16-libxalan2-java_2.7.2-4_all.deb ...
+Unpacking libxalan2-java (2.7.2-4) ...
+Selecting previously unselected package libapache-pom-java.
+Preparing to unpack .../17-libapache-pom-java_18-1_all.deb ...
+Unpacking libapache-pom-java (18-1) ...
+Selecting previously unselected package libcommons-parent-java.
+Preparing to unpack .../18-libcommons-parent-java_43-1_all.deb ...
+Unpacking libcommons-parent-java (43-1) ...
+Selecting previously unselected package libcommons-io-java.
+Preparing to unpack .../19-libcommons-io-java_2.11.0-2_all.deb ...
+Unpacking libcommons-io-java (2.11.0-2) ...
+Selecting previously unselected package libcommons-logging-java.
+Preparing to unpack .../20-libcommons-logging-java_1.2-2_all.deb ...
+Unpacking libcommons-logging-java (1.2-2) ...
+Selecting previously unselected package libxmlgraphics-commons-java.
+Preparing to unpack .../21-libxmlgraphics-commons-java_2.6-1_all.deb ...
+Unpacking libxmlgraphics-commons-java (2.6-1) ...
+Selecting previously unselected package libbatik-java.
+Preparing to unpack .../22-libbatik-java_1.14-1ubuntu0.2_all.deb ...
+Unpacking libbatik-java (1.14-1ubuntu0.2) ...
+Selecting previously unselected package libbcprov-java.
+Preparing to unpack .../23-libbcprov-java_1.68-5_all.deb ...
+Unpacking libbcprov-java (1.68-5) ...
+Selecting previously unselected package libbcpg-java.
+Preparing to unpack .../24-libbcpg-java_1.68-5_all.deb ...
+Unpacking libbcpg-java (1.68-5) ...
+Selecting previously unselected package libcommons-codec-java.
+Preparing to unpack .../25-libcommons-codec-java_1.15-1_all.deb ...
+Unpacking libcommons-codec-java (1.15-1) ...
+Selecting previously unselected package libcommons-compress-java.
+Preparing to unpack .../26-libcommons-compress-java_1.21-1_all.deb ...
+Unpacking libcommons-compress-java (1.21-1) ...
+Selecting previously unselected package libcommons-exec-java.
+Preparing to unpack .../27-libcommons-exec-java_1.3-2_all.deb ...
+Unpacking libcommons-exec-java (1.3-2) ...
+Selecting previously unselected package libcommons-lang3-java.
+Preparing to unpack .../28-libcommons-lang3-java_3.11-1_all.deb ...
+Unpacking libcommons-lang3-java (3.11-1) ...
+Selecting previously unselected package libcommons-net-java.
+Preparing to unpack .../29-libcommons-net-java_3.6-1+deb11u1build0.22.04.1_all.d
+eb ...
+Unpacking libcommons-net-java (3.6-1+deb11u1build0.22.04.1) ...
+Selecting previously unselected package libhttpcore-java.
+Preparing to unpack .../30-libhttpcore-java_4.4.14-2_all.deb ...
+Unpacking libhttpcore-java (4.4.14-2) ...
+Selecting previously unselected package libhttpclient-java.
+Preparing to unpack .../31-libhttpclient-java_4.5.13-3_all.deb ...
+Unpacking libhttpclient-java (4.5.13-3) ...
+Selecting previously unselected package libjackson2-annotations-java.
+Preparing to unpack .../32-libjackson2-annotations-java_2.13.0-1_all.deb ...
+Unpacking libjackson2-annotations-java (2.13.0-1) ...
+Selecting previously unselected package libjackson2-core-java.
+Preparing to unpack .../33-libjackson2-core-java_2.13.0-2_all.deb ...
+Unpacking libjackson2-core-java (2.13.0-2) ...
+Selecting previously unselected package libjackson2-databind-java.
+Preparing to unpack .../34-libjackson2-databind-java_2.13.0-2_all.deb ...
+Unpacking libjackson2-databind-java (2.13.0-2) ...
+Selecting previously unselected package libslf4j-java.
+Preparing to unpack .../35-libslf4j-java_1.7.32-1_all.deb ...
+Unpacking libslf4j-java (1.7.32-1) ...
+Selecting previously unselected package libjmdns-java.
+Preparing to unpack .../36-libjmdns-java_3.5.5-1_all.deb ...
+Unpacking libjmdns-java (3.5.5-1) ...
+Selecting previously unselected package libjna-jni.
+Preparing to unpack .../37-libjna-jni_5.9.0-1_amd64.deb ...
+Unpacking libjna-jni (5.9.0-1) ...
+Selecting previously unselected package libjna-java.
+Preparing to unpack .../38-libjna-java_5.9.0-1_all.deb ...
+Unpacking libjna-java (5.9.0-1) ...
+Selecting previously unselected package libjna-platform-java.
+Preparing to unpack .../39-libjna-platform-java_5.9.0-1_all.deb ...
+Unpacking libjna-platform-java (5.9.0-1) ...
+Selecting previously unselected package libjzlib-java.
+Preparing to unpack .../40-libjzlib-java_1.1.3-2_all.deb ...
+Unpacking libjzlib-java (1.1.3-2) ...
+Selecting previously unselected package libjsch-java.
+Preparing to unpack .../41-libjsch-java_0.1.55-1_all.deb ...
+Unpacking libjsch-java (0.1.55-1) ...
+Selecting previously unselected package libjssc-java.
+Preparing to unpack .../42-libjssc-java_2.8.0-3_amd64.deb ...
+Unpacking libjssc-java (2.8.0-3) ...
+Selecting previously unselected package libserialport0:amd64.
+Preparing to unpack .../43-libserialport0_0.1.1-4_amd64.deb ...
+Unpacking libserialport0:amd64 (0.1.1-4) ...
+Selecting previously unselected package liblistserialsj1:amd64.
+Preparing to unpack .../44-liblistserialsj1_1.4.0-1ubuntu0.22.04.1_amd64.deb ...
+Unpacking liblistserialsj1:amd64 (1.4.0-1ubuntu0.22.04.1) ...
+Selecting previously unselected package liblistserialsj-dev:amd64.
+Preparing to unpack .../45-liblistserialsj-dev_1.4.0-1ubuntu0.22.04.1_amd64.deb 
+...
+Unpacking liblistserialsj-dev:amd64 (1.4.0-1ubuntu0.22.04.1) ...
+Selecting previously unselected package libgoogle-gson-java.
+Preparing to unpack .../46-libgoogle-gson-java_2.8.8-1ubuntu0.1_all.deb ...
+Unpacking libgoogle-gson-java (2.8.8-1ubuntu0.1) ...
+Selecting previously unselected package liblightcouch-java.
+Preparing to unpack .../47-liblightcouch-java_0.0.6-1.1_all.deb ...
+Unpacking liblightcouch-java (0.0.6-1.1) ...
+Selecting previously unselected package libmongodb-java.
+Preparing to unpack .../48-libmongodb-java_3.6.3-2_all.deb ...
+Unpacking libmongodb-java (3.6.3-2) ...
+Selecting previously unselected package liblog4j2-java.
+Preparing to unpack .../49-liblog4j2-java_2.17.1-1_all.deb ...
+Unpacking liblog4j2-java (2.17.1-1) ...
+Selecting previously unselected package librsyntaxtextarea-java.
+Preparing to unpack .../50-librsyntaxtextarea-java_2.5.8-1_all.deb ...
+Unpacking librsyntaxtextarea-java (2.5.8-1) ...
+Selecting previously unselected package librxtx-java.
+Preparing to unpack .../51-librxtx-java_2.2pre2+dfsg1-2_amd64.deb ...
+Unpacking librxtx-java (2.2pre2+dfsg1-2) ...
+Selecting previously unselected package libsemver-java.
+Preparing to unpack .../52-libsemver-java_0.9.0-4_all.deb ...
+Unpacking libsemver-java (0.9.0-4) ...
+Selecting previously unselected package arduino.
+Preparing to unpack .../53-arduino_2%3a1.8.19+dfsg1-1_amd64.deb ...
+Unpacking arduino (2:1.8.19+dfsg1-1) ...
+Selecting previously unselected package extra-xdg-menus.
+Preparing to unpack .../54-extra-xdg-menus_1.0-6_all.deb ...
+Unpacking extra-xdg-menus (1.0-6) ...
+Setting up binutils-avr (2.26.20160125+Atmel3.6.2-4) ...
+Setting up libbcprov-java (1.68-5) ...
+Setting up libsemver-java (0.9.0-4) ...
+Setting up libjackson2-annotations-java (2.13.0-1) ...
+Setting up libslf4j-java (1.7.32-1) ...
+Setting up java-wrappers (0.3) ...
+Setting up libjmdns-java (3.5.5-1) ...
+Setting up libcommons-net-java (3.6-1+deb11u1build0.22.04.1) ...
+Setting up libcommons-exec-java (1.3-2) ...
+Setting up libgoogle-gson-java (2.8.8-1ubuntu0.1) ...
+Setting up extra-xdg-menus (1.0-6) ...
+Setting up libastylej-jni:amd64 (3.1-2build1) ...
+Setting up librxtx-java (2.2pre2+dfsg1-2) ...
+Setting up libjzlib-java (1.1.3-2) ...
+Setting up libusb-0.1-4:amd64 (2:0.1.12-32build3) ...
+Setting up libjsch-java (0.1.55-1) ...
+Setting up gcc-avr (1:5.4.0+Atmel3.6.2-3) ...
+Setting up arduino-ctags (5.8-arduino11-1) ...
+Setting up arduino-builder (1.3.25-3) ...
+Setting up librsyntaxtextarea-java (2.5.8-1) ...
+Setting up libapache-pom-java (18-1) ...
+Setting up libxml-commons-resolver1.1-java (1.2-11) ...
+Setting up libhidapi-libusb0:amd64 (0.11.2-1) ...
+Setting up libjna-jni (5.9.0-1) ...
+Setting up libmongodb-java (3.6.3-2) ...
+Setting up libxml-commons-external-java (1.4.01-5) ...
+Setting up libjna-java (5.9.0-1) ...
+Setting up libjackson2-core-java (2.13.0-2) ...
+Setting up libhttpcore-java (4.4.14-2) ...
+Setting up libbcpg-java (1.68-5) ...
+Setting up libxerces2-java (2.12.1-1) ...
+Setting up libjaxp1.3-java (1.3.05-6) ...
+Setting up libserialport0:amd64 (0.1.1-4) ...
+Setting up libjssc-java (2.8.0-3) ...
+Setting up libcommons-parent-java (43-1) ...
+Setting up liblistserialsj1:amd64 (1.4.0-1ubuntu0.22.04.1) ...
+Setting up libftdi1:amd64 (0.20-4ubuntu1) ...
+Setting up libcommons-logging-java (1.2-2) ...
+Setting up libjna-platform-java (5.9.0-1) ...
+Setting up avr-libc (1:2.0.0+Atmel3.6.2-3) ...
+Setting up libjackson2-databind-java (2.13.0-2) ...
+Setting up libxalan2-java (2.7.2-4) ...
+Setting up liblistserialsj-dev:amd64 (1.4.0-1ubuntu0.22.04.1) ...
+Setting up libcommons-lang3-java (3.11-1) ...
+Setting up libcommons-codec-java (1.15-1) ...
+Setting up arduino-core-avr (1.8.4+dfsg1-1) ...
+Setting up avrdude (6.3-20171130+svn1429-2) ...
+Setting up libcommons-compress-java (1.21-1) ...
+Setting up libcommons-io-java (2.11.0-2) ...
+Setting up libxmlgraphics-commons-java (2.6-1) ...
+Setting up libhttpclient-java (4.5.13-3) ...
+Setting up liblightcouch-java (0.0.6-1.1) ...
+Setting up libbatik-java (1.14-1ubuntu0.2) ...
+Setting up liblog4j2-java (2.17.1-1) ...
+Setting up arduino (2:1.8.19+dfsg1-1) ...
+Processing triggers for hicolor-icon-theme (0.17-2) ...
+Processing triggers for gnome-menus (3.36.0-1ubuntu3) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.8) ...
+Processing triggers for man-db (2.10.2-1) ...
+Processing triggers for shared-mime-info (2.1-2) ...
+Processing triggers for mailcap (3.70+nmu1ubuntu1) ...
+Processing triggers for desktop-file-utils (0.26-1ubuntu3) ...
+~# exit
+~$
+	</pre>
+<p>
+      </p>
+<p>
+	At this point, you should re-run the dno installation steps of
+	<a class="link" href="ch01.html#install-commands" title="3.3. Configure">configure, make, make
+	install</a> so that dno can find the board configuration
+	files associated with the Arduino IDE.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm154"></a>1.2. Install On Other OSes</h3></div></div></div>
+<p>
+	Use your distribution's package manager.  Resist the
+	temptation to install the latest and greatest
+	<span class="emphasis"><em>whatever</em></span> from github or other sites.  The
+	packages curated by your distribution's maintainers are far
+	safer to use.
+      </p>
+</div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm158"></a>2. Ensure dno Sees The New Files</h2></div></div></div>
+<p>
+      We can check that dno can find the newly installed Arduino board
+      files using <code class="literal">dno show_boards</code>:
+      </p>
+<pre class="programlisting">
+~$ dno show_boards
+
+    Supported ArduinoBoard and CPU Types
+============================================================
+unomini               Arduino Uno Mini
+circuitplay32u4cat    Adafruit Circuit Playground
+robotControl          Arduino Robot Control
+leonardoeth           Arduino Leonardo ETH
+uno                   Arduino Uno
+yun                   Arduino Yún
+yunmini               Arduino Yún Mini
+lilypad               LilyPad Arduino
+  atmega168             ATmega168
+  atmega328             ATmega328P
+diecimila             Arduino Duemilanove or Diecimila
+  atmega168             ATmega168
+  atmega328             ATmega328P
+mega                  Arduino Mega or Mega 2560
+  atmega1280            ATmega1280
+  atmega2560            ATmega2560 (Mega 2560)
+atmegang              Arduino NG or older
+  atmega168             ATmega168
+  atmega8               ATmega8
+leonardo              Arduino Leonardo
+LilyPadUSB            LilyPad Arduino USB
+ethernet              Arduino Ethernet
+esplora               Arduino Esplora
+pro                   Arduino Pro or Pro Mini
+  16MHzatmega168        ATmega168 (5V, 16 MHz)
+  8MHzatmega168         ATmega168 (3.3V, 8 MHz)
+  16MHzatmega328        ATmega328P (5V, 16 MHz)
+  8MHzatmega328         ATmega328P (3.3V, 8 MHz)
+nano                  Arduino Nano
+  atmega168             ATmega168
+  atmega328             ATmega328P
+  atmega328old          ATmega328P (Old Bootloader)
+bt                    Arduino BT
+  atmega168             ATmega168
+  atmega328             ATmega328P
+unowifi               Arduino Uno WiFi
+robotMotor            Arduino Robot Motor
+micro                 Arduino Micro
+gemma                 Arduino Gemma
+megaADK               Arduino Mega ADK
+chiwawa               Arduino Industrial 101
+fio                   Arduino Fio
+mini                  Arduino Mini
+  atmega168             ATmega168
+  atmega328             ATmega328P
+one                   Linino One
+~$
+      </pre>
+<p>
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm163"></a>3. Update Installed Boards</h2></div></div></div>
+<p>
+      We can now use the Arduino IDE to get the latest curated
+      configuration and toolset files from trusted sources.
+    </p>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="invoke-board-manager"></a>3.1. Select the Boards Manager</h3></div></div></div>
+<p>
+	Invoke the Arduino IDE and select
+	<code class="literal">Tools-&gt;Board-&gt;Boards Manager</code> like this:
+	</p>
+<div class="mediaobject"><img src="board_manager.png"></div>
+<p>
+      </p>
+<p>
+	The <code class="literal">Boards Manager</code> selector looks like a
+	heading for the bullet list but is, in fact, selectable.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm175"></a>3.2. Update Installed Boards</h3></div></div></div>
+<p>
+	Mouse over the <span class="quote">“<span class="quote">Arduino AVR Boards</span>”</span> block, and
+	the <code class="literal">Update</code> button should appear.  Press
+	that button.
+	</p>
+<div class="mediaobject"><img src="board_manager2.png"></div>
+<p>
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm183"></a>3.3. Tell dno About The New Files</h3></div></div></div>
+<p>
+	Now, we need to tell dno where to find the new files.  We
+	start by figuring out for ourselves where the IDE installed
+	everything.
+      </p>
+<p>
+	On <code class="literal">Debian</code>, the files are installed in the
+	user's home directory in a hidden directory named
+	<code class="literal">.arduino15</code>.
+      </p>
+<p>
+	You can identify this directory using 
+	<code class="literal">ls</code> from your home directory:
+	</p>
+<pre class="programlisting">
+~$ ls -ltr
+total xxxxxxx
+[ redacted ]
+drwx------  2 user user       4096 Jan  5 13:51 .ssh
+drwxrwxr-x  2 user user       4096 Jan  5 13:56 Screenshots
+drwxrwxr-x  5 user user       4096 Jan  5 13:57 .arduino15
+drwxr-x--- 18 user user       4096 Jan  5 13:59 .
+~$ 
+	</pre>
+<p>
+      </p>
+<p>
+	This shows files and directories in order of creation, with
+	the most recently created appearing last.  You should see a
+	directory near the end of the listing that will be where the
+	files were installed.
+      </p>
+<p>
+	Move into the installation directory and look for a file
+	called <code class="literal">boards.txt</code> using
+	<code class="literal">find</code>:
+	</p>
+<pre class="programlisting">
+~$ cd .arduino15/
+.arduino15$ find . -name boards.txt
+./packages/arduino/hardware/avr/1.8.6/boards.txt
+.arduino15$ 
+	</pre>
+<p>
+      </p>
+<p><a name="install-extra-boards"></a>
+	Now we can tell dno where to find that file.  We run
+	<code class="literal">dno</code> with the
+	<code class="literal">install_extra_boards</code> target and with the
+	variable <code class="literal">BOARDS_PATH</code> set to the full
+	directory path for the <code class="literal">boards.txt</code>
+	discovered above:
+	</p>
+<pre class="programlisting">
+~$ dno install_extra_boards BOARDS_PATH=~/arduino15/packages/arduino/hardware/avr/1.8.6
+~$ 
+	</pre>
+<p>
+      </p>
+<p>
+	If there are no errors, all has gone well.  Confirm this using
+	the <code class="literal">show_extra_boards</code> target:
+	</p>
+<pre class="programlisting">
+~$ dno show_extra_boards
+Supplemental boards.txt directories:
+  ~/.arduino15/packages/arduino/hardware/avr/1.8.6
+~$ 
+	</pre>
+<p>
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm206"></a>3.4. Install Some New Boards</h3></div></div></div>
+<p>
+	You can install support for non Arduino/avr boards in the same
+	way.  Invoke the Arduino IDE's Board Manager as described
+	<a class="link" href="ch02.html#invoke-board-manager" title="3.1. Select the Boards Manager">above</a>
+      </p>
+<p>
+	In the Boards Manager, scroll down to the set of boards you
+	are interested in, mouse over the appropriate block and click on
+	<code class="literal">Install</code>.  The example below shows us
+	selecting <code class="literal">esp32</code> boards.
+	</p>
+<div class="mediaobject"><img src="board_manager3.png"></div>
+<p>
+      </p>
+<p>
+	The new files will be loaded into the same directory system as
+	before.  Move into the top of that directory system using
+	<code class="literal">cd</code> and run the <code class="literal">find</code>
+	command again: 
+	</p>
+<pre class="programlisting">
+~$ cd .arduino15/
+~$ find . -name boards.txt
+./packages/esp32/hardware/esp32/3.0.7/boards.txt
+./packages/arduino/hardware/avr/1.8.6/boards.txt
+~$ 
+	</pre>
+<p>
+      </p>
+<p>
+	You will tell dno about the new files using the
+	<code class="literal">install_extra_boards</code> target again as,
+	again, described <a class="link" href="ch02.html#install-extra-boards">above</a>. 
+      </p>
+<p>
+	Finally, you can see the full set of boards now supported by
+	dno using <code class="literal">dno show_boards</code>:
+	</p>
+<pre class="programlisting">
+~$ dno show_boards
+
+    Supported ArduinoBoard and CPU Types
+============================================================
+waveshare_esp32_s3_touch_lcd_4                        Waveshare ESP32-S3-Touch-LCD-4
+waveshare_esp32_s3_touch_lcd_43                       Waveshare ESP32-S3-Touch-LCD-4.3
+heltec_wifi_kit_32_V3                                 Heltec WiFi Kit 32(V3)
+adafruit_feather_esp32s3                              Adafruit Feather ESP32-S3 2MB PSRAM
+esp32s3usbotg                                         ESP32-S3-USB-OTG
+waveshare_esp32_s3_touch_lcd_5                        Waveshare ESP32-S3-Touch-LCD-5
+S_ODI_Ultra                                           S.ODI Ultra v1
+esp32s3-octal                                         ESP32S3 Dev Module Octal (WROOM2)
+heltec_vision_master_e_213                            Heltec Vision Master E213
+esp32c3-devkitlipo                                    OLIMEX ESP32-C3-DevKit-Lipo
+waveshare_esp32_s3_touch_lcd_7                        Waveshare ESP32-S3-Touch-LCD-7
+uPesy_wrover                                          uPesy ESP32 Wrover DevKit
+heltec_vision_master_t190                             Heltec Vision Master T190
+esp32c2                                               ESP32C2 Dev Module
+heltec_vision_master_e290                             Heltec Vision Master E290
+esp32h2-devkitlipo                                    OLIMEX ESP32-H2-DevKit-LiPo
+esp32c3                                               ESP32C3 Dev Module
+deneyapmini                                           Deneyap Mini
+m5stack_stickc_plus2                                  M5StickCPlus2
+wifiduino32                                           WiFiduino32
+adafruit_magtag29_esp32s2                             Adafruit MagTag 2.9"
+Edgebox-ESP-100                                       Edgebox-ESP-100
+d1_uno32                                              WEMOS D1 R32
+esp32c6-evb                                           OLIMEX ESP32-C6-EVB
+um_tinyc6                                             UM TinyC6
+esp32c6                                               ESP32C6 Dev Module
+department_of_alchemy_minimain_esp32s2                Department of Alchemy MiniMain ESP32-S2
+lopy                                                  LoPy
+m5stack_atom                                          M5Atom
+adafruit_qtpy_esp32s3_nopsram                         Adafruit QT Py ESP32-S3 No PSRAM
+heltec_wireless_bridge                                Heltec Wireless Bridge
+honeylemon                                            HONEYLemon
+m5stack_nanoc6                                        M5NanoC6
+lionbit                                               Lion:Bit Dev Board
+adafruit_feather_esp32_v2                             Adafruit Feather ESP32 V2
+lolin32-lite                                          WEMOS LOLIN32 Lite
+ioxesp32ps                                            IOXESP32PS
+heltec_wireless_stick                                 Heltec Wireless Stick
+m5stack_atoms3                                        M5AtomS3
+firebeetle32                                          FireBeetle-ESP32
+lolin_s2_pico                                         LOLIN S2 PICO
+lilypad                                               LilyPad Arduino
+  atmega168                                             ATmega168
+  atmega328                                             ATmega328P
+esp32-trueverit-iot-driver                            Trueverit ESP32 Universal IoT Driver
+lilygo_t_eth_lite                                     LilyGo T-ETH-Lite
+sparkfun_lora_gateway_1-channel                       SparkFun LoRa Gateway 1-Channel
+deneyapkartg                                          Deneyap Kart G
+heltec_wifi_kit_32                                    Heltec WiFi Kit 32
+esp32doit-espduino                                    DOIT ESPduino32
+imbrios-logsens-v1p1                                  IMBRIOS LOGSENS_V1P1
+adafruit_feather_esp32s3_reversetft                   Adafruit Feather ESP32-S3 Reverse TFT
+deneyapkart1Av2                                       Deneyap Kart 1A v2
+m5stack_core2                                         M5Core2
+redpill_esp32s3                                       RedPill(+) ESP32-S3
+heltec_wireless_stick_V3                              Heltec Wireless Stick(V3)
+adafruit_qtpy_esp32c3                                 Adafruit QT Py ESP32-C3
+sparkfun_esp32s2_thing_plus                           SparkFun ESP32-S2 Thing Plus
+twatch_ultra                                          LilyGo T-Watch-Ultra
+alfredo-nou3                                          Alfredo NoU3
+mgbot-iotik32a                                        MGBOT IOTIK 32A
+wt32-eth01                                            WT32-ETH01 Ethernet Module
+node32s                                               Node32s
+um_bling                                              UM BLING
+esp32s3_powerfeather                                  ESP32-S3 PowerFeather
+Bee_Data_Logger                                       Bee Data Logger
+mgbot-iotik32b                                        MGBOT IOTIK 32B
+heltec_wireless_mini_shell                            Heltec Wireless Mini Shell
+heltec_wifi_lora_32_V2                                Heltec WiFi LoRa 32(V2)
+uPesy_wroom                                           uPesy ESP32 Wroom DevKit
+heltec_wifi_lora_32_V3                                Heltec WiFi LoRa 32(V3)
+esp32                                                 ESP32 Dev Module
+nano_nora.debug_config.nano_nora.cortex-debug.custom  Arduino on Nano ESP32
+Bee_Motion_S3                                         Bee Motion S3
+micro                                                 Arduino Micro
+Bee_Motion                                            Bee Motion
+m5stack_unit_cam                                      M5UnitCAM
+ttgo-lora32                                           TTGO LoRa32-OLED
+heltec_wifi_lora_32                                   Heltec WiFi LoRa 32
+viralink32g01                                         ViraLink Gate32-0.1
+leonardoeth                                           Arduino Leonardo ETH
+dfrobot_beetle_esp32c3                                DFRobot Beetle ESP32-C3
+hornbill32dev                                         Hornbill ESP32 Dev
+micros2                                               microS2
+ethernet                                              Arduino Ethernet
+fri3d_2024_esp32s3                                    Fri3d Badge 2024 (ESP32-S3-WROOM-1)
+WeMosBat                                              WeMos WiFi&amp;Bluetooth Battery
+d32_pro                                               LOLIN D32 PRO
+ttgo-t-oi-plus                                        TTGO T-OI PLUS RISC-V ESP32-C3
+unphone7                                              unPhone 7
+twatch                                                TTGO T-Watch
+esp32thing_plus_c                                     SparkFun ESP32 Thing Plus C
+VALTRACK_V4_MFW_ESP32_C3                              VALTRACK_V4_MFW_ESP32_C3
+cytron_maker_feather_aiot_s3                          Cytron Maker Feather AIoT S3
+unphone8                                              unPhone 8
+AirM2M_CORE_ESP32C3                                   AirM2M_CORE_ESP32C3
+esp32vn-iot-uno                                       ESP32vn IoT Uno
+dfrobot_beetle_esp32c6                                DFRobot Beetle ESP32-C6
+um_feathers3neo                                       UM FeatherS3 Neo
+unphone9                                              unPhone 9
+franzininho_wifi_msc_esp32s2                          Franzininho WiFi MSC
+esp32cam                                              AI Thinker ESP32-CAM
+yun                                                   Arduino Yún
+d1_mini32                                             WEMOS D1 MINI ESP32
+m5stack_cardputer                                     M5Cardputer
+m5stack_core                                          M5Core
+aslcanx2                                              AutosportLabs ESP-CAN-X2
+adafruit_funhouse_esp32s2                             Adafruit FunHouse
+robotMotor                                            Arduino Robot Motor
+lolin_s2_mini                                         LOLIN S2 Mini
+one                                                   Linino One
+m5stack_station                                       M5Station
+BharatPi-A7672S-4G                                    BharatPi A7672S 4G Module
+pico32                                                ESP32 PICO-D4
+dfrobot_firebeetle2_esp32c6                           DFRobot FireBeetle 2 ESP32-C6
+XIAO_ESP32C3                                          XIAO_ESP32C3
+esp32s2-devkitlipo-usb                                OLIMEX ESP32-S2-DevKit-Lipo-USB
+esp32thing                                            SparkFun ESP32 Thing
+esp32s2usb                                            ESP32S2 Native USB
+mini                                                  Arduino Mini
+  atmega168                                             ATmega168
+  atmega328                                             ATmega328P
+nano32                                                Nano32
+codecell                                              CodeCell
+m5stack_tough                                         M5Tough
+d32                                                   LOLIN D32
+waveshare_esp32s3_touch_lcd_128                       Waveshare ESP32S3 Touch LCD 128
+XIAO_ESP32C6                                          XIAO_ESP32C6
+sonoff_dualr3                                         Sonoff DUALR3
+ch_denky                                              Denky
+chiwawa                                               Arduino Industrial 101
+waveshare_esp32_s3_touch_lcd_169                      Waveshare ESP32-S3-Touch-LCD-1.69
+um_feathers2neo                                       UM FeatherS2 Neo
+robotControl                                          Arduino Robot Control
+wifiduino32c3                                         WiFiduinoV2
+atmegang                                              Arduino NG or older
+  atmega168                                             ATmega168
+  atmega8                                               ATmega8
+tamc_termod_s3                                        TAMC Termod S3
+piranha_esp-32                                        Piranha ESP-32
+waveshare_esp32_s3_touch_lcd_185                      Waveshare ESP32-S3-Touch-LCD-1.85
+quantum                                               Noduino Quantum
+espino32                                              ThaiEasyElec's ESPino32
+esp32thing_plus                                       SparkFun ESP32 Thing Plus
+upesy_esp32c3_basic                                   uPesy ESP32C3 Basic
+esp32wroverkit                                        ESP32 Wrover Kit (all versions)
+lopy4                                                 LoPy4
+lolin_s3_pro                                          LOLIN S3 Pro
+um_omgs3                                              UM OMGS3
+esp32-poe                                             OLIMEX ESP32-POE
+adafruit_camera_esp32s3                               Adafruit pyCamera S3
+healthypi4                                            ProtoCentral HealthyPi 4
+m5stack_coreink                                       M5CoreInk
+adafruit_itsybitsy_esp32                              Adafruit ItsyBitsy ESP32
+gen4-ESP32-S3R8n16                                    4D Systems gen4-ESP32 16MB Modules (ESP32-S3R8n16)
+m5stack_stamp_c3                                      M5StampC3
+m5stack_stickc_plus                                   M5StickCPlus
+adafruit_qtpy_esp32s3_n4r2                            Adafruit QT Py ESP32-S3 (4M Flash 2M PSRAM)
+atd147_s3                                             ATD1.47-S3
+crabik_slot_esp32_s3                                  Crabik Slot ESP32-S3
+m5stack_poe_cam                                       M5PoECAM
+metro_esp-32                                          Metro ESP-32
+wesp32                                                Silicognition wESP32
+sparkfun_esp32c6_qwiic_pocket                         SparkFun ESP32-C6 Qwiic Pocket
+esp32-devkitlipo                                      OLIMEX ESP32-DevKit-LiPo
+um_tinys2                                             UM TinyS2
+esp32s2                                               ESP32S2 Dev Module
+bpi-bit                                               BPI-BIT
+lolin_c3_pico                                         LOLIN C3 Pico
+um_tinys3                                             UM TinyS3
+esp32s3                                               ESP32S3 Dev Module
+espectro32                                            ESPectro32
+esp32s2-devkitlipo                                    OLIMEX ESP32-S2-DevKit-Lipo
+sparkfun_esp32_iot_redboard                           SparkFun ESP32 IoT RedBoard
+um_feathers2                                          UM FeatherS2
+unomini                                               Arduino Uno Mini
+uPesy_edu_esp32                                       uPesy EDU ESP32
+um_feathers3                                          UM FeatherS3
+epulse_feather                                        ThingPulse ePulse Feather
+watchy                                                Watchy
+heltec_wireless_shell_V3                              Heltec Wireless Shell (V3)
+featheresp32                                          Adafruit ESP32 Feather
+waveshare_esp32_s3_touch_lcd_43B                      Waveshare ESP32-S3-Touch-LCD-4.3B
+esp32-poe-iso                                         OLIMEX ESP32-POE-ISO
+gemma                                                 Arduino Gemma
+nano                                                  Arduino Nano
+  atmega168                                             ATmega168
+  atmega328                                             ATmega328P
+  atmega328old                                          ATmega328P (Old Bootloader)
+elecrow_crowpanel_7                                   Elecrow CrowPanel 7.0P
+diecimila                                             Arduino Duemilanove or Diecimila
+  atmega168                                             ATmega168
+  atmega328                                             ATmega328P
+atd35s3                                               ATD3.5-S3
+OpenKB                                                INEX OpenKB
+esp320                                                Electronic SweetPeas - ESP320
+esplora                                               Arduino Esplora
+waveshare_esp32_s3_touch_amoled_241                   Waveshare ESP32-S3-Touch-AMOLED-2.41
+heltec_wireless_stick_lite                            Heltec Wireless Stick Lite / Wireless Shell
+LilyPadUSB                                            LilyPad Arduino USB
+cw02                                                  XinaBox CW02
+kb32                                                  KB32-FT
+esp32-trueverit-iot-driver-mkii                       Trueverit ESP32 Universal IoT Driver MK II
+onehorse32dev                                         Onehorse ESP32 Dev Module
+BharatPi-LoRa                                         BharatPi LoRa Module
+leonardo                                              Arduino Leonardo
+m5stack_paper                                         M5Paper
+esp32s3camlcd                                         ESP32S3 CAM LCD
+nebulas3                                              Nebula S3
+adafruit_feather_esp32c6                              Adafruit Feather ESP32-C6
+sensebox_mcu_esp32s2                                  senseBox MCU-S2 ESP32-S2
+sensesiot_weizen                                      Senses's WEIZEN
+adafruit_qtpy_esp32s2                                 Adafruit QT Py ESP32-S2
+ttgo-t7-v14-mini32                                    TTGO T7 V1.4 Mini32
+namino_rosso                                          Namino Rosso
+heltec_ht_de01                                        Heltec E-Ink Driver
+m5stack_timer_cam                                     M5TimerCAM
+adafruit_qtpy_esp32_pico                              Adafruit QT Py ESP32
+um_nanos3                                             UM NanoS3
+bt                                                    Arduino BT
+  atmega168                                             ATmega168
+  atmega328                                             ATmega328P
+franzininho_wifi_esp32s2                              Franzininho WiFi
+wipy3                                                 WiPy 3.0
+pocket_32                                             Dongsen Tech Pocket 32
+ttgo-t7-v13-mini32                                    TTGO T7 V1.3 Mini32
+kits-edu                                              KITS ESP32 EDU
+nologo_esp32s3_pico                                   Nologo ESP32S3 Pico
+sparkfun_esp32s3_thing_plus                           SparkFun ESP32-S3 Thing Plus
+waveshare_esp32_s3_touch_lcd_5B                       Waveshare ESP32-S3-Touch-LCD-5B
+m5stack_fire                                          M5Fire
+waveshare_esp32_s3_touch_amoled_18                    Waveshare ESP32-S3-Touch-AMOLED-1.8
+upesy_esp32s3_basic                                   uPesy ESP32S3 Basic
+odroid_esp32                                          ODROID ESP32
+adafruit_feather_esp32s2_tft                          Adafruit Feather ESP32-S2 TFT
+esp32-evb                                             OLIMEX ESP32-EVB
+lolin_c3_mini                                         LOLIN C3 Mini
+esp32h2                                               ESP32H2 Dev Module
+yunmini                                               Arduino Yún Mini
+oroca_edubot                                          OROCA EduBot
+wt32-sc01-plus                                        WT32-SC01 PLUS
+adafruit_metro_esp32s2                                Adafruit Metro ESP32-S2
+deneyapkart                                           Deneyap Kart
+heltec_capsule_sensor_V3                              Heltec Capsule Sensor (V3)
+adafruit_feather_esp32s2_reversetft                   Adafruit Feather ESP32-S2 Reverse TFT
+adafruit_metro_esp32s3                                Adafruit Metro ESP32-S3
+esp32_family                                          ESP32 Family Device
+walter                                                DPTechnics Walter
+namino_arancio                                        Namino Arancio
+atmegazero_esp32s2                                    ATMegaZero ESP32-S2
+t-beam                                                T-Beam
+dfrobot_firebeetle2_esp32e                            FireBeetle 2 ESP32-E
+sparkfun_pro_micro_esp32c3                            SparkFun Pro Micro - ESP32C3
+magicbit                                              MagicBit
+um_pros3                                              UM PROS3
+mega                                                  Arduino Mega or Mega 2560
+  atmega1280                                            ATmega1280
+  atmega2560                                            ATmega2560 (Mega 2560)
+circuitplay32u4cat                                    Adafruit Circuit Playground
+upesy_esp32c3_mini                                    uPesy ESP32C3 Mini
+mhetesp32minikit                                      MH ET LIVE ESP32MiniKit
+uno                                                   Arduino Uno
+heltec_wireless_tracker                               Heltec Wireless Tracker
+pro                                                   Arduino Pro or Pro Mini
+  16MHzatmega168                                        ATmega168 (5V, 16 MHz)
+  8MHzatmega168                                         ATmega168 (3.3V, 8 MHz)
+  16MHzatmega328                                        ATmega328P (5V, 16 MHz)
+  8MHzatmega328                                         ATmega328P (3.3V, 8 MHz)
+weact_studio_esp32c3                                  WeAct Studio ESP32C3
+deneyapminiv2                                         Deneyap Mini v2
+esp32-sbc-fabgl                                       OLIMEX ESP32-SBC-FABGL
+turta_iot_node                                        Turta IoT Node
+roboheart_hercules                                    RoboHeart Hercules
+deneyapkart1A                                         Deneyap Kart 1A
+m5stack_stamp_pico                                    M5StampPico
+lolin_s3                                              LOLIN S3
+twatchs3                                              LilyGo T-Watch-S3
+frogboard                                             Frog Board ESP32
+heltec_wireless_paper                                 Heltec Wireless Paper
+dfrobot_firebeetle2_esp32s3                           DFRobot Firebeetle 2 ESP32-S3
+ET-Board                                              ET-Board
+gpy                                                   Pycom GPy
+viralink32g11                                         ViraLink Gate32-1.1
+BharatPi-Node-Wifi                                    BharatPi Node Wifi Module
+fio                                                   Arduino Fio
+waveshare_esp32_s3_zero                               Waveshare ESP32-S3-Zero
+ioxesp32c6                                            IOXESP32-C6
+VALTRACK_V4_VTS_ESP32_C3                              VALTRACK_V4_VTS_ESP32_C3
+Bee_S3                                                Bee S3
+XIAO_ESP32S3                                          XIAO_ESP32S3
+mhetesp32devkit                                       MH ET LIVE ESP32DevKIT
+lilygo_t_display                                      LilyGo T-Display
+Geekble_ESP32C3                                       Geekble Mini ESP32-C3
+dpu_esp32                                             DPU ESP32
+heltec_wireless_stick_lite_V3                         Heltec Wireless Stick Lite(V3)
+m5stack_unit_cams3                                    M5UnitCAMS3
+adafruit_qualia_s3_rgb666                             Adafruit Qualia ESP32-S3 RGB666
+nora_w10                                              u-blox NORA-W10 series (ESP32-S3)
+circuitart_zero_s3                                    CircuitART Zero S3
+alksesp32                                             ALKS ESP32
+lolin32                                               WEMOS LOLIN32
+esp32c3m1IKit                                         ESP-C3-M1-I-Kit
+wifiduino32s3                                         WiFiduino32S3
+adafruit_feather_esp32s3_tft                          Adafruit Feather ESP32-S3 TFT
+espea32                                               ESPea32
+hornbill32minima                                      Hornbill ESP32 Minima
+ws_esp32_s3_matrix                                    Waveshare ESP32-S3-Matrix
+connaxio_espoir                                       Connaxio's Espoir
+nodemcu-32s                                           NodeMCU-32S
+dfrobot_romeo_esp32s3                                 DFRobot Romeo ESP32-S3
+namino_bianco                                         Namino Bianco
+fm-devkit                                             ESP32 FM DevKit
+esp32micromod                                         SparkFun ESP32 MicroMod
+vintlabs-devkit-v1                                    VintLabs ESP32 Devkit
+nologo_esp32c3_super_mini                             Nologo ESP32C3 Super Mini
+waveshare_esp32_s3_lcd_169                            Waveshare ESP32-S3-LCD-1.69
+nano_nora                                             Arduino Nano ESP32
+aw2eth                                                CNRS AW2ETH
+Bee_Motion_Mini                                       Bee Motion Mini
+d-duino-32                                            D-duino-32
+m5stack_stamp_s3                                      M5StampS3
+esp32doit-devkit-v1                                   DOIT ESP32 DEVKIT V1
+intorobot-fig                                         IntoRobot Fig
+CoreESP32                                             Microduino-CoreESP32
+widora-air                                            Widora AIR
+adafruit_matrixportal_esp32s3                         Adafruit MatrixPortal ESP32-S3
+lilygo_t3s3                                           LilyGo T3-S3
+esp32wrover                                           ESP32 Wrover Module
+adafruit_feather_esp32s3_nopsram                      Adafruit Feather ESP32-S3 No PSRAM
+esp32da                                               ESP32-WROOM-DA Module
+mPython                                               Labplus mPython
+m5stack_dial                                          M5Dial
+um_tinypico                                           UM TinyPICO
+megaADK                                               Arduino Mega ADK
+ioxesp32                                              IOXESP32
+esp32-gateway                                         OLIMEX ESP32-GATEWAY
+cezerio_dev_esp32c6                                   cezerio dev ESP32C6
+m5stack_dinmeter                                      M5DinMeter
+esp32s3-devkitlipo                                    OLIMEX ESP32-S3-DevKit-Lipo
+aventen_s3_sync                                       Aventen S3 Sync
+lolin_s3_mini_pro                                     LOLIN S3 Mini Pro
+nina_w10                                              u-blox NINA-W10 series (ESP32)
+m5stack_capsule                                       M5Capsule
+m5stack_cores3                                        M5CoreS3
+lolin_s3_mini                                         LOLIN S3 Mini
+jczn_2432s028r                                        ESP32-2432S028R CYD
+epulse_feather_c6                                     ThingPulse ePulse Feather C6
+ttgo-t1                                               TTGO T1
+esp32s3box                                            ESP32-S3-Box
+bpi_leaf_s3                                           BPI-Leaf-S3
+lilygo_t_display_s3                                   LilyGo T-Display-S3
+makergo_c3_supermini                                  MakerGO ESP32 C3 SuperMini
+lionbits3                                             Lion:Bit S3 STEM Dev Board
+m5stack_stickc                                        M5StickC
+adafruit_feather_esp32s2                              Adafruit Feather ESP32-S2
+sparkfun_esp32c6_thing_plus                           SparkFun ESP32-C6 Thing Plus
+unowifi                                               Arduino Uno WiFi
+~$
+	</pre>
+<p>
+      </p>
+</div>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ch01.html">Prev</a> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right"> <a accesskey="n" href="ch03.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 1. Installation </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 3. Getting Started</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

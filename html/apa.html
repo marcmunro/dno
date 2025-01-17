@@ -1,0 +1,723 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Appendix A. man page for dno(1)</title>
+<link rel="stylesheet" type="text/css" href="dno.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
+<link rel="home" href="index.html" title="Dno User Guide">
+<link rel="up" href="index.html" title="Dno User Guide">
+<link rel="prev" href="ch10.html" title="Chapter 10. Why?">
+<link rel="next" href="apb.html" title="Appendix B. man page for dno_bpp(1)">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Appendix A. man page for dno(1)</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ch10.html">Prev</a> </td>
+<th width="60%" align="center"> </th>
+<td width="20%" align="right"> <a accesskey="n" href="apb.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="appendix">
+<div class="titlepage"><div>
+<div><h1 class="title">
+<a name="idm1069"></a>man page for dno(1)</h1></div>
+<div><div class="authorgroup"><div class="author"><h3 class="author">
+<span class="firstname">Marc</span> <span class="surname">Munro</span>
+</h3></div></div></div>
+</div></div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno-name"></a>NAME</h2></div></div></div>
+<p>
+      dno - Arduino software build system
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno-synopsis"></a>SYNOPSIS</h2></div></div></div>
+<p>
+      <span class="strong"><strong>dno</strong></span>
+      <a class="link" href="apa.html#dno-options" title="OPTIONS">OPTIONS</a>… [[TARGET]
+      [VARIABLE=VALUE]]…
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno-description"></a>DESCRIPTION</h2></div></div></div>
+<p>
+      Build Arduino software with as little fuss and effort as possible.
+    </p>
+<p>
+      <span class="strong"><strong>dno</strong></span> automatically compiles and
+      links Arduino code, with automatic, no-fuss discovery of standard
+      and user-provided libraries.
+    </p>
+<p>
+      In addition it supports automated unit testing of libraries, and
+      documentation builds using
+      <span class="strong"><strong>doxygen</strong></span>(1).
+    </p>
+<p>
+      It is a build-system for those who do not need the training-wheels
+      of the Arduino IDE, or who find its limitations frustrating.
+    </p>
+<p>
+      All code is built in sub-directories called build. This is to keep
+      the source-trees as clean as possible.
+    </p>
+<p>
+      This is part of the dno Arduino software builder package.
+    </p>
+<p>
+      Most of the time dno is invoked without any parameters and it just
+      does the right thing.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno-directory-structure"></a>DIRECTORY STRUCTURE</h2></div></div></div>
+<p>
+      For a simple piece of Arduino code,
+      <span class="strong"><strong>dno</strong></span> will work in a single
+      directory.
+    </p>
+<p>
+      Extra libraries may be installed in their own sub-directories.
+      They may include unit test sub-directories, and may have a nested
+      src directory for the code.
+    </p>
+<p>
+      In addition, you may create separate board directories in order to
+      build your software for multiple boards.
+    </p>
+<p>
+      The following example project filesystem is for a project called
+      panel, with a library called Button. There are 2 board directories
+      allowing Arduino images to be created for 2 distinct Arduino
+      boards.
+    </p>
+<pre class="programlisting">
+panel
+├── Button
+│   ├── Button.cpp
+│   ├── Button.h
+│   └── tests
+│       ├── Arduino.h
+│       ├── cppunit.h
+│       └── test_Button.cpp
+├── panel.ino
+├── pro.8MHzatmega328
+│   └── BOARD_INFO
+└── uno
+    └── BOARD_INFO
+</pre>
+<p>
+      Note the <span class="strong"><strong>BOARD_INFO</strong></span>(5) files in
+      the board directories. These contain definitions derived from the
+      platforms.txt and boards.txt for the Arduino boards that you are
+      building for. In these cases the type of board is given by the
+      sub-directory name, eg pro.8MHzatmega328. If you don’t want to
+      name your directory in this way,
+      <span class="strong"><strong>dno</strong></span> can create a
+      <span class="strong"><strong>BOARD_TYPE</strong></span>(5) file for you to
+      identify the board.
+    </p>
+<p>
+      <span class="strong"><strong>dno</strong></span> is implemented using
+      <span class="strong"><strong>make</strong></span>(1) and so takes all of
+      make’s options and follows make syntax for targets and variable
+      assignments. Being based on make means that
+      <span class="strong"><strong>dno</strong></span> will only compile and link
+      those files that it needs to, and that any dependencies of the
+      target you have asked for will automatically be built. So, if you
+      run the upload target in a fresh directory containing only your
+      .ino file, <span class="strong"><strong>dno</strong></span> will attempt to
+      compile and link it, but will also attempt to create the
+      <span class="strong"><strong>BOARD_TYPE</strong></span> and
+      <span class="strong"><strong>BOARD_INFO</strong></span> files. See the
+      description of those targets below for more on this.
+    </p>
+<p>
+      As far as possible, running the
+      <span class="strong"><strong>dno</strong></span> command with no arguments
+      or options will do the right thing. Specifically, running
+      <span class="strong"><strong>dno</strong></span> in:
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+<p>
+          a lib sub-directory
+        </p>
+<p>
+          will result in unit tests for that library being runX;
+        </p>
+</li>
+<li class="listitem">
+<p>
+          the project root directory;
+        </p>
+<p>
+          will result in the Arduino code in that directory being
+          compiled and linked to whatever user-provided and/or standard
+          libraries are required;
+        </p>
+</li>
+<li class="listitem">
+<p>
+          a docs directory;
+        </p>
+<p>
+          will result in <span class="strong"><strong>doxygen</strong></span>
+          being run to create documentation for the entire codebase
+          including locally installed libraries.
+        </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; "><li class="listitem">
+<p>
+              a board directory;
+            </p>
+<p>
+              will result in the Arduino code in that directory or its
+              parent being compiled and linked to whatever standard and
+              included libraries are required. A board directory is a
+              sub-directory of the project’s root directory which is
+              used for building images for a specific board. Board
+              directories may contain board-specific code which will
+              take precedence over code in files of the same name in the
+              parent directory.
+            </p>
+</li></ul></div>
+</li>
+</ul></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno-options"></a>OPTIONS</h2></div></div></div>
+<p>
+      All <span class="strong"><strong>make</strong></span>(1) options are
+      supported. See the make manual page for more.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno-default-targets"></a>DEFAULT TARGETS</h2></div></div></div>
+<p>
+      Default targets do not need to be specified, though they may be.
+      They represent <span class="strong"><strong>dno</strong></span>’s default
+      action in a specific type of directory. Note that in running a
+      default target, any dependencies will also be automatically
+      applied. For instance, having a
+      <span class="strong"><strong>BOARD_INFO</strong></span> file in a board
+      directory is a dependency of the board, so running the default
+      target in a board directory, will first ensure that the
+      <span class="strong"><strong>BOARD_INFO</strong></span> file is created.
+    </p>
+<p>
+      <span class="strong"><strong>dno</strong></span> has following default
+      targets:
+    </p>
+<p>
+      <span class="strong"><strong>build</strong></span>
+    </p>
+<p>
+      This is the default target for the project’s root directory if it
+      contains a <span class="strong"><strong>BOARD_TYPE</strong></span> file, and
+      for board directories. This target will compile and link all of
+      the Arduino code to provide an uploadable executable.
+    </p>
+<p>
+      <span class="strong"><strong>lib</strong></span>
+    </p>
+<p>
+      The default target for a library directory that contains no unit
+      tests. This just provides feedback to the user.
+    </p>
+<p>
+      <span class="strong"><strong>test</strong></span>
+    </p>
+<p>
+      The default target for a library directory that contains a unit,
+      test or tests sub-directory. This compiles the code in the
+      sub-directory using the host computer’s compiler and attempts to
+      run it. This code should be unit tests to test the specific
+      library. Note that because this runs on the host computer, any
+      Arduino-specific library functionality will have to be stubbed or
+      otherwise simulated.
+    </p>
+<p>
+      <span class="strong"><strong>docs</strong></span>
+    </p>
+<p>
+      The default target for a docs directory. This may be within a
+      library or directly under the project directory. The docs target
+      may also be used explicitly in a library directory.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno-targets"></a>TARGETS</h2></div></div></div>
+<p>
+      These are the major targets for dno. You will generally need very
+      few of them. Most Arduino development can be done using the
+      default targets, as well as upload, eeprom and clean.
+    </p>
+<p>
+      <span class="strong"><strong>BOARD_TYPE</strong></span>
+    </p>
+<p>
+      Attempt to create a <span class="strong"><strong>BOARD_TYPE</strong></span>
+      file in the current directory. Dno will need to establish board
+      and cpu information in order to do this. This will usually need to
+      be provided explicitly on the command line, eg:
+    </p>
+<pre class="programlisting">
+$ dno BOARD_TYPE BOARD=pro CPU=8MHzatmega328
+</pre>
+<p>
+      Note that boards that do not come in a family, eg
+      <span class="quote">“<span class="quote">uno</span>”</span> do not need the CPU designator. In a board
+      directory below the project’s root, naming the directory
+      BOARD.CPU, or possibly BOARD, eliminates the need for a
+      <span class="strong"><strong>BOARD_TYPE</strong></span> file.
+    </p>
+<p>
+      <span class="strong"><strong>BOARD_INFO</strong></span>
+    </p>
+<p>
+      Attempt to create a <span class="strong"><strong>BOARD_INFO</strong></span>
+      file in the current directory. This file is derived from the
+      Arduino distribution’s boards.txt and platform.txt files and
+      contains definitions to aid in the compilation, etc of Arduino
+      code. If no <span class="strong"><strong>BOARD_TYPE</strong></span> file
+      exists and the directory name does not contain the board and cpu
+      information, you will need to define the BOARD, and possibly CPU
+      variables on the command line, just as for the BOARD_TYPE target.
+    </p>
+<p>
+      <span class="strong"><strong>build</strong></span>
+    </p>
+<p>
+      Attempt to compile and link your projects source code and
+      libraries into an uploadable image for the Arduino specified in
+      <span class="strong"><strong>BOARD_TYPE</strong></span>, or the directory
+      name, or explicitly using the BOARD and CPU variables. Note that
+      this is the default target in the project root directory if it
+      contains a <span class="strong"><strong>BOARD_TYPE</strong></span> file, and
+      in any board directory.
+    </p>
+<p>
+      <span class="strong"><strong>clean</strong></span>
+    </p>
+<p>
+      Clean the current directory and its subordinates. This will remove
+      any build files and build directories, as well as clearing out
+      emacs’ backup and temp files. If you have changed the name of any
+      headers or libraries, it is a good idea to invoke this target, as
+      make can get confused about its dependencies in this case.
+    </p>
+<p>
+      <span class="strong"><strong>devices</strong></span>
+    </p>
+<p>
+      Identify all connected devices that appear to be Arduinos. This is
+      particularly useful when your host is connected to multiple
+      Arduino devices, as targets like upload will not be able to guess
+      which device you want to upload your image to. This can be used to
+      confirm that your Arduino device has been seen by your usb/serial
+      subsystem.
+    </p>
+<p>
+      <span class="strong"><strong>ctags</strong></span>
+    </p>
+<p>
+      Build a ctags <span class="strong"><strong>tags</strong></span> file from
+      all sources. Once created this will automatically be kept up to
+      date by subsequent builds.
+    </p>
+<p>
+      <span class="strong"><strong>epprom</strong></span>
+    </p>
+<p>
+      Upload an eeprom image to an Arduino. Eeprom images provide data
+      values to your program for purposes such as configuration. If the
+      eeprom image has not been created, it will first create it. If you
+      have multiple Arduino devices connected to your host you need to
+      identify the specific Arduino using DEVICE_PATH, like this:
+    </p>
+<pre class="programlisting">
+$ dno eeprom DEVICE_PATH=/dev/ttyUSB0
+</pre>
+<p>
+      The value for DEVICE_PATH can be determined using the devices
+      target.
+    </p>
+<p>
+      <span class="strong"><strong>eprom_image</strong></span>
+    </p>
+<p>
+      Create an eeprom image that can subsequently be uploaded.
+    </p>
+<p>
+      <span class="strong"><strong>etags</strong></span>
+    </p>
+<p>
+      Build an etags <span class="strong"><strong>TAGS</strong></span> file from
+      all sources. Once created this will automatically be kept up to
+      date by subsequent builds.
+    </p>
+<p>
+      <span class="strong"><strong>info</strong></span>
+    </p>
+<p>
+      Provide a quick summary of what
+      <span class="strong"><strong>dno</strong></span> is and how to use it.
+    </p>
+<p>
+      <span class="strong"><strong>install_extra_boards</strong></span>
+    </p>
+<p>
+      Add another boards.txt for consideration. This is used to tell
+      <span class="strong"><strong>dno</strong></span> where alternate build tools
+      have been installed, eg for esp32. Use the BOARD_PATH variable to
+      provide the full path to the appropriate boards.txt file.
+    </p>
+<p>
+      <span class="strong"><strong>list</strong></span>
+    </p>
+<p>
+      List all explicit, non-pattern based targets. You shouldn’t need
+      this, it’s intended for debugging dno.
+    </p>
+<p>
+      <span class="strong"><strong>menu</strong></span>
+    </p>
+<p>
+      Allow the user to view and update select board-specific build
+      options through a terminal-based menu interface.
+    </p>
+<p>
+      <span class="strong"><strong>monitor</strong></span>
+    </p>
+<p>
+      Monitor the serial interface to the Arduino using the
+      <span class="strong"><strong>screen</strong></span>(1) command. You may need
+      to define DEVICE_PATH. The baud rate is guessed by looking into
+      the source code. If the guess is wrong, it can be explicitly set
+      on the command line using MONITOR_BAUD, eg:
+    </p>
+<pre class="programlisting">
+$ dno monitor BAUD_RATE=14400 DEVICE_PATH=/dev/ttyUSB0
+</pre>
+<p>
+      <span class="strong"><strong>no_screen</strong></span>,
+      <span class="strong"><strong>noscreen</strong></span>
+    </p>
+<p>
+      Ensure that no screen is attached to our Arduino. This is
+      primarily used as a pre-requisite before attempting uploads, but
+      can also be used to kill an attached screen (see monitor). To
+      allow the kill define KILLSCREEN, eg:
+    </p>
+<pre class="programlisting">
+$ dno no_screen KILLSCREEN=y
+</pre>
+<p>
+      DEVICE_PATH may be provided if there is more than one attached
+      Arduino device.
+    </p>
+<p>
+      <span class="strong"><strong>pristine</strong></span>
+    </p>
+<p>
+      Like clean, but also removes
+      <span class="strong"><strong>BOARD_TYPE</strong></span> and
+      <span class="strong"><strong>BOARD_INFO</strong></span>) files.
+    </p>
+<p>
+      <span class="strong"><strong>reset</strong></span>
+    </p>
+<p>
+      Sends a reset command to an attached Arduino. You may need to
+      define DEVICE_PATH.
+    </p>
+<p>
+      <span class="strong"><strong>show_boards</strong></span>
+    </p>
+<p>
+      List the set of supported boards. Normally, this will be the set
+      provided by the Arduino IDE. This should have been installed prior
+      to installing dno.
+    </p>
+<p>
+      <span class="strong"><strong>show_extra_boards</strong></span>
+    </p>
+<p>
+      This lists the set of extra, not part of the normal Arduino base
+      installation, boards.txt files that
+      <span class="strong"><strong>dno</strong></span> is aware of. See the
+      install_extra_boards target for more.
+    </p>
+<p>
+      <span class="strong"><strong>test</strong></span>,
+      <span class="strong"><strong>unit</strong></span>,
+      <span class="strong"><strong>unit_test</strong></span>
+    </p>
+<p>
+      Run unit tests. Note that this is the default target if you are in
+      a tests directory or lib directory that contains tests.
+    </p>
+<p>
+      <span class="strong"><strong>tidy</strong></span>
+    </p>
+<p>
+      This is like clean, but does not remove the build directory or
+      contents. It is intended to just tidy-up backup files created by
+      emacs.
+    </p>
+<p>
+      <span class="strong"><strong>upload</strong></span>
+    </p>
+<p>
+      Upload the built Arduino image to a connected Arduino. This will
+      build the image first, if necessary. You may need to define
+      DEVICE_PATH.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno-variables"></a>VARIABLES</h2></div></div></div>
+<p>
+      The following variables can be defined on the command line to
+      provide additional information to dno, or to modify its behaviour.
+    </p>
+<p>
+      <span class="strong"><strong>BOARD</strong></span>
+    </p>
+<p>
+      This is used to define the board family for which images are to be
+      built. The list of supported boards can be found using:
+    </p>
+<pre class="programlisting">
+$ dno show_boards
+</pre>
+<p>
+      The first column of output is the board value. Some types of
+      boards have no variants, eg uno and so no CPU definition will need
+      to be added to uniquely identify a target board.
+    </p>
+<p>
+      <span class="strong"><strong>BOARDS_PATH</strong></span>
+    </p>
+<p>
+      Used only by the install_extra_boards target, this provides the
+      full path to a boards.txt file.
+    </p>
+<p>
+      <span class="strong"><strong>CPU</strong></span>
+    </p>
+<p>
+      This is used to identify a board variant. For example the Arduino
+      pro mini comes in a number of distinct cpu variants.
+    </p>
+<p>
+      eg:
+    </p>
+<pre class="programlisting">
+$ dno BOARD_TYPE BOARD=pro CPU=8MHzatmega328
+</pre>
+<p>
+      <span class="strong"><strong>DEBUG</strong></span>
+    </p>
+<p>
+      This is used for debugging <span class="strong"><strong>dno</strong></span>.
+      Setting this to Y, Yes, or All will show the settings of many
+      <span class="strong"><strong>dno</strong></span> variables as they are
+      defined. Setting it to a grep style regexp will show only those
+      variables that match the regexp.
+    </p>
+<p>
+      <span class="strong"><strong>DEVICE_PATH</strong></span>
+    </p>
+<p>
+      Used to identify the serial device to which an Arduino board is
+      connected. If you only have one Arduino connected,
+      <span class="strong"><strong>dno</strong></span> will usually figure this
+      out for itself.
+    </p>
+<p>
+      <span class="strong"><strong>VERBOSE</strong></span>
+    </p>
+<p>
+      Define this variable to see build action details, eg the full
+      compilation commands.
+    </p>
+<p>
+      <span class="strong"><strong>KILLSCREEN</strong></span>
+    </p>
+<p>
+      Define this in conjunction with the noscreen target, to cause it
+      to kill any connected screens. Otherwise, the target just confirms
+      that no screen is attached. See the screen target for more.
+    </p>
+<p>
+      <span class="strong"><strong>MONITOR_BAUD</strong></span>
+    </p>
+<p>
+      Define the baud rate to use for connections to the Arduino.
+      Typically this is discovered for itself by dno.
+    </p>
+<p>
+      <span class="strong"><strong>REPORT</strong></span>
+    </p>
+<p>
+      Identify each target that is built as the build progresses. Note
+      that some targets will no nothing in some circumstances.
+    </p>
+<p>
+      <span class="strong"><strong>SHOW_RULES</strong></span>
+    </p>
+<p>
+      This is for debugging dno. <span class="strong"><strong>dno</strong></span>
+      creates its compilation, etc rules dynamically and recursively.
+      Setting this shows the rules as they are created.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno-files"></a>FILES</h2></div></div></div>
+<p>
+      You can create sketches using the .ino format, or code your own
+      main function in a more standard .cpp file.
+    </p>
+<p>
+      Local copies of libraries take precedence over the
+      system-installed ones.
+    </p>
+<p>
+      Files in board directories take precedence over files in the
+      project’s root directory. This allows board-specific code to be
+      easily created.
+    </p>
+<p>
+      The file:
+    </p>
+<pre class="programlisting">
+~/.dno_boards_paths
+</pre>
+<p>
+      contains paths to extra installed boards.txt files.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno-exit-status"></a>EXIT STATUS</h2></div></div></div>
+<p>
+      The program returns a success code unless there is a failure such
+      as a compilation error.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno-examples"></a>EXAMPLES</h2></div></div></div>
+<p>
+      To get a list of all major targets:
+    </p>
+<pre class="programlisting">
+$ dno help
+</pre>
+<p>
+      To create an uploadable Arduino image in a board directory:
+    </p>
+<pre class="programlisting">
+$ dno
+</pre>
+<p>
+      To run unit tests in a lib directory:
+    </p>
+<pre class="programlisting">
+$ dno unit
+</pre>
+<p>
+      or just:
+    </p>
+<pre class="programlisting">
+$ dno
+</pre>
+<p>
+      To create a <span class="strong"><strong>BOARD_INFO</strong></span>(5) file
+      (may also create
+      <span class="strong"><strong>BOARD_TYPE</strong></span>(5)):
+    </p>
+<pre class="programlisting">
+$ dno BOARD_INFO BOARD=pro CPU=8MHzatmega328
+</pre>
+<p>
+      To list the available board types:
+    </p>
+<pre class="programlisting">
+$ dno show_boards
+</pre>
+<p>
+      To list the subset of boards for the <span class="quote">“<span class="quote">pro</span>”</span> series:
+    </p>
+<pre class="programlisting">
+$ dno show_boards BOARD=cpu
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno-see-also"></a>SEE ALSO</h2></div></div></div>
+<p>
+      <span class="strong"><strong>make</strong></span>(1)
+      <span class="strong"><strong>doxygen</strong></span>(1)
+      <span class="strong"><strong>screen</strong></span>(1)
+      <span class="strong"><strong>BOARD_TYPE</strong></span>(5)
+      <span class="strong"><strong>BOARD_INFO</strong></span>(5)
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno-license"></a>LICENSE</h2></div></div></div>
+<p>
+      <span class="strong"><strong>dno</strong></span> is free software: you can
+      redistribute it and/or modify it under the terms of the GNU
+      General Public License as published by the Free Software
+      Foundation, version 3 of the License.
+    </p>
+<p>
+      <span class="strong"><strong>dno</strong></span> is distributed in the hope
+      that it will be useful, but WITHOUT ANY WARRANTY; without even the
+      implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+      PURPOSE. See the GNU General Public License for more details.
+    </p>
+<p>
+      You should have received a copy of the GNU General Public License
+      along with dno. If not, see
+      <a class="link" href="https://www.gnu.org/licenses/" target="_top">https://www.gnu.org/licenses/</a>.
+    </p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ch10.html">Prev</a> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right"> <a accesskey="n" href="apb.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 10. Why? </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Appendix B. man page for dno_bpp(1)</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

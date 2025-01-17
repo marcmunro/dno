@@ -1,0 +1,172 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Chapter 7. Documentation with Doxygen</title>
+<link rel="stylesheet" type="text/css" href="dno.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
+<link rel="home" href="index.html" title="Dno User Guide">
+<link rel="up" href="index.html" title="Dno User Guide">
+<link rel="prev" href="ch06.html" title="Chapter 6. Libraries">
+<link rel="next" href="ch08.html" title="Chapter 8. Other Features and Capabilities">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Chapter 7. Documentation with Doxygen</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ch06.html">Prev</a> </td>
+<th width="60%" align="center"> </th>
+<td width="20%" align="right"> <a accesskey="n" href="ch08.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="docs"></a>Chapter 7. Documentation with Doxygen</h1></div></div></div>
+<p>
+    To get started with <a class="link" href="https://www.doxygen.nl/index.html" target="_top">Doxygen</a>-based
+    documentation for your project you will create a
+    <code class="literal">docs</code> directory under your project directory,
+    and there create the <code class="literal">Doxyfile</code> configuration
+    file.
+  </p>
+<p>
+    You can also create any input or resource files that you may need
+    in this directory.
+  </p>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm839"></a>1. Doxygen Configuration</h2></div></div></div>
+<p>
+      This section identifies a few Doxgen configuration settings you
+      can consider.
+    </p>
+<div class="simplesect">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm842"></a>PROJECT_NAME</h3></div></div></div>
+<p>
+	You can set PROJECT_NAME manually:
+	</p>
+<pre class="programlisting">
+PROJECT_NAME      = "My Project"
+	</pre>
+<p>
+      </p>
+<p>
+	or have it automatically set, based on the name of the
+	<a class="link" href="ch05.html#project_dir" title="1. The Project/Root Directory">project directory</a> as follows:
+	</p>
+<pre class="programlisting">
+PROJECT_NAME      =  $(PROJNAME)
+	</pre>
+<p>
+      </p>
+</div>
+<div class="simplesect">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm849"></a>OUTPUT_DIRECTORY</h3></div></div></div>
+<p>
+	Set this to docs:
+	</p>
+<pre class="programlisting">
+OUTPUT_DIRECTORY       = docs
+	</pre>
+<p>
+      </p>
+</div>
+<div class="simplesect">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm853"></a>FILE_PATTERNS</h3></div></div></div>
+<p>
+	Add the <code class="literal">*.ino</code> and <code class="literal">*.S</code>
+	patterns to this list.
+      </p>
+</div>
+<div class="simplesect">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm858"></a>USE_MDFILE_AS_MAINPAGE</h3></div></div></div>
+<p>
+	This allows you to create a mainpage for your documentation
+	that is written in
+	<a class="link" href="https://en.wikipedia.org/wiki/Markdown" target="_top">Markdown</a>.
+	Something like this is good: 
+	</p>
+<pre class="programlisting">
+USE_MDFILE_AS_MAINPAGE = ./docs/README.md
+	</pre>
+<p>
+      </p>
+</div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm863"></a>2. Documenting Libraries</h2></div></div></div>
+<p>
+      As well as being able to create whole project documentation,
+      individual libraries can be separately documented.
+    </p>
+<p>
+      This is done just as for projects, by creating a docs
+      subdirectory within the library directory, and creating a
+      suitable <code class="literal">Doxyfile</code>.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="building_docs"></a>3. Building Documentation</h2></div></div></div>
+<p>
+      Project documentation can be built by invoking:
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+<code class="literal">dno docs</code> in the project root directory;
+	</li>
+<li class="listitem">
+<code class="literal">dno docs</code> in the project docs directory;
+	</li>
+<li class="listitem">
+<code class="literal">dno</code> in the project docs directory.
+	</li>
+</ul></div>
+<p>
+    </p>
+<p>
+      Library documentation can be built by invoking:
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+<code class="literal">dno docs</code> in the library directory;
+	</li>
+<li class="listitem">
+<code class="literal">dno docs</code> in the library's docs directory;
+	</li>
+<li class="listitem">
+<code class="literal">dno</code> in the library's docs directory.
+	</li>
+</ul></div>
+<p>
+    </p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ch06.html">Prev</a> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right"> <a accesskey="n" href="ch08.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 6. Libraries </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 8. Other Features and Capabilities</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

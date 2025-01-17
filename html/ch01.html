@@ -1,0 +1,486 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Chapter 1. Installation</title>
+<link rel="stylesheet" type="text/css" href="dno.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
+<link rel="home" href="index.html" title="Dno User Guide">
+<link rel="up" href="index.html" title="Dno User Guide">
+<link rel="prev" href="pr01.html" title="Introduction to Dno">
+<link rel="next" href="ch02.html" title="Chapter 2. Installing And Updating Arduino Toolsets">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Chapter 1. Installation</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="pr01.html">Prev</a> </td>
+<th width="60%" align="center"> </th>
+<td width="20%" align="right"> <a accesskey="n" href="ch02.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="idm19"></a>Chapter 1. Installation</h1></div></div></div>
+<p>
+    Dno can be installed by downloading and unpacking a release
+    tarball or by cloning from <a class="link" href="https://github.com/marcmunro/dno" target="_top">github</a>.
+  </p>
+<p>
+    Unless you want to hack on dno itself, installing from a tarball
+    is the recommended option.
+  </p>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm24"></a>1. Compatibility</h2></div></div></div>
+<p>
+      Dno is expected to run on any Unix-like operating system: Linux,
+      BSD, MacOSX.
+    </p>
+<p>
+      It is built using <acronym class="acronym">GNU</acronym>
+      <code class="literal">autotools</code>, so any OS supported by
+      <a class="link" href="https://en.wikipedia.org/wiki/GNU_Autotools" target="_top">
+      <code class="literal">autotools</code></a> should work.  It is unlikely
+      that Windows(Tm) will ever be supported.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm32"></a>2. Dependencies</h2></div></div></div>
+<p>
+    Dno requires <code class="literal">bash</code>, <code class="literal">make</code>,
+    <code class="literal">sed</code> and <code class="literal">gawk</code> in order to
+    run.
+  </p>
+<p>
+    For building and installing dno, <code class="literal">gcc</code> is also
+    required.
+  </p>
+<p>
+    To build documentation: <code class="literal">pandoc</code>,
+    <code class="literal">xsltproc</code> and the docbook xslt stylesheets (v4)
+    are required.  Tarball-based installations provide pre-built
+    documentation so do not need these.
+  </p>
+<p>
+    If you want to modify dno, you should also install
+    <code class="literal">autotools</code>.
+  </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm46"></a>3. Installing From A Tarball</h2></div></div></div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm48"></a>3.1. Download</h3></div></div></div>
+<p>
+	Releases can be found in the github project releases
+	directory: <a class="link" href="https://github.com/marcmunro/dno/tree/main/releases" target="_top">https://github.com/marcmunro/dno/tree/main/releases</a>.
+      </p>
+<p>
+	You can download a tarball by clicking on it and then finding
+	and clicking on the "download raw file" button.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm53"></a>3.2. Unpack</h3></div></div></div>
+<p>
+	To unpack the tarball (this will create a new directory called
+	<code class="literal">dno</code>):
+	</p>
+<pre class="programlisting">
+~$ tar xvzf dno_<em class="replaceable"><code>VERSION</code></em>.tgz
+	</pre>
+<p>
+      </p>
+<p>
+	Note: the <code class="literal">v</code> option above gives verbose
+	feedback.  Use this to get a warm fuzzy feeling when you
+	unpack the tarball.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="install-commands"></a>3.3. Configure</h3></div></div></div>
+<p>
+	Move to the new <code class="literal">dno</code> directory and run
+	<code class="literal">./configure</code>:
+	</p>
+<pre class="programlisting">
+~$ cd dno
+dno$ ./configure
+checking for sed... yes
+checking for gawk... yes
+checking for dialog... no
+checking for whiptail... /usr/bin/whiptail
+checking Checking terminal-based menu command... /usr/bin/whiptail
+checking for pandoc... no
+configure: WARNING: pandoc not found.  Man pages cannot be created
+checking for xsltproc... no
+configure: WARNING: xsltproc not found.  User guide cannot be created
+checking for xmllint... no
+configure: WARNING: xmllint not found.  User guide cannot be created
+checking for DocBook stylesheet... no
+checking build system type... x86_64-unknown-linux-gnu
+checking host system type... x86_64-unknown-linux-gnu
+checking Checking arduino installation dir... /usr/share/arduino
+checking for /usr/share/arduino/hardware/arduino/avr/boards.txt... yes
+configure: creating ./config.status
+config.status: creating Makefile.global
+config.status: creating bin/dno_commands_for
+config.status: creating bin/dno_bpp
+config.status: creating bin/dno_dirinfo
+config.status: creating bin/dno_menu
+config.status: creating bin/dno
+config.status: creating man/BOARD_INFO.md
+config.status: creating man/BOARD_OPTIONS.md
+config.status: creating man/BOARD_TYPE.md
+config.status: creating man/dno.md
+config.status: creating man/dno_bpp.md
+config.status: creating man/dno_checksize.md
+config.status: creating man/dno_commands_for.md
+config.status: creating man/dno_dirinfo.md
+config.status: creating man/dno_menu.md
+config.status: creating man/dno_requote.md
+dno$ 
+	</pre>
+<p>
+      </p>
+<p>
+	This determines where dno should be installed, among other
+	things.  Note that this step will fail if you don't have the
+	basic pre-requisites (<code class="literal">gawk</code>,
+	<code class="literal">sed</code>, etc) installed.  If it fails, install
+	the programs it is asking for, and run it again.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm70"></a>3.4. Make</h3></div></div></div>
+<p>
+	Now we build the <code class="literal">dno_requote</code> command and
+	prepare the dno man pages for installation using
+	<code class="literal">make</code>:
+      </p>
+<pre class="programlisting">
+dno$ make
+  CC, LD [dno_requote]
+    Using distributed version of man/dno_bpp.1
+    Using distributed version of man/dno_checksize.1
+    Using distributed version of man/dno_commands_for.1
+    Using distributed version of man/dno_dirinfo.1
+    Using distributed version of man/dno.1
+    Using distributed version of man/dno_menu.1
+    Using distributed version of man/dno_requote.1
+    Using distributed version of man/BOARD_INFO.5
+    Using distributed version of man/BOARD_OPTIONS.5
+    Using distributed version of man/BOARD_TYPE.5
+    Using distributed version of docs
+dno$ 
+      </pre>
+<p>
+	If you happen to already have the tools installed that are
+	needed for creating dno documentation, this step will build
+	the documentation from source rather than using the
+	distributed versions.  Either way, you will now be ready to
+	install.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm77"></a>3.5. Make Install</h3></div></div></div>
+<p>
+	Installation needs to be done as root.  You can use
+	<code class="literal">sudo</code> if you must
+	<a href="#ftn.sudo-wassup" class="footnote" name="sudo-wassup"><sup class="footnote">[1]</sup></a>, or become root using <code class="literal">su</code> and
+	  run <code class="literal">make install</code>:
+	  </p>
+<pre class="programlisting">
+dno$ su
+Password: 
+dno# make install
+Installing dno executables in /usr/local/bin
+Install dno man pages in /usr/local/share/man
+dno# exit
+dno$
+	  </pre>
+<p>
+      </p>
+<p>
+	That's it.  You are done.
+      </p>
+<p>
+	Note that if you install a new Arduino IDE after this, you
+	should repeat the above installation steps.  This will ensure
+	that dno can find the newly installed Arduino tools.
+      </p>
+</div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm93"></a>4. Installing By Cloning From Github</h2></div></div></div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm95"></a>4.1. Pre-requisites</h3></div></div></div>
+<p>
+	The steps for this are much the same as for installing from
+	the tarball, but <span class="emphasis"><em>all</em></span> build tools
+	<span class="emphasis"><em>must</em></span> be installed.  This means that in
+	addition to <code class="literal">gawk</code>, <code class="literal">sed</code>
+	and <code class="literal">gcc</code>, the following must also be
+	present:
+	</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+	      <code class="literal">pandoc</code>;
+	    </p></li>
+<li class="listitem">
+<p>
+	      <code class="literal">xmllint</code>;
+	    </p>
+<p>
+	      This can often be found in a package called
+	      <code class="literal">libxml2-utils</code>.
+	    </p>
+</li>
+<li class="listitem"><p>
+	      <code class="literal">xsltproc</code>;
+	    </p></li>
+<li class="listitem">
+<p>
+	      docbook5 stylesheets.
+	    </p>
+<p>
+	      You may find these in a package called
+	      <code class="literal">docbook-xsl-ns</code>.
+	    </p>
+</li>
+</ul></div>
+<p>
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm119"></a>4.2. Clone From Github</h3></div></div></div>
+<p>
+	When you run the following clone operation a new directory
+	will be created under your current directory:
+	</p>
+<pre class="programlisting">
+~$ git clone https://github.com/marcmunro/dno.git
+Cloning into 'dno'...
+remote: Enumerating objects: 278, done.
+remote: Counting objects: 100% (58/58), done.
+remote: Compressing objects: 100% (43/43), done.
+remote: Total 278 (delta 23), reused 42 (delta 15), pack-reused 220 (from 1)
+Receiving objects: 100% (278/278), 30.90 MiB | 4.29 MiB/s, done.
+Resolving deltas: 100% (157/157), done.
+~$ 
+	</pre>
+<p>
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm123"></a>4.3. Configure</h3></div></div></div>
+<p>
+	Move to the new <code class="literal">dno</code> directory and run
+	<code class="literal">./configure</code>.  Be sure to check the output
+	for any indication that our pre-requisites are not installed.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm128"></a>4.4. Make</h3></div></div></div>
+<p>
+	Run <code class="literal">make</code>.  This should build everything,
+	including documentation and man pages from scratch:
+	</p>
+<pre class="programlisting">
+dno$ make
+  PANDOC man/dno_bpp.1
+  PANDOC man/dno_checksize.1
+  PANDOC man/dno_commands_for.1
+  PANDOC man/dno_dirinfo.1
+  PANDOC man/dno.1
+  PANDOC man/dno_menu.1
+  PANDOC man/dno_requote.1
+  PANDOC man/BOARD_INFO.5
+  PANDOC man/BOARD_OPTIONS.5
+  PANDOC man/BOARD_TYPE.5
+  PANDOC docs/parts/BOARD_INFO.xml
+  PANDOC docs/parts/BOARD_OPTIONS.xml
+  PANDOC docs/parts/BOARD_TYPE.xml
+  PANDOC docs/parts/dno_bpp.xml
+  PANDOC docs/parts/dno_checksize.xml
+  PANDOC docs/parts/dno_commands_for.xml
+  PANDOC docs/parts/dno_dirinfo.xml
+  PANDOC docs/parts/dno.xml
+  PANDOC docs/parts/dno_menu.xml
+  PANDOC docs/parts/dno_requote.xml
+  XMLLINT docs/full_doc.xml
+Creating importer for system base stylesheet for docs...
+  /usr/bin/xsltproc &lt;docbook sources&gt;.xml --&gt; html/index.html
+Computing chunks...
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing pr01.html for preface(introduction)
+Writing ch01.html for chapter
+Writing ch02.html for chapter
+Writing ch03.html for chapter
+Writing ch04.html for chapter
+Writing ch05.html for chapter
+Writing ch06.html for chapter
+Writing ch07.html for chapter
+Writing ch08.html for chapter
+Writing ch09.html for chapter
+Writing ch10.html for chapter
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing ch11.html for chapter
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apa.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apb.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apc.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apd.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing ape.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apf.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apg.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing aph.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing api.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apj.html for appendix(gpl)
+Writing index.html for book
+Writing dno.css for book
+dno$ 
+	</pre>
+<p>
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm133"></a>4.5. Make Install</h3></div></div></div>
+<p>
+	Installation needs to be done as root.  Run <code class="literal">make
+	install</code>.
+      </p>
+</div>
+</div>
+<div class="footnotes">
+<br><hr style="width:100; text-align:left;margin-left: 0">
+<div id="ftn.sudo-wassup" class="footnote">
+<p><a href="#sudo-wassup" class="para"><sup class="para">[1] </sup></a>
+	    The big problem with sudo is that it is generally
+	    configured to allow an unprivileged user to do
+	    <span class="emphasis"><em>anything</em></span> that root can do without the
+	    need for any password other than your own.  What this
+	    means is that your user password becomes the single means
+	    of authentication for all administrative tasks.  If you
+	    think this is unduly alarmist try typing
+	    </p>
+<pre class="programlisting">
+~$ sudo su -	      
+	    </pre>
+<p>
+	  </p>
+<p>
+	    Now you have a root shell.  You can do absolutely anything
+	    at this point, with virtually no audit trail, and you
+	    should be very concerned.  Sudo was designed to allow
+	    non-root users to perform <span class="emphasis"><em>specific</em></span>
+	    privileged tasks.  In this mode of use it makes a lot of
+	    sense and poses little risk.  Having sudo allow
+	    <span class="emphasis"><em>anything</em></span> should be regarded as poor
+	    security practice.
+	  </p>
+</div>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="pr01.html">Prev</a> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right"> <a accesskey="n" href="ch02.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Introduction to Dno </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 2. Installing And Updating Arduino Toolsets</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Dno User Guide</title>
+<link rel="stylesheet" type="text/css" href="dno.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
+<link rel="home" href="index.html" title="Dno User Guide">
+<link rel="next" href="pr01.html" title="Introduction to Dno">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Dno User Guide</th></tr>
+<tr>
+<td width="20%" align="left"> </td>
+<th width="60%" align="center"> </th>
+<td width="20%" align="right"> <a accesskey="n" href="pr01.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="book">
+<div class="titlepage">
+<div>
+<div><h1 class="title">
+<a name="idm1"></a>Dno User Guide</h1></div>
+<div><h2 class="subtitle">
+      The <span class="command"><strong>dno</strong></span> command-line build system for Arduino
+      software
+    </h2></div>
+<div><p class="pubdate">January 2025</p></div>
+</div>
+<hr>
+</div>
+<div class="toc">
+<p><b>Table of Contents</b></p>
+<dl class="toc">
+<dt><span class="preface"><a href="pr01.html">Introduction to Dno</a></span></dt>
+<dt><span class="chapter"><a href="ch01.html">1. Installation</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="ch01.html#idm24">1. Compatibility</a></span></dt>
+<dt><span class="section"><a href="ch01.html#idm32">2. Dependencies</a></span></dt>
+<dt><span class="section"><a href="ch01.html#idm46">3. Installing From A Tarball</a></span></dt>
+<dt><span class="section"><a href="ch01.html#idm93">4. Installing By Cloning From Github</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="ch02.html">2. Installing And Updating Arduino Toolsets</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="ch02.html#idm140">1. Install The Standard Old Arduino IDE</a></span></dt>
+<dt><span class="section"><a href="ch02.html#idm158">2. Ensure dno Sees The New Files</a></span></dt>
+<dt><span class="section"><a href="ch02.html#idm163">3. Update Installed Boards</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="ch03.html">3. Getting Started</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="ch03.html#getting_started">1. Creating The Project Directory</a></span></dt>
+<dt><span class="section"><a href="ch03.html#idm237">2. Create An Initial Sketch</a></span></dt>
+<dt><span class="section"><a href="ch03.html#idm250">3. Select Our Board</a></span></dt>
+<dt><span class="section"><a href="ch03.html#idm268">4. Compiling/Building</a></span></dt>
+<dt><span class="section"><a href="ch03.html#upload">5. Uploading To A Board</a></span></dt>
+<dt><span class="section"><a href="ch03.html#idm300">6. In Summary</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="ch04.html">4. A Little Exploration</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="ch04.html#dno_is_make">1. On Being Based On <code class="literal">make</code></a></span></dt>
+<dt><span class="section"><a href="ch04.html#idm434">2. The Project Directory</a></span></dt>
+<dt><span class="section"><a href="ch04.html#board_type">3. 
+      The BOARD_TYPE File, And Board Types
+    </a></span></dt>
+<dt><span class="section"><a href="ch04.html#clean">4. Cleaning</a></span></dt>
+<dt><span class="section"><a href="ch04.html#idm500">5. The BOARD_INFO file</a></span></dt>
+<dt><span class="section"><a href="ch04.html#idm516">6. The BOARD_OPTIONS file</a></span></dt>
+<dt><span class="section"><a href="ch04.html#idm523">7. Connecting to Physical Arduino Boards</a></span></dt>
+<dt><span class="section"><a href="ch04.html#idm548">8. Performance</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="ch05.html">5. The Dno Directory System</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="ch05.html#project_dir">1. The Project/Root Directory</a></span></dt>
+<dt><span class="section"><a href="ch05.html#board_dir">2. Board Subdirectories</a></span></dt>
+<dt><span class="section"><a href="ch05.html#idm706">3. Library Subdirectories</a></span></dt>
+<dt><span class="section"><a href="ch05.html#idm726">4. The docs Subdirectory</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="ch06.html">6. Libraries</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="ch06.html#idm750">1. Developing With Libraries - A Walkthrough</a></span></dt>
+<dt><span class="section"><a href="ch06.html#idm815">2. Unit Testing</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="ch07.html">7. Documentation with Doxygen</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="ch07.html#idm839">1. Doxygen Configuration</a></span></dt>
+<dt><span class="section"><a href="ch07.html#idm863">2. Documenting Libraries</a></span></dt>
+<dt><span class="section"><a href="ch07.html#building_docs">3. Building Documentation</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="ch08.html">8. Other Features and Capabilities</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="ch08.html#idm889">1. Revision Control</a></span></dt>
+<dt><span class="section"><a href="ch08.html#idm893">2. Configuration Options</a></span></dt>
+<dt><span class="section"><a href="ch08.html#idm900">3. <code class="literal">.ino</code> files</a></span></dt>
+<dt><span class="section"><a href="ch08.html#idm912">4. Tags</a></span></dt>
+<dt><span class="section"><a href="ch08.html#monitor">5. Serial Communication</a></span></dt>
+<dt><span class="section"><a href="ch08.html#eeprom">6. EEPROMs</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="ch09.html">9. Developing and Debugging Dno</a></span></dt>
+<dt><span class="chapter"><a href="ch10.html">10. Why?</a></span></dt>
+<dd><dl><dt><span class="section"><a href="ch10.html#idm1053">1. And How?</a></span></dt></dl></dd>
+<dt><span class="appendix"><a href="apa.html">A. man page for dno(1)</a></span></dt>
+<dd><dl></dl></dd>
+<dt><span class="appendix"><a href="apb.html">B. man page for dno_bpp(1)</a></span></dt>
+<dd><dl></dl></dd>
+<dt><span class="appendix"><a href="apc.html">C. man page for dno_checksize(1)</a></span></dt>
+<dd><dl></dl></dd>
+<dt><span class="appendix"><a href="apd.html">D. man page for dno_commands_for(1)</a></span></dt>
+<dd><dl></dl></dd>
+<dt><span class="appendix"><a href="ape.html">E. man page for dno_dirinfo(1)</a></span></dt>
+<dd><dl></dl></dd>
+<dt><span class="appendix"><a href="apf.html">F. man page for dno_requote(1)</a></span></dt>
+<dd><dl></dl></dd>
+<dt><span class="appendix"><a href="apg.html">G. man page for board_info(5)</a></span></dt>
+<dd><dl></dl></dd>
+<dt><span class="appendix"><a href="aph.html">H. man page for board_options(5)</a></span></dt>
+<dd><dl></dl></dd>
+<dt><span class="appendix"><a href="api.html">I. man page for board_type(5)</a></span></dt>
+<dd><dl></dl></dd>
+<dt><span class="appendix"><a href="apj.html">J. <acronym class="acronym">GNU</acronym> General Public License version 3</a></span></dt>
+</dl>
+</div> --&gt;
+  </div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left"> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right"> <a accesskey="n" href="pr01.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top"> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right" valign="top"> Introduction to Dno</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

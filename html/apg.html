@@ -1,0 +1,121 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Appendix G. man page for board_info(5)</title>
+<link rel="stylesheet" type="text/css" href="dno.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
+<link rel="home" href="index.html" title="Dno User Guide">
+<link rel="up" href="index.html" title="Dno User Guide">
+<link rel="prev" href="apf.html" title="Appendix F. man page for dno_requote(1)">
+<link rel="next" href="aph.html" title="Appendix H. man page for board_options(5)">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Appendix G. man page for board_info(5)</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="apf.html">Prev</a> </td>
+<th width="60%" align="center"> </th>
+<td width="20%" align="right"> <a accesskey="n" href="aph.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="appendix">
+<div class="titlepage"><div>
+<div><h1 class="title">
+<a name="idm1678"></a>man page for board_info(5)</h1></div>
+<div><div class="authorgroup"><div class="author"><h3 class="author">
+<span class="firstname">Marc</span> <span class="surname">Munro</span>
+</h3></div></div></div>
+</div></div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="BOARD_INFO-name"></a>NAME</h2></div></div></div>
+<p>
+      BOARD_INFO - file of Arduino properties in make(1) syntax
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="BOARD_INFO-description"></a>DESCRIPTION</h2></div></div></div>
+<p>
+      BOARD_INFO files are used by
+      <span class="strong"><strong>dno</strong></span>(1) to define all of the
+      various properties required in order to compile and build code for
+      an Arduino board, in make format. This means that BOARD_INFO files
+      can be included into makefiles, which is exactly what
+      <span class="strong"><strong>dno</strong></span> does.
+    </p>
+<p>
+      BOARD_INFO files are derived, primarily, from the Arduino
+      platform.txt and boards.txt files that are supplied with Arduino
+      software, though may also contain entries derived from a local
+      platform.local.txt file.
+    </p>
+<p>
+      BOARD_INFO files are created by
+      <span class="strong"><strong>dno_bpp</strong></span>, which performs the
+      following operations on the incoming files:
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+          header definitions are added to identify the source files, the
+          host OS, and the dno version;
+        </p></li>
+<li class="listitem"><p>
+          properties appearing on the right hand side of definitions are
+          converted into makefile variables;
+        </p></li>
+<li class="listitem"><p>
+          unused board definitions are filtered out;
+        </p></li>
+<li class="listitem"><p>
+          default menu entries are identified;
+        </p></li>
+<li class="listitem"><p>
+          undefined build paths are discovered and defined;
+        </p></li>
+<li class="listitem"><p>
+          quotes appearing in quoted strings are escaped.
+        </p></li>
+</ul></div>
+<p>
+      Note
+    </p>
+<p>
+      FILES platform.txt boards.txt platform.local.txt
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="BOARD_INFO-see-also"></a>SEE ALSO</h2></div></div></div>
+<p>
+      <span class="strong"><strong>make</strong></span>(1)
+      <span class="strong"><strong>dno</strong></span>(1)
+      <span class="strong"><strong>dno_bpp</strong></span>
+      <span class="strong"><strong>BOARD_TYPE</strong></span>(5)
+    </p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="apf.html">Prev</a> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right"> <a accesskey="n" href="aph.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Appendix F. man page for dno_requote(1) </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Appendix H. man page for board_options(5)</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

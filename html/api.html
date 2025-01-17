@@ -1,0 +1,105 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Appendix I. man page for board_type(5)</title>
+<link rel="stylesheet" type="text/css" href="dno.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
+<link rel="home" href="index.html" title="Dno User Guide">
+<link rel="up" href="index.html" title="Dno User Guide">
+<link rel="prev" href="aph.html" title="Appendix H. man page for board_options(5)">
+<link rel="next" href="apj.html" title="Appendix J. GNU General Public License version 3">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Appendix I. man page for board_type(5)</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="aph.html">Prev</a> </td>
+<th width="60%" align="center"> </th>
+<td width="20%" align="right"> <a accesskey="n" href="apj.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="appendix">
+<div class="titlepage"><div>
+<div><h1 class="title">
+<a name="idm1752"></a>man page for board_type(5)</h1></div>
+<div><div class="authorgroup"><div class="author"><h3 class="author">
+<span class="firstname">Marc</span> <span class="surname">Munro</span>
+</h3></div></div></div>
+</div></div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="BOARD_TYPE-name"></a>NAME</h2></div></div></div>
+<p>
+      BOARD_TYPE - identify an Arduino board type for dno
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="BOARD_TYPE-description"></a>DESCRIPTION</h2></div></div></div>
+<p>
+      BOARD_TYPE files are used to identify the type of Arduino board
+      that a dno board directory is going to be used to compile and
+      build for.
+    </p>
+<p>
+      It consists of a single line that identifies an Arduino board.
+      Some boards with CPU-variants are further identified by a
+      cpu-variant name in the form BOARD.CPU_VARIANT, eg
+      pro.8MHzatmega168.
+    </p>
+<p>
+      The board names are derived from boards.txt files that are
+      distributed with Arduino software.
+    </p>
+<p>
+      To see the list of possible boards use:
+    </p>
+<pre class="programlisting">
+$ dno_bpp -t
+</pre>
+<p>
+      To create a BOARD_TYPE file use:
+    </p>
+<pre class="programlisting">
+$ dno BOARD_TYPE BOARD=&lt;BOARD_NAME&gt;
+</pre>
+<p>
+      eg:
+    </p>
+<pre class="programlisting">
+$ dno BOARD_TYPE BOARD=uno  
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="BOARD_TYPE-see-also"></a>SEE ALSO</h2></div></div></div>
+<p>
+      <span class="strong"><strong>dno</strong></span>(1)
+      <span class="strong"><strong>dno_bpp</strong></span>(1)
+    </p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="aph.html">Prev</a> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right"> <a accesskey="n" href="apj.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Appendix H. man page for board_options(5) </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Appendix J. <acronym class="acronym">GNU</acronym> General Public License version 3</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

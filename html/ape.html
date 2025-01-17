@@ -1,0 +1,271 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Appendix E. man page for dno_dirinfo(1)</title>
+<link rel="stylesheet" type="text/css" href="dno.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
+<link rel="home" href="index.html" title="Dno User Guide">
+<link rel="up" href="index.html" title="Dno User Guide">
+<link rel="prev" href="apd.html" title="Appendix D. man page for dno_commands_for(1)">
+<link rel="next" href="apf.html" title="Appendix F. man page for dno_requote(1)">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Appendix E. man page for dno_dirinfo(1)</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="apd.html">Prev</a> </td>
+<th width="60%" align="center"> </th>
+<td width="20%" align="right"> <a accesskey="n" href="apf.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="appendix">
+<div class="titlepage"><div>
+<div><h1 class="title">
+<a name="idm1547"></a>man page for dno_dirinfo(1)</h1></div>
+<div><div class="authorgroup"><div class="author"><h3 class="author">
+<span class="firstname">Marc</span> <span class="surname">Munro</span>
+</h3></div></div></div>
+</div></div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno_dirinfo-name"></a>NAME</h2></div></div></div>
+<p>
+      dno_dirinfo - identify directory type for dno
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno_dirinfo-synopsis"></a>SYNOPSIS</h2></div></div></div>
+<p>
+      <span class="strong"><strong>dno_dirinfo</strong></span>
+      <a class="link" href="ape.html#dno_dirinfo-options" title="OPTIONS">OPTIONS</a>
+      [directory-path]
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno_dirinfo-description"></a>DESCRIPTION</h2></div></div></div>
+<p>
+      <span class="strong"><strong>dno_dirinfo</strong></span> identifies the type
+      of directory for either the current directory or the directory
+      provided as a parameter. The directory type information is written
+      to stdout as a string.
+    </p>
+<p>
+      This is used by <span class="strong"><strong>dno</strong></span> to
+      determine the type of default build action to be performed as well
+      as setting up various build parameters.
+    </p>
+<p>
+      In order to determine whether a directory is a board directory it
+      may to be able to verify whether the current directory’s name is a
+      match for an Arduino board. It does this using
+      <span class="strong"><strong>dno_bpp</strong></span> with the –dir and
+      –nodefaults options passed along.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno_dirinfo-options"></a>OPTIONS</h2></div></div></div>
+<p>
+      <span class="strong"><strong>-d dir, –dir dir</strong></span>
+    </p>
+<pre class="programlisting">
+Pass this option to **dno_bpp** when determining whether our
+directory is for an Arduino board.  See man **dno_bpp**(1) for
+more details.
+</pre>
+<p>
+      <span class="strong"><strong>-h, –help</strong></span>
+    </p>
+<pre class="programlisting">
+Provide help.
+</pre>
+<p>
+      <span class="strong"><strong>-n, –no, –nodefaults</strong></span>
+    </p>
+<pre class="programlisting">
+Pass this option to **dno_bpp** when determining whether our
+directory is for an Arduino board.  See man **dno_bpp**(1) for
+more details.
+</pre>
+<p>
+      <span class="strong"><strong>-v, –version</strong></span>
+    </p>
+<pre class="programlisting">
+Print version information and exit
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno_dirinfo-directory-types"></a>DIRECTORY TYPES</h2></div></div></div>
+<p>
+      The following types of directory are identified by
+      <span class="strong"><strong>dno_dirinfo</strong></span>:
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+<p>
+          docs
+        </p>
+<p>
+          A documentation directory.
+          <span class="strong"><strong>dno</strong></span>’s default action in
+          such a directory is to attempt to build documentation.
+        </p>
+</li>
+<li class="listitem">
+<p>
+          lib
+        </p>
+<p>
+          A library directory. This directory appears to contain code
+          for an Arduino library. If it also contains a test, tests, or
+          unit directory <span class="strong"><strong>dno</strong></span>’s
+          default action will be to compile and run any specified unit
+          tests.
+        </p>
+</li>
+<li class="listitem">
+<p>
+          root
+        </p>
+<p>
+          This appears to be a project’s root directory, but does not
+          contain code. <span class="strong"><strong>dno</strong></span> is not
+          able to do anything here. Note that many non-dno directories
+          may appear to ((dno_dirinfo** to be root directories but since
+          <span class="strong"><strong>dno</strong></span> will not do anything
+          here it tends not to matter.
+        </p>
+</li>
+<li class="listitem">
+<p>
+          root_board
+        </p>
+<p>
+          This appears to be a project’s root directory, contains code,
+          and a BOARD_TYPE. <span class="strong"><strong>dno</strong></span>’s
+          default action will be to compile and build the code for the
+          given BOARD_TYPE.
+        </p>
+</li>
+<li class="listitem">
+<p>
+          root_code
+        </p>
+<p>
+          This appears to be a project’s root directory, contains code,
+          but does not specify a BOARD_TYPE.
+          <span class="strong"><strong>dno</strong></span> is not able to do
+          anything here.
+        </p>
+</li>
+<li class="listitem">
+<p>
+          sub_board
+        </p>
+<p>
+          This is a directory below the project root directory with
+          either a BOARD_TYPE file, or with the directory named for a
+          valid BOARD_TYPE. <span class="strong"><strong>dno</strong></span>’s
+          default action will be to compile and build the code for the
+          given type of board.
+        </p>
+</li>
+<li class="listitem">
+<p>
+          test
+        </p>
+<p>
+          This is a test directory. It is assumed that it will contain
+          code for running unit tests.
+          <span class="strong"><strong>dno</strong></span>’s default action will
+          be to compile and run any unit tests.
+        </p>
+</li>
+<li class="listitem">
+<p>
+          test_container
+        </p>
+<p>
+          This is named like a test directory but contains no test code.
+          We assume that it instead contains directories of test code.
+        </p>
+</li>
+<li class="listitem">
+<p>
+          unknown
+        </p>
+<p>
+          We cannot determine the directory type.
+        </p>
+</li>
+</ul></div>
+<p>
+      This is part of the dno Arduino software builder package.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno_dirinfo-exit-status"></a>EXIT STATUS</h2></div></div></div>
+<p>
+      Returns success as long as nothing goes horribly wrong.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno_dirinfo-see-also"></a>SEE ALSO</h2></div></div></div>
+<p>
+      <span class="strong"><strong>dno</strong></span>(1)
+      <span class="strong"><strong>dno_bpp(1)</strong></span>
+      <span class="strong"><strong>BOARD_TYPE</strong></span>(5)
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno_dirinfo-license"></a>LICENSE</h2></div></div></div>
+<p>
+      <span class="strong"><strong>dno_dirinfo</strong></span> is free software:
+      you can redistribute it and/or modify it under the terms of the
+      GNU General Public License as published by the Free Software
+      Foundation, version 3 of the License.
+    </p>
+<p>
+      <span class="strong"><strong>dno_dirinfo</strong></span> is distributed in
+      the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+      even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+      PARTICULAR PURPOSE. See the GNU General Public License for more
+      details.
+    </p>
+<p>
+      You should have received a copy of the GNU General Public License
+      along with dno. If not, see
+      <a class="link" href="https://www.gnu.org/licenses/" target="_top">https://www.gnu.org/licenses/</a>.
+    </p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="apd.html">Prev</a> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right"> <a accesskey="n" href="apf.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Appendix D. man page for dno_commands_for(1) </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Appendix F. man page for dno_requote(1)</td>
+</tr>
+</table>
+</div>
+</body>
+</html>
