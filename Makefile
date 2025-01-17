@@ -422,11 +422,10 @@ release: check_tarball check_commit check_remote check_tag
 	@echo RELEASE APPEARS OK.  
 
 release_docs: release clean
-	-git commit -a
-	-git checkout gh-pages
-	-git merge main
+	git checkout gh-pages
+	git merge main
 	make docs
-	-git commit -a
+	git commit -a -m "latest docs"
 	-git push github gh-pages
 	-git checkout main
 
