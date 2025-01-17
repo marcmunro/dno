@@ -422,13 +422,13 @@ release: check_tarball check_commit check_remote check_tag
 	@echo RELEASE APPEARS OK.  
 
 release_docs: release clean
-	git commit -a
-	git checkout gh-pages
-	git merge main
+	-git commit -a
+	-git checkout gh-pages
+	-git merge main
 	make docs
-	git commit -a
-	git push github gh-pages
-	git checkout main
+	-git commit -a
+	-git push github gh-pages
+	-git checkout main
 
 # Check that there are no uncomitted changes.
 check_commit:
