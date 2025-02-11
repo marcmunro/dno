@@ -4,8 +4,8 @@
 <title>Chapter 5. The Dno Directory System</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno (0.7.3) User Guide">
-<link rel="up" href="index.html" title="Dno (0.7.3) User Guide">
+<link rel="home" href="index.html" title="Dno (0.7.4) User Guide">
+<link rel="up" href="index.html" title="Dno (0.7.4) User Guide">
 <link rel="prev" href="ch04.html" title="Chapter 4. A Little Exploration">
 <link rel="next" href="ch06.html" title="Chapter 6. Libraries">
 </head>
@@ -32,7 +32,7 @@
   </p>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="project_dir"></a>1. The Project/Root Directory</h2></div></div></div>
+<a name="project_dir"></a>5.1. The Project/Root Directory</h2></div></div></div>
 <p>
       This is the core of a dno project.  The name of this directory
       is the name of the project.  It can contain the following
@@ -89,7 +89,7 @@
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm662"></a>1.1. 
+<a name="idm662"></a>5.1.1. 
 	Running <code class="literal">dno</code> in the Project/Root Directory
       </h3></div></div></div>
 <p>
@@ -102,7 +102,7 @@
 	    <p>
 	      Unit tests can be provided for libraries in explicit
 	      test directories.  Running <code class="literal">dno</code> with
-	      an explicit "tests", "test", unit or "unit_test" target,
+	      an explicit "tests", "test", "unit" or "unit_test" target,
 	      will seek out those libraries that have unit tests, and
 	      run those unit tests, compiling and linking them first,
 	      if needed.
@@ -112,7 +112,7 @@
 	    docs.
 	    <p>
 	      The docs target attempts to build
-	      <code class="literal">Doxygen</code> documentation for the <a class="link" href="ch07.html#building_docs" title="3. Building Documentation">whole project</a>.
+	      <code class="literal">Doxygen</code> documentation for the <a class="link" href="ch07.html#building_docs" title="7.3. Building Documentation">whole project</a>.
 	    </p>
 </li>
 </ul></div>
@@ -125,7 +125,7 @@
       </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm676"></a>1.1.1. With A <code class="literal">BOARD_TYPE</code> File</h4></div></div></div>
+<a name="idm676"></a>5.1.1.1. With a <code class="literal">BOARD_TYPE</code> File</h4></div></div></div>
 <p>
 	  When a <code class="literal">BOARD_TYPE</code> file is present in the
 	  project directory, <code class="literal">dno</code> will attempt to
@@ -135,7 +135,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm683"></a>1.1.2. Without A <code class="literal">BOARD_TYPE</code> File</h4></div></div></div>
+<a name="idm683"></a>5.1.1.2. Without a <code class="literal">BOARD_TYPE</code> File</h4></div></div></div>
 <p>
 	  In the absence of a <code class="literal">BOARD_TYPE</code> file in the
 	  project directory, <code class="literal">dno</code> will not be able
@@ -154,22 +154,22 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="board_dir"></a>2. Board Subdirectories</h2></div></div></div>
+<a name="board_dir"></a>5.2. Board Subdirectories</h2></div></div></div>
 <p>
       A board subdirectory is used as the home directory for builds
       for a specific board.  The name of the directory providing the
-      <a class="link" href="ch04.html#board_type" title="3.  The BOARD_TYPE File, And Board Types">board type</a>.
+      <a class="link" href="ch04.html#board_type" title="4.3.  The BOARD_TYPE File, And Board Types">board type</a>.
     </p>
 <p>
       Usually all sketch source and header files will be placed in the
-      project root directory however, if board-specific customisations
+      project root directory, however, if board-specific customisations
       are required, modified versions of source files can be placed in
       these directories.  The local version of any file always takes
       precedence over the project directory's version.
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm695"></a>2.1. Running <code class="literal">dno</code> in a Board Directory</h3></div></div></div>
+<a name="idm695"></a>5.2.1. Running <code class="literal">dno</code> in a Board Directory</h3></div></div></div>
 <p>
 	Running <code class="literal">dno</code> without an explicit target in a
 	board directory will compile and link any code that needs to
@@ -186,7 +186,7 @@ blink$
 	    <p>
 	      This will attempt to upload the latest executable to a
 	      connected Arduino board.  See
-	      <a class="link" href="ch03.html#upload" title="5. Uploading To A Board">Uploading To A Board</a>.
+	      <a class="link" href="ch03.html#upload" title="3.5. Uploading To A Board">Uploading To A Board</a>.
 	    </p>
 </li>
 <li class="listitem">
@@ -194,7 +194,7 @@ blink$
 	    <p>
 	      This will attempt to upload an eeprom image to a 
 	      connected Arduino board.  See
-	      <a class="link" href="ch08.html#eeprom" title="6. EEPROMs">EEPROMs</a>.
+	      <a class="link" href="ch08.html#eeprom" title="8.6. EEPROMs">EEPROMs</a>.
 	    </p>
 </li>
 </ul></div>
@@ -204,7 +204,7 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm709"></a>3. Library Subdirectories</h2></div></div></div>
+<a name="idm709"></a>5.3. Library Subdirectories</h2></div></div></div>
 <p>
       A library subdirectory contains the source code for a library.
       This may be a locally modified version of one of the standard
@@ -224,11 +224,11 @@ blink$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm718"></a>3.1. Running <code class="literal">dno</code> in a Library Directory</h3></div></div></div>
+<a name="idm718"></a>5.3.1. Running <code class="literal">dno</code> in a Library Directory</h3></div></div></div>
 <p>
 	Running <code class="literal">dno</code> without an explicit target in a
 	library subdirectory will attempt to build and run any unit
-	tests that have defined.  See <a class="link" href="ch06.html#unit_tests" title="2.1. Unit Testing With Dno">Unit Testing With Dno</a>.
+	tests that have defined.  See <a class="link" href="ch06.html#unit_tests" title="6.2.1. Unit Testing With Dno">Unit Testing With Dno</a>.
       </p>
 <p>
 	If no unit tests have been defined, <code class="literal">dno</code>
@@ -246,7 +246,7 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm729"></a>4. The docs Subdirectory</h2></div></div></div>
+<a name="idm729"></a>5.4. The docs Subdirectory</h2></div></div></div>
 <p>
       The docs subdirectory is where Doxygen-based documentation will
       be prepared.  Documentation created here will be for everything
@@ -262,14 +262,14 @@ blink$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm735"></a>4.1. 
+<a name="idm735"></a>5.4.1. 
 	Running <code class="literal">dno</code> in a <code class="literal">docs</code>
 	Directory
       </h3></div></div></div>
 <p>
 	The only target that makes sense in the docs subdirectory is
 	the <code class="literal">docs</code> target.  Running
-	<code class="literal">dno</code> witout an explicit target will do
+	<code class="literal">dno</code> without an explicit target will do
 	exactly the same thing.
       </p>
 </div>

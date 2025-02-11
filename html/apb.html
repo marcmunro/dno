@@ -4,8 +4,8 @@
 <title>Appendix B. man page for dno_bpp(1)</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno (0.7.3) User Guide">
-<link rel="up" href="index.html" title="Dno (0.7.3) User Guide">
+<link rel="home" href="index.html" title="Dno (0.7.4) User Guide">
+<link rel="up" href="index.html" title="Dno (0.7.4) User Guide">
 <link rel="prev" href="apa.html" title="Appendix A. man page for dno(1)">
 <link rel="next" href="apc.html" title="Appendix C. man page for dno_checksize(1)">
 </head>
@@ -65,79 +65,79 @@
 <p>
       <span class="strong"><strong>-b board, –board board</strong></span>
     </p>
-<pre class="programlisting">
-Specify a board to be searched for in the boards.txt file(s) If
-board is in the form x.y, then cpu will be determined from y, and
-board from x.  If the board is not completely specified, a list of
-possible boards will be printed.
-</pre>
+<p>
+      Specify a board to be searched for in the boards.txt file(s) If
+      board is in the form x.y, then cpu will be determined from y, and
+      board from x. If the board is not completely specified, a list of
+      possible boards will be printed.
+    </p>
 <p>
       <span class="strong"><strong>-c cpu, –cpu cpu</strong></span>
     </p>
-<pre class="programlisting">
-Specify a cpu to be searched for in the boards.txt file(s)
-</pre>
+<p>
+      Specify a cpu to be searched for in the boards.txt file(s)
+    </p>
 <p>
       <span class="strong"><strong>-d dir, –dir dir</strong></span>
     </p>
-<pre class="programlisting">
-Specify a directory to search for boards.txt This may be specified
-multiple times to allow for multiple boards.txt files.
-</pre>
+<p>
+      Specify a directory to search for boards.txt This may be specified
+      multiple times to allow for multiple boards.txt files.
+    </p>
 <p>
       <span class="strong"><strong>-f, –friendly</strong></span>
     </p>
-<pre class="programlisting">
-Friendly-format the output.  This is mostly useful when not fully
-specifying the board that we are interested in.  This makes the
-board listing output more human-friendly.
-</pre>
+<p>
+      Friendly-format the output. This is mostly useful when not fully
+      specifying the board that we are interested in. This makes the
+      board listing output more human-friendly.
+    </p>
 <p>
       <span class="strong"><strong>-h, –help</strong></span>
     </p>
-<pre class="programlisting">
-Provide help.
-</pre>
+<p>
+      Provide help.
+    </p>
 <p>
       <span class="strong"><strong>-n, –no, –nodefaults</strong></span>
     </p>
-<pre class="programlisting">
-Do not use the system default dno paths for the boards.txt files.
-You must provide at least one explicit --dir option in this case.
-</pre>
+<p>
+      Do not use the system default dno paths for the boards.txt files.
+      You must provide at least one explicit –dir option in this case.
+    </p>
 <p>
       <span class="strong"><strong>-p, –params</strong></span>
     </p>
-<pre class="programlisting">
-Print build parameters for inclusion into a makefile, etc.  This
-is used to create a BOARD_INFO file for dno.
-</pre>
+<p>
+      Print build parameters for inclusion into a makefile, etc. This is
+      used to create a BOARD_INFO file for dno.
+    </p>
 <p>
       <span class="strong"><strong>-q, –quiet</strong></span>
     </p>
-<pre class="programlisting">
-Be silent
-</pre>
+<p>
+      Be silent
+    </p>
 <p>
       <span class="strong"><strong>-t, –type</strong></span>
     </p>
-<pre class="programlisting">
-Print the board type definition in a format suitable for a dno
-BOARD_TYPE file.
-</pre>
+<p>
+      Print the board type definition in a format suitable for a dno
+      BOARD_TYPE file.
+    </p>
 <p>
       <span class="strong"><strong>-v, –version</strong></span>
     </p>
-<pre class="programlisting">
-Print version information and exit
-</pre>
+<p>
+      Print version information and exit
+    </p>
 <p>
       <span class="strong"><strong>-x</strong></span>
     </p>
-<pre class="programlisting">
-Provide directory path discovery services to an inferior version
-of this executable that is determining build parameters. 
-</pre>
+<p>
+      Provide directory path discovery services to an inferior version
+      of this executable that is determining build parameters.
+    </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
@@ -177,21 +177,21 @@ of this executable that is determining build parameters.
       boards.txt file in a given board-path:
     </p>
 <pre class="programlisting">
-$ **dno_bpp** -d /usr/share/arduino/hardware/arduino/avr -f
+$ dno_bpp -d /usr/share/arduino/hardware/arduino/avr -f
 </pre>
 <p>
       List the set of arduino pro board types, in a form suitable for a
       dno BOARD_TYPE file:
     </p>
 <pre class="programlisting">
-$ **dno_bpp** -d /usr/share/arduino/hardware/arduino/avr -b pro -t
+$ dno_bpp -d /usr/share/arduino/hardware/arduino/avr -b pro -t
 </pre>
 <p>
       List the full set of board parameters, for inclusion into a dno
       BOARD_INFO file, for an Arduino pro 8MHzatmega328:
     </p>
 <pre class="programlisting">
-$ **dno_bpp** -d /usr/share/arduino/hardware/arduino/avr \
+$ dno_bpp -d /usr/share/arduino/hardware/arduino/avr \
         -b pro -c 8MHzatmega328 -p
 </pre>
 </div>

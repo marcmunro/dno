@@ -4,8 +4,8 @@
 <title>Chapter 6. Libraries</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno (0.7.3) User Guide">
-<link rel="up" href="index.html" title="Dno (0.7.3) User Guide">
+<link rel="home" href="index.html" title="Dno (0.7.4) User Guide">
+<link rel="up" href="index.html" title="Dno (0.7.4) User Guide">
 <link rel="prev" href="ch05.html" title="Chapter 5. The Dno Directory System">
 <link rel="next" href="ch07.html" title="Chapter 7. Documentation with Doxygen">
 </head>
@@ -59,17 +59,17 @@
   </p>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm753"></a>1. Developing With Libraries - A Walkthrough</h2></div></div></div>
+<a name="idm753"></a>6.1. Developing With Libraries - A Walkthrough</h2></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm755"></a>1.1. Setting Up</h3></div></div></div>
+<a name="idm755"></a>6.1.1. Setting Up</h3></div></div></div>
 <p>
-	In <a class="link" href="ch03.html#getting_started" title="1. Creating The Project Directory">Getting Started</a>, we
+	In <a class="link" href="ch03.html#getting_started" title="3.1. Creating The Project Directory">Getting Started</a>, we
 	created a <code class="literal">blink</code> project, and created the
 	sketch <code class="literal">blink.ino</code>.
       </p>
 <p>
-	Then in <a class="link" href="ch04.html#board_type" title="3.  The BOARD_TYPE File, And Board Types">
+	Then in <a class="link" href="ch04.html#board_type" title="4.3.  The BOARD_TYPE File, And Board Types">
       The BOARD_TYPE File, And Board Types
     </a> section we suggested that using
 	board-specific subdirectories was the preferred way to use
@@ -99,7 +99,7 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm769"></a>1.2. Wanting A Better Blink</h3></div></div></div>
+<a name="idm769"></a>6.1.2. Wanting A Better Blink</h3></div></div></div>
 <p>
 	Our <code class="literal">blink.ino</code> sketch is a little too
 	simple.  One of its problems is that the blink timing is
@@ -120,7 +120,7 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm776"></a>1.3. Installing the Deferal Library</h3></div></div></div>
+<a name="idm776"></a>6.1.3. Installing the Deferal Library</h3></div></div></div>
 <p>
 	On the github page for Deferal, there is a
 	<code class="literal">Code</code> button.  Pressing this (in today's
@@ -350,7 +350,7 @@ Deferal$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm794"></a>1.4. Updating Our Sketch In Preparation To Use The Library</h3></div></div></div>
+<a name="idm794"></a>6.1.4. Updating Our Sketch In Preparation To Use The Library</h3></div></div></div>
 <p>
 	Before we change the sketch to use Deferal objects, we'll
 	refactor it.  This is to make it cleaner, easier to work with,
@@ -534,7 +534,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm805"></a>1.5. Updating Our Sketch To Use The Library</h3></div></div></div>
+<a name="idm805"></a>6.1.5. Updating Our Sketch To Use The Library</h3></div></div></div>
 <p>
 	The first thing we do is to add an include directive for the
 	library.
@@ -671,7 +671,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm818"></a>2. Unit Testing</h2></div></div></div>
+<a name="idm818"></a>6.2. Unit Testing</h2></div></div></div>
 <p>
       Testing Arduino code can be difficult.
       </p>
@@ -700,7 +700,7 @@ pro.8MHzatmega328$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="unit_tests"></a>2.1. Unit Testing With Dno</h3></div></div></div>
+<a name="unit_tests"></a>6.2.1. Unit Testing With Dno</h3></div></div></div>
 <p>
 	When run in a library or its tests subdirectory, dno will
 	attempt to create a file called

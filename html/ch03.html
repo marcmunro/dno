@@ -4,8 +4,8 @@
 <title>Chapter 3. Getting Started</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno (0.7.3) User Guide">
-<link rel="up" href="index.html" title="Dno (0.7.3) User Guide">
+<link rel="home" href="index.html" title="Dno (0.7.4) User Guide">
+<link rel="up" href="index.html" title="Dno (0.7.4) User Guide">
 <link rel="prev" href="ch02.html" title="Chapter 2. Installing And Updating Arduino Toolsets">
 <link rel="next" href="ch04.html" title="Chapter 4. A Little Exploration">
 </head>
@@ -28,7 +28,7 @@
 <a name="idm226"></a>Chapter 3. Getting Started</h1></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="getting_started"></a>1. Creating The Project Directory</h2></div></div></div>
+<a name="getting_started"></a>3.1. Creating The Project Directory</h2></div></div></div>
 <p>
       Create a directory named after your project.  For our example,
       we'll call our project <span class="quote">“<span class="quote">blink</span>”</span>.
@@ -58,7 +58,7 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm237"></a>2. Create An Initial Sketch</h2></div></div></div>
+<a name="idm237"></a>3.2. Create An Initial Sketch</h2></div></div></div>
 <p>
       Let's create a copy of the much-used
       <code class="literal">blink.ino</code> sketch.  You can use your favourite
@@ -135,11 +135,11 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm250"></a>3. Select Our Board</h2></div></div></div>
+<a name="idm250"></a>3.3. Select Our Board</h2></div></div></div>
 <p>
       We can tell dno what sort of board to build for by creating a
       <code class="literal">BOARD_TYPE</code> file.  The simplest way to do this
-      is using dno's <code class="literal">BOARD_TYPE</code> <a class="link" href="ch04.html#targets" title='1.2. Dno "Commands" Are make "Targets"'>target</a>.
+      is using dno's <code class="literal">BOARD_TYPE</code> <a class="link" href="ch04.html#targets" title='4.1.2. Dno "Commands" Are make "Targets"'>target</a>.
     </p>
 <p>
       To see what boards are available use <code class="literal">dno
@@ -196,7 +196,7 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm268"></a>4. Compiling/Building</h2></div></div></div>
+<a name="idm268"></a>3.4. Compiling/Building</h2></div></div></div>
 <p>
       Let's now run <code class="literal">dno</code> again and see what happens:
       </p>
@@ -258,8 +258,8 @@ blink$
       Note thet the dno output shows a sanitised version of what is
       actually being done.  This is mainly for aesthetic reasons:
       showing the full commands that are executed is pretty ugly.  But
-      if that's what you want, you can (as shown <a class="link" href="ch04.html#VERBOSE">here</a>) set the
-      <code class="literal">VERBOSE</code> on the command line:
+      if that's what you want, you can (as shown <a class="link" href="ch04.html#VERBOSE">here</a>) set <code class="literal">VERBOSE</code> on
+      the command line: 
       </p>
 <pre class="programlisting">
 blink$ dno VERBOSE=y
@@ -311,13 +311,13 @@ blink$
     </p>
 <p>
       Note that the message says <code class="literal">make:...</code>.  This is
-      because dno is <a class="link" href="ch04.html#dno_is_make" title="1. On Being Based On make">implemented using
+      because dno is <a class="link" href="ch04.html#dno_is_make" title="4.1. On Being Based On make">implemented using
       <code class="literal">make</code></a>.
     </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="upload"></a>5. Uploading To A Board</h2></div></div></div>
+<a name="upload"></a>3.5. Uploading To A Board</h2></div></div></div>
 <p>
       Now we need to connect our Arduino device to our computer.
       Typically, this is through a USB connection.  Once done, we can
@@ -384,7 +384,7 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm303"></a>6. In Summary</h2></div></div></div>
+<a name="idm303"></a>3.6. In Summary</h2></div></div></div>
 <p>
       In summary, to create a brand new project, blink, from scratch,
       and upload it to an Arduino board takes only the following steps
