@@ -22,11 +22,11 @@ This is part of the dno Arduino software builder package.
 
 **-h, --help**
 
-    Provide help.
+Provide help.
 
 **-v, --version**
 
-    Print version information and exit
+Print version information and exit
 
 # AVAILABLE HOOKS
 
@@ -57,7 +57,7 @@ numerical order.  Note that this is different from the Arduino IDE in
 which NUMBER is sorted as an alphabetic field.
 
 Since it was easier (and less offensive to the author's sense of what
-is right) to sort "properly" **dno_commands_for** sorts the commands
+is right) to sort "properly", **dno_commands_for** sorts the commands
 returned numerically rather than alphabetically.
 
 # EXIT STATUS
@@ -67,7 +67,7 @@ The program normally returns success.
 # EXAMPLES
 Retrieve the commands for the "prebuild" hook:
 
-    $ **dno_commands_for** core.prebuild
+    $ dno_commands_for core.prebuild
 
 # SEE ALSO
   **dno**(1) **BOARD_INFO**(5)

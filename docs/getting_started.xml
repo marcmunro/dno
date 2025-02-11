@@ -213,8 +213,8 @@ blink$
       actually being done.  This is mainly for aesthetic reasons:
       showing the full commands that are executed is pretty ugly.  But
       if that's what you want, you can (as shown <link
-      linkend='VERBOSE'>here</link>) set the
-      <literal>VERBOSE</literal> on the command line:
+      linkend='VERBOSE'>here</link>) set <literal>VERBOSE</literal> on
+      the command line: 
       <programlisting>
 blink$ dno VERBOSE=y
       </programlisting>

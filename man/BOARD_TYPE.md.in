@@ -7,8 +7,8 @@
 BOARD_TYPE - identify an Arduino board type for dno
 
 # DESCRIPTION
-BOARD_TYPE files are used to identify the type of Arduino board that a
-dno board directory is going to be used to compile and build for.
+BOARD_TYPE files are used to identify the type of Arduino board that 
+for which we will be compiling, within a given directory.
 
 It consists of a single line that identifies an Arduino board.  Some
 boards with CPU-variants are further identified by a cpu-variant name

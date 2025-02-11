@@ -27,23 +27,21 @@ and --nodefaults options passed along.
 
 **-d dir, --dir dir**
 
-    Pass this option to **dno_bpp** when determining whether our
-    directory is for an Arduino board.  See man **dno_bpp**(1) for
-    more details.
+Pass this option to **dno_bpp** when determining whether our directory
+is for an Arduino board.  See man **dno_bpp**(1) for more details.
 
 **-h, --help**
 
-    Provide help.
+Provide help.
 
 **-n, --no, --nodefaults**
 
-    Pass this option to **dno_bpp** when determining whether our
-    directory is for an Arduino board.  See man **dno_bpp**(1) for
-    more details.
+Pass this option to **dno_bpp** when determining whether our directory
+is for an Arduino board.  See man **dno_bpp**(1) for more details.
 
 **-v, --version**
 
-    Print version information and exit
+print version information and exit
 
 
 # DIRECTORY TYPES
@@ -66,7 +64,7 @@ The following types of directory are identified by **dno_dirinfo**:
 
     This appears to be a project's root directory, but does not
     contain code.  **dno** is not able to do anything here.  Note that
-    many non-dno directories may appear to ((dno_dirinfo** to be root
+    many non-dno directories may appear to **dno_dirinfo** to be root
     directories but since **dno** will not do anything here it tends
     not to matter.
 

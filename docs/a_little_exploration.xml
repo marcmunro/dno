@@ -72,8 +72,8 @@
       </para>
       <para>
 	A target is something that <literal>make</literal>, and hence
-	<literal>dno</literal>, knows how to build.  There is a recipe
-	for building that target, and a set of dependencies.
+	<literal>dno</literal>, knows how to build.  Dno has a recipe
+	for building that target and a set of dependencies.
 	Providing a target on the dno command line, tells it what you
 	want it to do.
       </para>
@@ -220,8 +220,8 @@ blink$
 	    </para>
 	    <para>
 	      This can be provided to the noscreen target to kill any
-	      <literal>literal</literal> screen instance that is
-	      connected to your Arduino.
+	      <literal>screen</literal> instance that is connected to
+	      your Arduino.
 	    </para>
 	  </listitem>
 	  <listitem id="VERBOSE">
@@ -549,7 +549,7 @@ pro.8MHzatmega328$
       <title>Writing EEPROM data</title>
       <para>
 	Writing to an Arduino's EEPROM from outside of a program is a
-	bit hand and miss.  Dno kind-of, mostly, sort-of supports writing
+	bit hit and miss.  Dno kind-of, mostly, sort-of supports writing
 	eeproms for AVR-architecture boards.  More <link
 	linkend="eeprom">here</link>.
       </para>
@@ -659,7 +659,7 @@ do_it
 	    This script, clears any cached build, rebuilds the build
 	    directory, parses the <literal>platform.txt</literal> file
 	    (at least that's my assumption of what the first
-	    <literal>arduino-builder</literal> command is doing, and
+	    <literal>arduino-builder</literal> command is doing), and
 	    then compiles and links the sketch.  This last command is
 	    executed using the Linux <literal>time</literal> command,
 	    which records how long things take.

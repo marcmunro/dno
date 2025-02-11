@@ -38,7 +38,6 @@ usage()
     - test
       This directory contains unit tests.
     - test_container
-      TODO: explain this.
     - docs
       This is a documentation directory.  Running dno here will
       attempt by default to build project documentation using
