@@ -1719,7 +1719,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-DNO_RELEASE_DATE="January 2025"
+DNO_RELEASE_DATE="February 2025"
 
 
 # Arduino dir.  Try to find an installed Arduino system.

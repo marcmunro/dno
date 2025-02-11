@@ -220,8 +220,8 @@ blink$
 	    </para>
 	    <para>
 	      This can be provided to the noscreen target to kill any
-	      <literal>literal</literal> screen instance that is
-	      connected to your Arduino.
+	      <literal>screen</literal> instance that is connected to
+	      your Arduino.
 	    </para>
 	  </listitem>
 	  <listitem id="VERBOSE">

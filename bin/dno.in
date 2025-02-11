@@ -648,26 +648,37 @@ endef
 # $2 is the path to the source file.
 # $3 is a short printable version  of $2, for feedback.
 # $4 is a dependency provider function
-# Note that the ino rule creates a strangely named file.  This is for
-# compatibility with the standard ide stuff, even though it sucks.
+# Note that the actual compilation commands are performed by attempts
+# to rebuild the dependency files rather than the objects.  See the
+# prebuild target comments for the rationale for this.
+# Note also that the ino rule creates a strangely named file.  This is
+# for compatibility with the standard ide even though it sucks.
 #
 define CROSS_COMPILE_RULE
 $(1)/%.ino.d: $(2)/%.ino BOARD_INFO $4
 	$$(TARGET)
 	$(FEEDBACK)  "C++  $(if $3,[$3],[$$(dir $$<)]) $$(notdir $$<)"
 	$(AT) $$(call requote,$$(recipe.ino.o.pattern))
+	$(AT) sed 's/\([^:]*\).o\s*:/\1.d \1.o:/' <$$@ >$$@d
+	$(AT) mv $$@d $$@
 $(1)/%.d: $(2)/%.cpp BOARD_INFO $4
 	$$(TARGET)
 	$(FEEDBACK)  "C++  $(if $3,[$3],[$$(dir $$<)]) $$(notdir $$<)"
 	$(AT) $$(call requote,$$(recipe.cpp.o.pattern))
+	$(AT) sed 's/\([^:]*\).o\s*:/\1.d \1.o:/' <$$@ >$$@d
+	$(AT) mv $$@d $$@
 $(1)/%.d: $(2)/%.c BOARD_INFO $4
 	$$(TARGET)
 	$(FEEDBACK)  "C  $(if $3,[$3],[$$(dir $$<)]) $$(notdir $$<)"
 	$(AT) $$(call requote,$$(recipe.c.o.pattern))
+	$(AT) sed 's/\([^:]*\).o\s*:/\1.d \1.o:/' <$$@ >$$@d
+	$(AT) mv $$@d $$@
 $(1)/%.S.d: $(2)/%.S BOARD_INFO $4
 	$$(TARGET)
 	$(FEEDBACK)  "AS  $(if $3,[$3],[$$(dir $$<)]) $$(notdir $$<)"
 	$(AT) $$(call requote,$$(recipe.S.o.pattern))
+	$(AT) sed 's/\([^:]*\).o\s*:/\1.d \1.o:/' <$$@ >$$@d
+	$(AT) mv $$@d $$@
 $(1)/%.ino.o: $(2)/%.ino BOARD_INFO 
 	$$(TARGET)
 	@# $$(eval WILL_COMPILE += $$@)

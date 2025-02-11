@@ -94,7 +94,7 @@
 	depending on circumstances.
       </para>
       <section>
-	<title>With A <literal>BOARD_TYPE</literal> File</title>
+	<title>With a <literal>BOARD_TYPE</literal> File</title>
 	<para>
 	  When a <literal>BOARD_TYPE</literal> file is present in the
 	  project directory, <literal>dno</literal> will attempt to
@@ -103,7 +103,7 @@
 	</para>
       </section>
       <section>
-	<title>Without A <literal>BOARD_TYPE</literal> File</title>
+	<title>Without a <literal>BOARD_TYPE</literal> File</title>
 	<para>
 	  In the absence of a <literal>BOARD_TYPE</literal> file in the
 	  project directory, <literal>dno</literal> will not be able
