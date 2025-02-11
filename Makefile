@@ -426,8 +426,8 @@ release_docs: release clean
 	git merge main
 	make docs
 	git commit -a -m "latest docs"
-	git push github gh-pages
-	git checkout main
+	-git push github gh-pages
+	-git checkout main
 
 # Check that there are no uncomitted changes.
 check_commit:
