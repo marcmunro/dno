@@ -518,6 +518,7 @@ $(call debug,BUILD_TYPE)
 $(call debug,DIR_TYPE)
 $(call debug,BOARD_DIR)
 $(call debug,BUILD_DIR)
+$(call debug,SRC_DIRS)
 
 ifndef STARTDIR
   STARTDIR = $(CURDIR)
@@ -808,7 +809,7 @@ ifeq "$(CROSS_BUILD)" "yes"
 		      $(call is_lib,$(wildcard $(root)/*)))
     STD_LIB_DIRS = $(call is_lib,$(wildcard $(dir $(BOARD_FILE))/libraries/*))
     ALL_LIB_DIRS = $(call uniqify,$(USER_LIB_DIRS) $(STD_LIB_DIRS),libname)
-    ALL_LIB_FLAGS = $(foreach dir,$(ALL_LIB_DIRS),-I $(dir))
+    ALL_LIB_FLAGS = $(foreach dir,$(ALL_LIB_DIRS) $(SRC_DIRS),-I $(dir))
     CXXFLAGS += $(ALL_LIB_FLAGS)
     CXXFLAGS += -Os -Wall
 
