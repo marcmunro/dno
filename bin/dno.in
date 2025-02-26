@@ -1370,8 +1370,8 @@ monitor: check_device_path
 	$(AT)screen $(DEVICE_PATH) \
 	    $(or $(MONITOR_BAUD), \
 	         $(shell grep "$(SPEED_REGEXP)" $(USER_SOURCES) | \
-                         head -1 | sed -e 's/[^0-9]*\([0-9][0-9]*\).*/\1/' ),\
-	         9600)
+                         head -1 | sed -e 's/.*\s\([0-9][0-9]*\).*/\1/' ),\
+		 9600)
 
 # Ensure there is no screen connected to the DEVICE.  Kill the screen if
 # KILLSCREEN has been provided.
