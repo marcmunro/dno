@@ -793,7 +793,7 @@ parse_board_platform()
     file_parser BOARD="${board}" CPU="${cpu}" OS=${HOST_OS} \
 		PLATFORM_PATH="${platform_path}" \
 		ARCH_NAME="${arch_name}" HARDWARE_PATH="${hardware_path}" \
-		DNO_IDE_VERSION=${DNO_IDE_VERSION} \
+		DNO_IDE_VERSION="${DNO_IDE_VERSION}" \
 		THIS_SCRIPT="$0" \
     	        "${platform_file}" ${platform_local} "${board_file}"
     return $?
