@@ -9,11 +9,11 @@
 #  
 #  ----------
 #
-AC_INIT([dno], [0.7.6 beta],
+AC_INIT([dno], [0.8.0 beta],
         [https://github.com/marcmunro/dno/issues],,
         [https://github.com/marcmunro/dno])
 
-[DNO_RELEASE_DATE="February 2025"]
+[DNO_RELEASE_DATE="March 2025"]
 AC_SUBST([DNO_RELEASE_DATE])
 
 # Arduino dir.  Try to find an installed Arduino system.

@@ -46,7 +46,7 @@ BUILD_DIR = build
 # Feedback controls.
 #
 # Define VERBOSE on the command line to show the full compilation, etc
-# commands, and to show a more full display of object size info.
+# commands.
 #
 # Define REPORT to cause each target to be reported upon.  This is
 # automatically done when VERBOSE is defined.
@@ -55,6 +55,8 @@ BUILD_DIR = build
 #
 # Define DEBUG to show the calculated values of key variables.  This can be Y,
 # Yes, or a regexp to match only the variables we want.
+#
+# Define QUIET to cause image size information to not be shown
 #
 
 # If VERBOSE is defined $(FEEDBACK) will do nothing and $(AT) will have no
@@ -75,14 +77,21 @@ endif
 ifdef VERBOSE
     FEEDBACK = @true
     FEEDBACK_RAW = true
-    QUIET = 
     AT =
     REPORT = true
 else
     FEEDBACK = @echo " "
     FEEDBACK_RAW = echo " "
-    QUIET = 2>/dev/null
     AT = @
+endif
+
+define HASH
+#
+endef
+
+ifdef QUIET
+    # This prevents anything following $(IFNOTQUIET) from being executed
+    IFNOTQUIET = $(HASH)
 endif
 
 # TARGET echoes the current target when REPORT is defined.  
@@ -170,6 +179,14 @@ is_special_lib = $(and $(wildcard $(1)/src/$(notdir $(1)).h), $(1)/src)
 is_lib = $(foreach lib,$(1), \
 	     $(or $(call is_std_lib,$(lib)), \
 		  $(call is_special_lib,$(lib))))
+
+##
+# is_board_dir
+# Check each dir in $1 to see if it looks like a board directory.  It
+# does if it contains a BOARD_INFO file.
+#
+is_board_dir = $(foreach dir,$(1), \
+	         $(and $(wildcard $(dir)/BOARD_INFO), $(dir)))
 
 ##
 # deplibs
@@ -389,7 +406,7 @@ requote = $(shell echo '$1' | dno_requote)
 indent = set -o pipefail; ($1) | sed -e 's/^/    /'
 
 
-# STARTDIR is set when we are recursinf for one of the clean targets.
+# STARTDIR is set when we are recursing for one of the clean targets.
 # In these cases we just want to get started as quickly as possible,
 # so we avoid much of the slow startup bahaviour.
 #
@@ -486,10 +503,10 @@ else ifeq "$(DIR_TYPE)" "test"
   NATIVE_BUILD = yes
 else ifeq "$(DIR_TYPE)" "lib"
   BUILD_TYPE = lib
-  ifeq "$(shell $(BINDIR)/dno_dirinfo ..)" "root"
+  ifeq "$(shell $(BINDIR)/dno_dirinfo .. |  sed -e 's/root.*/root/')" "root"
     PROJDIR = ..
   else
-    ifeq "$(shell $(BINDIR)/dno_dirinfo ../..)" "root"
+    ifeq "$(shell $(BINDIR)/dno_dirinfo ../..  | sed -e 's/root.*/root/')" "root"
       PROJDIR = ../..
     else
       $(error CANNOT DETERMINE TYPE OF DIRECTORY)
@@ -829,12 +846,21 @@ ifeq "$(CROSS_BUILD)" "yes"
       $(recipe.cpp.o.pattern))
 
     # define a pattern for uploading eeprom files.  Don't know why
-    # this is not already defined.
+    # this is not already defined.  This is unlikely to work for
+    # anything but avr boards.
     #
     recipe.eep.upload.pattern = \
 	        $(subst flash:w,eeprom:w,\
-		        $(subst .hex:i,.eep:i,\
-				$(tools.$(upload.tool).upload.pattern)))
+		  $(subst .hex:i,.eep:i,\
+		    $(subst .bin:i,.eep:i,\
+		      $(tools.$(upload.tool).upload.pattern))))
+
+    # And one for downloads
+    timestamp := $(shell date +%Y%m%d_%H%M%S)
+    recipe.eep.download.pattern = \
+	        $(subst flash:w,eeprom:r,\
+		  $(subst $(build.path)/$(build.project_name).,$(timestamp).,\
+		    $(tools.$(upload.tool).upload.pattern)))
 
     source_file = $<
     object_file = $(@:.d=.o)
@@ -1113,6 +1139,7 @@ $(TARGET_HEX): $(TARGET_ELF)
 	@# $(eval COMMANDS2 = $(shell dno_commands_for savehex.postsavehex))
 	@$(and $(COMMANDS2),$(FEEDBACK_RAW) Performing post-savehex...)
 	$(AT) $(and $(COMMANDS2),$(call indent,$(COMMANDS2)))
+	$(AT)$(IFNOTQUIET) $(CHECK_SIZE)
 
 # BIN_TARGET_RECIPE is eval'd to define the $(TARGET_BIN) recipe.
 # Note that a RECIPE_LINE entry in the form:
@@ -1133,6 +1160,7 @@ $(TARGET_BIN): $(TARGET_ELF)
 	@# $$(eval COMMANDS2 = $$(shell dno_commands_for objcopy.postobjcopy))
 	@$$(and $$(COMMANDS2),$$(FEEDBACK_RAW) Performing post-objcopy...)
 	$$(AT) $$(and $$(COMMANDS2),$$(call indent,$$(COMMANDS2)))
+	$$(AT)$$(IFNOTQUIET) $$(CHECK_SIZE)
 
 endef
 $(call feedback, BIN_TARGET_RECIPE $(call BIN_TARGET_RECIPE))
@@ -1153,7 +1181,6 @@ $(TARGET_ELF): $(object_files) $(archive_file_path) $(TAGFILES) BOARD_INFO
 	@# $(eval COMMANDS2 = $(shell dno_commands_for linking.postlink))
 	@$(and $(COMMANDS2),$(FEEDBACK_RAW) Performing post-link...)
 	$(AT) $(and $(COMMANDS2),$(call indent,$(COMMANDS2)))
-
 
 
 size:   $(TARGET_ELF)
@@ -1307,8 +1334,9 @@ menu options:
 ################################################################
 # Device-handling targets
 #
-.PHONY: devices check_device_path reset monitor no_screen noscreen upload \
-        eeprom_image eeprom do_upload do_eeprom check_baud
+.PHONY: devices check_device_path reset monitor no_screen noscreen \
+	upload eeprom_image eeprom do_upload do_eeprom check_baud \
+	read_eeprom eeprom_read
 
 # Attempt to determine the serial device to use for uploads and monitoring for
 # DEVICE_PATH.  This is a best guess.  The caller may provide a definitive
@@ -1412,6 +1440,12 @@ do_upload: no_screen
 	$(FEEDBACK) "  Uploading $(notdir $(TARGET_HEX)) to $(DEVICE_PATH)"
 	$(AT) $(tools.$(upload.tool).upload.pattern)
 
+eeprom_read read_eeprom: no_screen
+	$(TARGET)
+	$(FEEDBACK) "  reading eeprom to $(timestamp).hex" \
+		"using $(DEVICE_PATH)"
+	$(AT) $(recipe.eep.download.pattern)
+
 eeprom_image: $(TARGET_EEP) 
 	$(TARGET)
 
@@ -1448,6 +1482,29 @@ tags: $(ALL_SOURCES)
 	$(TARGET)
 	$(FEEDBACK) CTAGS $(wordlist 1,2,$<)...
 	$(AT) ctags $^
+
+
+################################################################
+# Directory Targets 
+# These allow you to specify a board or lib directory as a target
+# These targets run the default target in that directory so that you
+# can run those targets from elsewhere in the project directory tree.
+#
+.PHONY: ALWAYS
+
+
+ROOT_DIRS = $(shell find $(PROJDIR) -maxdepth 1 -type d)
+LIB_DIRS = $(notdir $(call is_lib, $(ROOT_DIRS)))
+BOARD_DIRS = $(notdir $(call is_board_dir, $(ROOT_DIRS)))
+
+# If our target is a board dir or lib dir, cd to that directory and
+# call dno recursively, with no explicit target.
+#
+$(BOARD_DIRS) $(LIB_DIRS): ALWAYS
+	@if [ `pwd` != "$(PROJDIR)/$@" ]; then \
+	    cd $(PROJDIR)/$@; \
+	 fi; \
+	 $(MAKE)
 
 
 ################################################################
@@ -1515,6 +1572,7 @@ Major dno commands/targets:\n\
   eeprom         - upload an eeprom image to an attached Arduino.  You\n\
                    may need to define  DEVICE_PATH=<path to serial device>.\n\
   eeprom_image   - create the eeprom image for uploading using eeprom\n\
+  eeprom_read    - download an eeprom image from a board\n\
   etags          - Build a TAGS file from all sources (see also ctags)\n\
   info           - provide a general description of dno\n\
   install_extra_boards\n\
@@ -1531,6 +1589,7 @@ Major dno commands/targets:\n\
   no-screen      - ensure that no screen is attached (see monitor)\n\
                    with KILLSCREEN=y, any connected screen is killed\n\
   options        - invoke a menu system to select board options\n\
+  read_eeprom    - download an eeprom image from a board\n\
   reset          - attempt to reset the connected Arduino.  You may need\n\
                    to define DEVICE_PATH=<path to serial device>\n\
   show_boards    - show the available boards: provide BOARD=xx\n\
