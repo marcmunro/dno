@@ -2,7 +2,7 @@
 #
 #       dno_dirinfo - identify the directory type for dno
 # 
-#       Copyright (c) 2024 Marc Munro
+#       Copyright (c) 2024,2025 Marc Munro
 #       Author:  Marc Munro
 # 	License: GPL-3.0
 #  
@@ -122,7 +122,7 @@ is_code_dir() {
 #
 is_container_dir() {
     # Look for any file named *.c, *.cpp, *.h, *.S, or *.ino
-    find . -maxdepth 2 -mindepth 2 -name '*cpp' -o \
+    find -L . -maxdepth 2 -mindepth 2 -name '*cpp' -o \
 	 -name '*.c' -o -name '*.S' -o \
 	 -name '*.h' -o -name '*.ino' | grep -v /$1/ | grep -q .
     return $?
