@@ -458,11 +458,17 @@ Node 554 says Here, put this fish in your ear
 	  </programlisting>
 	</para>
 	<para>
-	  Well, something is a bit off, but it has mostly worked.  The
-	  <literal>node_id</literal> value is usually wrong but
+	  Well, something is a bit off , but it has mostly worked.
+	  The <literal>node_id</literal> value is usually wrong but
 	  sometimes ok.  Whether this is a hardware problem (tired
-	  eeprom), or something else is difficult to say.  Either way,
-	  writing to the eeprom achieved something at least.
+	  eeprom), or something else is difficult to say
+	  <footnote>
+	    <para>
+	      It turns out the eeprom in my board was faulty.  Running
+	      with a different board solved the problem.  
+	    </para>
+	  </footnote>
+	  .  Either way, writing to the eeprom achieved something at least.
 	</para>
       </section>
     </section>
