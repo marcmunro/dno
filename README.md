@@ -1,4 +1,4 @@
-# dno 0.8.1
+# dno 0.8.2
 #### A system for building Arduino software
 
 dno provides a command-line alternative to Arduino IDEs.  It is fast

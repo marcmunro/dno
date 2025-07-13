@@ -188,7 +188,7 @@ blink$
       <para>
 	Running <literal>dno</literal> without an explicit target in a
 	library subdirectory will attempt to build and run any unit
-	tests that have defined.  See <link linkend='unit_tests'
+	tests that been have defined.  See <link linkend='unit_tests'
 	endterm="unit_tests.title"/>.
       </para>
       <para>

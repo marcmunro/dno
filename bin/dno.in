@@ -932,6 +932,7 @@ ifeq "$(CROSS_BUILD)" "yes"
     endif
 
   endif
+  DOC_SOURCES = ALL_SOURCES
 else ifeq "$(NATIVE_BUILD)" "yes"
   # This is for compiling and building unit tests.  We are using the host's
   # native compiler rather than a special cross-compiler.
@@ -966,11 +967,17 @@ else ifeq "$(NATIVE_BUILD)" "yes"
   TEST_OBJECTS := $(patsubst %.d, %.o, $(ALL_DEPS))
   MAIN_TEST_OBJECT = $(TEST_EXECUTABLE).o
   SECONDARY_TEST_OBJECTS = $(call minus,$(TEST_OBJECTS),$(MAIN_TEST_OBJECT))
+  DOC_SOURCES = ALL_SOURCES
 else ifeq "$(BUILD_TYPE)" "lib"
   TESTDIR = $(foreach dir,$(shell find . -maxdepth 1 -mindepth 1 -type d),\
 	      $(firstword $(or $(filter %/test,${dir}),\
 			       $(filter %/tests,${dir}),\
 			       $(filter %/unit,${dir}))))
+  DOC_SOURCES = $(call matching_files,\
+		  *.h *.cpp *.c *.S,\
+		  $(shell find . -maxdepth 1 -type d \
+                               -a \! -name 'unit' -a \! -name 'tests' \
+			       -a \! -name 'test'))
 else
   PROJNAME = $(notdir $(realpath $(PROJDIR)))
 endif
@@ -1249,6 +1256,8 @@ endif
 # Build documentation files using Doxygen.
 #
 .PHONY: docs
+
+$(call debug,ALL_SOURCES)
 
 docs/html: $(DOC_SOURCES) docs/Doxyfile
 	$(TARGET)
