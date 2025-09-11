@@ -141,7 +141,7 @@ blink$
 	created in a directory called <literal>build</literal>.
       </para>
       <para>
-	Explicit targets that you are likely to use in a a board
+	Explicit targets that you are likely to use in a board
 	directory include:
 	<itemizedlist>
 	  <listitem>
