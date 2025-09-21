@@ -41,6 +41,8 @@ usage()
   	      Specify a board to be searched for in the boards.txt file(s)
               If board is in the form x.y, then cpu will be
               determined from y, and board from x.
+  --board-local, -B <path to boards.local.txt>
+              Specify a boards.local.txt file to use.
   --cpu, -c cpu      
   	      Specify a cpu to be searched for in the boards.txt file(s)
   --dir, -d dir      
@@ -56,6 +58,8 @@ usage()
   --params, -p
 	      Print build parameters for inclusion into a makefile,
   	      etc
+  --platform-local, -P <path to platform.local.txt>
+              Specify a platform.local.txt file to use.
   --quiet, -q Be silent
   --type, -t  Print the board type definition for the BOARD_TYPE file
   --version, -v	      
@@ -340,6 +344,7 @@ platform_parameters()
 #    platform_file    - the plaform.txt file
 #    [platform_local] - any platform.local.txt file
 #    board_file       - the boards.txt file
+#    [board_local]    - any boards.local.txt file
 # Result:
 #    Output is written to stdout.  No errors are expected to be
 #     returned.
@@ -693,7 +698,7 @@ file_parser()
 	    print_undefined("build.arch", toupper(ARCH_NAME))
 	    print_undefined("build.source.path", ".")
 	    print_undefined("build.variant.path", build_variant_path())
-	    print_undefined("runtime.ide.version", DNO_IDE_VERSION)
+	    print_undefined("runtime.ide.version", DNO_IDE_VERSION+0)
 	    print_undefined("build.fqbn", "$(build.variant):$(build.core):"\
 	    	  "$(build.target)$(build.menu_selections)")
 	    base_search_path = gensub(/^"(.*)"$/, "\\1", "1",
@@ -776,11 +781,6 @@ parse_board_platform()
     shift
     
     platform_parameters "${board_file}" "${platform_file}" "$@"
-    if [ -f "./platform.local.txt" ]; then
-        platform_local=./platform.local.txt
-    else
-        platform_local=""
-    fi
 
     arch_path=`arch_path ${platform_path}`
     arch_name=`basename ${arch_path}`
@@ -795,7 +795,8 @@ parse_board_platform()
 		ARCH_NAME="${arch_name}" HARDWARE_PATH="${hardware_path}" \
 		DNO_IDE_VERSION="${DNO_IDE_VERSION}" \
 		THIS_SCRIPT="$0" \
-    	        "${platform_file}" ${platform_local} "${board_file}"
+    	        "${platform_file}" "${platform_local}" \
+		"${board_file}" "${board_local}"
     return $?
 }
 
@@ -843,12 +844,15 @@ verify=""
 quiet=""
 params=""
 findpaths=""
-while getopts "b:c:d:fhnpqtvx-:" opt; do
+while getopts "B:P:b:c:d:fhnpqtvx-:" opt; do
     case "${opt}" in
 	-)
 	    case "${OPTARG}" in
 		board)
 		    board="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+		    ;;
+		board-local=*)
+		    export board_local=${OPTARG#*=}
 		    ;;
 		board=*)
 		    board=${OPTARG#*=}
@@ -878,6 +882,9 @@ while getopts "b:c:d:fhnpqtvx-:" opt; do
 		params)
 		    params="PARAMETERS=yes"
 		    ;;
+		platform-local=*)
+		    export platform_local=${OPTARG#*=}
+		    ;;
 		quiet)
  		    quiet="SILENT=yes"
 		    ;;
@@ -894,6 +901,12 @@ while getopts "b:c:d:fhnpqtvx-:" opt; do
                     fi
 		    ;;
 	    esac
+	    ;;
+	B)
+	    export board_local="${OPTARG}"
+	    ;;
+	P)
+	    export platform_local="${OPTARG}"
 	    ;;
 	b)
 	    board="${OPTARG}"
