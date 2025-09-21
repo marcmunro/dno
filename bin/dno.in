@@ -11,9 +11,7 @@
 #
 
 # TODOs:
-# Handle boards.local.txt
 # handle filenames with spaces and other stupid characters
-# allow boards.local.txt
 # Add programmers.txt into BOARD_INFO
 # deb package build
 
@@ -238,7 +236,7 @@ libname = $(notdir $(subst /src,,$(patsubst %/,%,$1)))
 # $1 - relative or absolute pathname of file.
 #
 override undefine filepart
-filepart = $(notdir $1)
+filepart = $(notdir $(strip $1))
 
 ##
 # eq
@@ -274,14 +272,14 @@ apply = $(if $2,$(call $2,$1),$1)
 #      checked for equality with $1
 #
 override undefine match
-match = $(call eq,$1,$(call apply,$2,$3))
+match = $(and $(call eq,$(call apply,$1,$3),$(call apply,$2,$3)),t)
 
 ##
 # rest
 # Return all but the first word from $1
 #
 override undefine rest
-rest = $(wordlist 2,99999,$1)
+rest = $(strip $(wordlist 2,99999,$1))
 
 ##
 # remove
@@ -292,10 +290,10 @@ rest = $(wordlist 2,99999,$1)
 #      using this function before being checked for a match with $1
 #
 override undefine remove
-remove = $(strip $(if $(strip $2), \
-	             $(if $(strip $(call match,$1,$(firstword $2),$3)),,\
-	               $(firstword $2)) \
-	             $(call remove,$1,$(call rest,$2),$3)))
+remove = $(strip \
+	   $(if $(strip $2), \
+	     $(if $(call match,$1,$(firstword $2),$3),,$(firstword $2)) \
+	     $(call remove,$1,$(call rest,$2),$3)))
 
 ##
 # minus
@@ -321,11 +319,10 @@ minus = $(if $2,\
 #
 override undefine uniqify
 uniqify = $(if $(strip $1),\
-	      $(firstword $1) \
+	      $(firstword $1)\
 	      $(call uniqify,\
-	             $(call remove,\
-		            $(call apply,$(firstword $1),$2),\
-		            $(call rest,$1),$2)))
+		$(call remove,$(firstword $1),$(call rest,$1),$2),$2))
+
 ##
 # matching_files
 #   $1 Set of patterns to match for
@@ -699,10 +696,10 @@ endef
 # to rebuild the dependency files rather than the objects.  See the
 # prebuild target comments for the rationale for this.
 # Note also that the ino rule creates a strangely named file.  This is
-# for compatibility with the standard ide even though it sucks.
+# for compatibility with the standard ide even though it's dumb.
 #
 define CROSS_COMPILE_RULE
-$(1)/%.ino.d: $(2)/%.ino BOARD_INFO $4
+$(1)/$(PROJNAME).ino.d: $(2)/$(PROJNAME).ino BOARD_INFO $4
 	$$(TARGET)
 	$(FEEDBACK)  "C++  $(if $3,[$3],[$$(dir $$<)]) $$(notdir $$<)"
 	$(AT) $$(call requote,$$(recipe.ino.o.pattern))
@@ -726,7 +723,7 @@ $(1)/%.S.d: $(2)/%.S BOARD_INFO $4
 	$(AT) $$(call requote,$$(recipe.S.o.pattern))
 	$(AT) sed 's/\([^:]*\).o\s*:/\1.d \1.o:/' <$$@ >$$@d
 	$(AT) mv $$@d $$@
-$(1)/%.ino.o: $(2)/%.ino BOARD_INFO 
+$(1)/$(PROJNAME).ino.o: $(2)/$(PROJNAME).ino BOARD_INFO 
 	$$(TARGET)
 	@# $$(eval WILL_COMPILE += $$@)
 $(1)/%.o: $(2)/%.cpp BOARD_INFO
@@ -780,7 +777,7 @@ endef
 #   $2 - the target directory for objects
 #   $3 - the prioritised list of source directories
 #   $4 - lib paths (where to search for libraries)
-#   $5 - optional lib shortname to pass to out compile_rules
+#   $5 - optional lib shortname to pass to our compile_rules
 #   $6 - optional dependencies to pass into our initial compile_rule
 #   $7 - optional dependents function to call after our initial compile_rule
 #   $8 - optional dependencies to pass into our subsequent compile_rules
@@ -788,13 +785,21 @@ endef
 #
 define ALL_BUILD_RULES
   $(shell mkdir -p $2)
-  RULE_SOURCES := $$(call uniqify,\
-		          $$(call matching_files,*.ino *.cpp *.c *.S, $3),\
+  RULE_INO_SOURCES := $$(call uniqify,\
+		          $$(call matching_files,*.ino,$3),\
 	                  filepart)
+  RULE_SOURCES := $$(call uniqify,\
+		          $$(call matching_files,*.cpp *.c *.S,$3),\
+	                  filepart)
+  SECONDARY_INOS := $$(filter-out %/$$(PROJNAME).ino,$$(RULE_INO_SOURCES))
+  RULE_PROJ_INO := $$(filter %/$$(PROJNAME).ino,$$(RULE_INO_SOURCES))
+  RULE_SOURCES += $$(filter %/$$(PROJNAME).ino,$$(RULE_INO_SOURCES))
+  RULE_INO_SOURCES := $$(filter-out %/$$(PROJNAME).ino,$$(RULE_INO_SOURCES))
   RULE_DEPS := $$(patsubst %.o,%.d,$$(call to_objects,$2,$$(RULE_SOURCES)))
   RULE_DIRS := $$(sort $$(dir $$(RULE_SOURCES)))
   $$(call feedback,$(space) RULE_DIRS: $$(RULE_DIRS))
   $$(call feedback,$(space) RULE_SOURCES: $$(RULE_SOURCES))
+  $$(call feedback,$(space) RULE_INO_SOURCES: $$(RULE_INO_SOURCES))
   $$(foreach dir,$$(RULE_DIRS),\
     $$(call feedback,$$(call $1,$2,$$(dir),\
 	    $$(or $5,$$(call libname,$$(dir))),$6))\
@@ -803,6 +808,8 @@ define ALL_BUILD_RULES
   $$(call $7,$$(RULE_DEPS))
   $$(eval ALL_DEPS += $$(RULE_DEPS))
   $$(eval ALL_SOURCES += $$(RULE_SOURCES))
+  $$(eval INO_MAIN += $$(RULE_PROJ_INO))
+  $$(eval INO_INCLUSIONS += $$(RULE_INO_SOURCES))
   $$(call feedback,$(space) INCLUDING: $$(RULE_DEPS))
   include $$(RULE_DEPS)
 
@@ -813,6 +820,13 @@ define ALL_BUILD_RULES
           $$(eval $$(call ALL_BUILD_RULES,$1,$2/$$(lib),\
 			  $$(libdir),$$4,$5,$8,$9,$8,$9)))))
 endef
+
+#$(warning MATCHING FILES: $(call matching_files,*.ino,. ..))
+
+#$(warning $(call uniqify,/Atmega_Board_Detector.ino ./HV_Parallel_Utils.ino ./HV_Serial_Utils.ino ./ICSP_Utils.ino ./Programming_Utils.ino  ../Atmega_Board_Detector.ino ../HV_Parallel_Utils.ino ../HV_Serial_Utils.ino ../ICSP_Utils.ino ../Programming_Utils.ino,filepart))
+
+
+#$(error "DONE")
 
 sketch_deps = $(call feedback,$(call DEPENDENCY_RULE,prebuild presketch,$(1:.d=.o)))\
 	      $(eval $(call DEPENDENCY_RULE,prebuild presketch,$(1:.d=.o)))\
@@ -864,15 +878,64 @@ ifeq "$(CROSS_BUILD)" "yes"
     $(call debug,STD_LIB_DIRS)
     $(call debug,ALL_LIB_DIRS)
 
-    # This is a hack to make compilation of ino files work.  The arduino
-    # ide way of dealing with .ino files is so dumb that I cannot
-    # bear to even think about trying to replicate it, so:
-    # tweak the provided cpp compiler rule to make an ino compiler rule.
+    # A bunch of hacks to make compilation of ino files work.
+    # We will create a recipe for compiling .ino files based on the
+    # recipe for compiling .cpp files.  This will be modified to
+    # compile a concatenation of the .ino files from standard input.
+    #
+
+    # Tell the compiler that the input is a c++ file (since there is
+    # no file name from which it can infer it).  Also include the
+    # standard Arduino header file as .ino files don't need to be
+    # bothered with such trivial details.
     #
     ino_compiler_flags = -x c++ --include Arduino.h
-    recipe.ino.o.pattern = $(subst \
-      $(compiler.cpp.cmd)",$(compiler.cpp.cmd)" $(ino_compiler_flags),\
-      $(recipe.cpp.o.pattern))
+
+    #$(eval recipe.ino.o.pattern = $(subst \
+    #    $(alue compiler.cpp.cmd)", \
+    #	$(value compiler.cpp.cmd)" $(value ino_compiler_flags),\
+    #    $(value recipe.cpp.o.pattern)))
+
+    # For debugging purposes we create a copy of the concatenated .ino
+    # file sent to the compiler.
+    #
+    ifdef DEBUG
+      INO_SRC_COPY = | tee $(notdir $(INO_MAIN)).dbg
+    else
+      INO_SRC_COPY = 
+    endif
+
+    # Command to extract function prototypes from .ino files.  These
+    # are needed for .ino files to work without the developer being
+    # burdened with needing to understand programming.
+    #
+    INO_PROTOTYPES = (arduino-ctags -u --language-force=c++ -f - \
+		        --c++-kinds=spf --fields=STt \
+		        /dev/null $(INO_MAIN) $(INO_INCLUSIONS) | \
+		          sed -e "s/.*\^//; s/\$$.*/;/; s/[{}]//g") 
+
+    # Command to create a compilable version of our .ino files as
+    # stdout.  This can be piped in to our compilation command.
+    #
+    $(eval JOIN_INO = $(value INO_PROTOTYPES) | \
+	         cat - $$(INO_MAIN) $$(INO_INCLUSIONS) $(value INO_SRC_COPY))
+$(call debug,JOIN_INO)
+$(info $(value JOIN_INO))
+
+#$(info recipe.cpp.o.pattern = $(recipe.cpp.o.pattern))
+#$(info recipe.cpp.o.pattern = $(value recipe.cpp.o.pattern))
+
+    # Define the recipe for compiling .ino files as described above.
+    #
+    $(eval recipe.ino.o.pattern = \
+      $(value JOIN_INO) | \
+        $(subst "$$(source_file)", $$(ino_compiler_flags) -, \
+	        $(value recipe.cpp.o.pattern)))
+$(info recipe.ino.o.pattern = $(value recipe.ino.o.pattern))
+#$(error crap)
+#$(info XX)
+
+
 
     # define a pattern for uploading eeprom files.  Don't know why
     # this is not already defined.  This is unlikely to work for
@@ -1079,8 +1142,22 @@ endif
 PLATFORM_LOCAL := $(firstword \
 		    $(foreach dir,$(SRC_DIRS),\
 		               $(wildcard $(dir)/platform.local.txt))\
-		    $(wildcard $(dir $(PLATFORM_FILE))/platform.local.txt))
+		    $(wildcard ./platform.local.txt))
+PLATFORM_LOCAL_FLAG := $(if $(PLATFORM_LOCAL), -P $(PLATFORM_LOCAL))
 $(call debug,PLATFORM_LOCAL)
+$(call debug,PLATFORM_LOCAL_FLAG)
+
+# Ditto for boards.local.txt
+#
+BOARDS_LOCAL := $(firstword \
+	         $(foreach dir,$(SRC_DIRS),\
+		           $(wildcard $(dir)/boards.local.txt))\
+		 $(wildcard ./boards.local.txt))
+BOARDS_LOCAL_FLAG := $(if $(BOARDS_LOCAL), -B $(BOARDS_LOCAL))
+$(call debug,BOARDS_LOCAL)
+$(call debug,BOARDS_LOCAL_FLAG)
+
+$(call debug,ALL_SOURCES)
 
 # Special target to be added as a dependency to force dependent
 # targets to be rebuilt.
@@ -1092,12 +1169,12 @@ FORCE:
 # specific to the chosen board-type which may be determined from a
 # BOARD_TYPE file or the name of the current directory.
 #
-
-BOARD_INFO: $(BI_DEPS) $(PLATFORM_LOCAL) \
+BOARD_INFO: $(BI_DEPS) $(PLATFORM_LOCAL) $(BOARDS_LOCAL) \
 	    $(BOARD_FILE) $(PLATFORM_FILE)
 	$(TARGET)
 	$(FEEDBACK) Creating $@...
-	$(AT)if $(BPP) -b $(BOARD) -p >$@2; then \
+	$(AT)if $(BPP) -b $(BOARD) -p \
+	         $(PLATFORM_LOCAL_FLAG) $(BOARDS_LOCAL_FLAG) >$@2; then \
 	    mv $@2 $@; \
 	else \
 	    rm -f $@2; false; fi
@@ -1288,8 +1365,6 @@ endif
 #
 .PHONY: docs
 
-$(call debug,ALL_SOURCES)
-
 docs/html: $(DOC_SOURCES) docs/Doxyfile
 	$(TARGET)
 	@rm -rf html/*
@@ -1321,7 +1396,7 @@ endif #QUICKSTART
 #
 .PHONY: tidy clean pristine do_clean do_tidy do_pristine
 
-garbage += \\\#*  .\\\#*  *~ 
+garbage += \\\#*  .\\\#*  *~ *.dbg
 GENERATED_FILES=doxy.tag
 
 do_tidy:
@@ -1443,7 +1518,7 @@ monitor: check_device_path
 	@$(FEEDBACK) "Running screen: C-a k to exit"
 	$(AT)screen $(DEVICE_PATH) \
 	    $(or $(MONITOR_BAUD), \
-	         $(shell grep "$(SPEED_REGEXP)" $(USER_SOURCES) | \
+	         $(shell grep "$(SPEED_REGEXP)" $(USER_SOURCES) /dev/null | \
                          head -1 | sed -e 's/.*\s\([0-9][0-9]*\).*/\1/' ),\
 		 9600)
 
@@ -1652,7 +1727,7 @@ dno can usually be invoked with no targets and will do the right thing based\n\
 on the directory it is run from.\n\n\
 To increase feedback, define VERBOSE=y on the command line.\n\n\
 For more developer information read the comments in\n\
-  $(THIS_MAKEFILE)." | $${PAGER:-more}
+  $(THIS_MAKEFILE)" | $${PAGER:-more}
 
 
 # List of all targets except those that appear to be pattern-based
