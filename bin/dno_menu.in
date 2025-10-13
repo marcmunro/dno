@@ -119,6 +119,10 @@ menu_details ()
 	    }
 	    printf("\n")
 	}
+	function option_is_preselected(option) {
+	    return (PRESELECTED_OPTIONS ~ "^" option "=") ||
+	    	   (PRESELECTED_OPTIONS ~ "," option "=")
+	}	
 	function main_menu(board_name, menus, menu_options, menu_selections,
 		 	   n, sorted_menus, i, option, selected,
 			   entries, entry_count) 
@@ -126,7 +130,7 @@ menu_details ()
 	    n = asorti(menus, sorted_menus)
 	    for (i = 1; i <= n; i++) {
 	        menu_id = sorted_menus[i]
-		if (menu_id == "cpu") {
+		if (option_is_preselected(menu_id)) {
 		    continue
 		}
 		if (length(menu_options[menu_id])) {
@@ -354,7 +358,6 @@ while getopts "hlmv-:" opt; do
     esac
 done
 shift $((OPTIND-1))
-
 if [ "x${DIALOG}" = "x" ]; then
     echo "`basename $0`: No menu command found.  Bailing out..." 1>&2
     exit 1
@@ -365,8 +368,18 @@ if [ ! -f BOARD_INFO ]; then
     exit 1
 fi
 
-menu_details BOARD_INFO ${options} LISTONLY=${list_only} \
-	     MENU_CMD="${DIALOG}" OPTIONS_FILE="BOARD_OPTIONS"  || \
+# Identify the menu options that have been already specified in our
+# board definition.  These options will not be managed by our menu.
+#
+preselected_options=`if [ -f BOARD_TYPE ]; then
+    cat BOARD_TYPE
+else
+    dno_bpp -t -f $(basename $(pwd))
+fi | cut -d. -f4 `
+
+menu_details BOARD_INFO  ${options} LISTONLY=${list_only} \
+	     MENU_CMD="${DIALOG}" OPTIONS_FILE="BOARD_OPTIONS" \
+             PRESELECTED_OPTIONS="${preselected_options}" || \
 {
     status=$?
     echo "`basename $0`: Aborted" 1>&2

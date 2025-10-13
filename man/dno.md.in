@@ -157,17 +157,16 @@ targets, as well as upload, eeprom and clean.
 
 **BOARD_TYPE**
 
-Attempt to create a **BOARD_TYPE** file in the current directory.
-Dno will need to establish board and cpu information in order to do
-this.  This will usually need to be provided explicitly on the command
-line, eg:
+Attempt to create a **BOARD_TYPE** file in the current directory.  Dno
+will need to establish board, and possibly option, information in
+order to do this.  This will usually need to be provided explicitly on
+the command line, eg:
 
-    $ dno BOARD_TYPE BOARD=pro CPU=8MHzatmega328
+    $ dno BOARD_TYPE BOARD=pro.8MHzatmega328
 
-Note that boards that do not come in a family, eg "uno" do not need
-the CPU designator.  In a board directory below the project's root,
-naming the directory BOARD.CPU, or possibly BOARD, eliminates
-the need for a **BOARD_TYPE** file.
+Note that many boards that do not need option definitions.  In a board
+directory below the project's root, naming the directory BOARD or
+BOARD.OPTIONS, eliminates the need for a **BOARD_TYPE** file.
 
 **BOARD_INFO**
 
@@ -175,16 +174,16 @@ Attempt to create a **BOARD_INFO** file in the current directory.
 This file is derived from the Arduino distribution's boards.txt and
 platform.txt files and contains definitions to aid in the compilation,
 etc of Arduino code.  If no **BOARD_TYPE** file exists and the
-directory name does not contain the board and cpu information, you
-will need to define the BOARD, and possibly CPU variables on the
-command line, just as for the BOARD_TYPE target.
+directory name does not contain the board and option information, you
+will need to define the BOARD variable on the command line, just as
+for the BOARD_TYPE target.
 
 **build**
 
 Attempt to compile and link your projects source code and libraries
 into an uploadable image for the Arduino specified in
 **BOARD_TYPE**, or the directory name, or explicitly using the
-BOARD and CPU variables.  Note that this is the default target in the
+BOARD variable.  Note that this is the default target in the
 project root directory if it contains a **BOARD_TYPE** file, and in
 any board directory.
 
@@ -321,25 +320,20 @@ additional information to dno, or to modify its behaviour.
 This is used to define the board family for which images are to be
 built.  The list of supported boards can be found using:
 
-    $ dno show_boards
+    $ dno show_boards [OPTIONS=y] [BOARD=board-specifier]
 
-The first column of output is the board value.  Some types of boards
-have no variants, eg uno and so no CPU definition will need to be
-added to uniquely identify a target board.
+If BOARD is provided, show_boards will show all boards that match the
+board-specifier.  The board specifier may have 3 components, each
+separated by dots.  The components are vendor, architecture and
+board.  To show only avr boards, you could use BOARD=arduino.avr or
+simply BOARD=avr.  Providing the OPTIONS variable will make
+show_boards show the available options for matching boards.
+
 
 **BOARDS_PATH**
 
 Used only by the install_extra_boards target, this provides the full
 path to a boards.txt file.
-
-**CPU**
-
-This is used to identify a board variant.  For example the Arduino pro
-mini comes in a number of distinct cpu variants.
-
-eg:
-
-    $ dno BOARD_TYPE BOARD=pro CPU=8MHzatmega328
 
 **DEBUG**
 
@@ -353,6 +347,11 @@ variables that match the regexp.
 Used to identify the serial device to which an Arduino board is
 connected.  If you only have one Arduino connected, **dno** will
 usually figure this out for itself.
+
+**OPTIONS**
+
+This is used only by the show_boards target.  If defined, each board
+shown will also show any options that are available for it.
 
 **VERBOSE**
 

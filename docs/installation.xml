@@ -29,8 +29,9 @@
   <section><title>Dependencies</title>
   <para>
     Dno requires <literal>bash</literal>, <literal>make</literal>,
-    <literal>sed</literal> and <literal>gawk</literal> in order to
-    run.
+    <literal>sed</literal>, <literal>gawk</literal> and either
+    <literal>dialog</literal> or <literal>whiptail</literal> in order
+    to run.
   </para>
   <para>
     For building and installing dno, <literal>gcc</literal> is also
@@ -179,7 +180,7 @@ dno$
 	  </para>
 	  <para>
 	    Now you have a root shell.  You can do absolutely anything
-	    at this point, with virtually no audit trail, and you
+	    at this point (though it may be audited), and you
 	    should be very concerned.  Sudo was designed to allow
 	    non-root users to perform <emphasis>specific</emphasis>
 	    privileged tasks.  In this mode of use it makes a lot of

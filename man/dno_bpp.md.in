@@ -7,56 +7,41 @@
 dno_bpp -  Board and platform files parser for the dno Arduino build system.
 
 # SYNOPSIS
- **dno_bpp** [OPTION]...
+ **dno_bpp** [OPTION]... [BOARD-SPECIFIER]
 
 # DESCRIPTION
-Parses Arduino boards.txt and platform.txt files to create
-inclusion-files for dno (a make-based build system), to identify the
-available boards, and to help create dno BOARD_TYPE and BOARD_INFO files.
+
+Validates board-specifiers, lists matching boards and parses Arduino
+boards.txt and platform.txt files to create inclusion-files for dno (a
+make-based build system), to identify the available boards, and to
+help create dno BOARD_TYPE and BOARD_INFO files.
 
 This is part of the dno Arduino software builder package.
 
 # OPTIONS
 
-**-b board, --board board**
+**-f, --full**
 
-Specify a board to be searched for in the boards.txt file(s) If board
-is in the form x.y, then cpu will be determined from y, and board from
-x.  If the board is not completely specified, a list of possible
-boards will be printed.
-    
-**-c cpu, --cpu cpu**
-
-Specify a cpu to be searched for in the boards.txt file(s)
-
-**-d dir, --dir dir**
-
-Specify a directory to search for boards.txt This may be specified
-multiple times to allow for multiple boards.txt files.
-
-**-f, --friendly**
-
-Friendly-format the output.  This is mostly useful when not fully
-specifying the board that we are interested in.  This makes the board
-listing output more human-friendly.
+In combination with --type, report the full board specifier including
+any selected options.
     
 **-h, --help**
 
-Provide help.
+Provide basic help.
 
-**-n, --no, --nodefaults**
+**-n, --no, --nooptions**
 
-Do not use the system default dno paths for the boards.txt files.
-You must provide at least one explicit --dir option in this case.
+In combination with --type prevent warning notices about unspecified
+options.
 
-**-p, --params**
+**-o, --options**
+
+In combination with --list show the menu options for the matching boards.
+
+**-p, --parse**
 
 Print build parameters for inclusion into a makefile, etc.  This
 is used to create a BOARD_INFO file for dno.
-
-**-q, --quiet**
-
-Be silent
 
 **-t, --type**
 
@@ -72,9 +57,46 @@ Print version information and exit
 Provide directory path discovery services to an inferior version
 of this executable that is determining build parameters. 
 
+# BOARD-SPECIFIERS
+
+A full board specification identfies the vendor, architecture, board
+and any important board options in a dot separated format.  For
+example, the arduino uno would be fully specified as:
+
+    arduino.avr.uno
+
+If a board can be unambiguously specified without the vendor and/or
+architecture, those parts may be dropped.  So the Arduino uno can be
+simply specified as:
+
+    uno
+
+Board options such as cpu type, or clock speed can be provided as
+comma-separated option specfications, where each option may be
+identified by either position or name.  For example the arduino pro
+mini with an optiboot boot loader can be specified as:
+
+    optiboot32.mhz=8MHz,cpu=atmega328p
+
+Or as:
+
+    optiboot32.8MHz,atmega328p
+
+It could also be less completely specified as:
+
+    optiboot32.8MHz
+
+or:
+
+    optiboot32.cpu=atmega328p
+
+Note that it cannot be specified as `optiboot32.atmega328p` as the
+`cpu` option, for which `atmega328p` is a valid option, is not the
+first option for the `optiboot32` board.
+
 # FILES
-By default, **dno_bpp** looks for platforms.txt and boards.txt files in
-the paths specified in:
+By default, **dno_bpp** looks for platforms.txt, platforms.local.txt,
+boards.txt and boards.local.txt files in the paths specified in:  
 
     ~/.dno_boards_paths
 
@@ -87,27 +109,42 @@ Note that if the specified board can be found in multiple boards.txt
 files, the one that is specified last in ~/.dno_boards_paths is the
 one that will be used.
 
+As a non-standard extension to Arduino IDE functionality, a
+platform.local.txt file can be placed in the board or root directory
+or a dno project to provide overrides of specific functionality. The
+Arduino IDE developers thing this would be a security issue. The dno
+developer disagrees: if a dno user wants to redefine some flags or
+some such, we should make it as easy as is reasonable. If they can
+create a local file that could act as a trojan, they could manually
+run the same exploit themselves. Protecting developers from themselves
+is not in dno's perview.
+
 # EXIT STATUS
 
 The program returns a success code only if a single matching board is
 found in in our searched boards.txt files.
 
 # EXAMPLES
-Provide a human readable list of all board types from the boards.txt
-file in a given board-path:
+Provide a list of all known board types:
 
-    $ dno_bpp -d /usr/share/arduino/hardware/arduino/avr -f
+    $ dno_bpp -l
 
-List the set of arduino pro board types, in a form suitable for a
-dno BOARD_TYPE file:
+Provide a list of only Arduino board types:
 
-    $ dno_bpp -d /usr/share/arduino/hardware/arduino/avr -b pro -t
+    $ dno_bpp -l arduino
 
-List the full set of board parameters, for inclusion into a dno
-BOARD_INFO file, for an Arduino pro 8MHzatmega328:
+Provide the full board-specifier for an arduino pro board, in a
+form suitable for a dno BOARD_TYPE file:
 
-    $ dno_bpp -d /usr/share/arduino/hardware/arduino/avr \
-    	    -b pro -c 8MHzatmega328 -p
+    $ dno_bpp -t pro 
+
+List the menu options for an arduino pro board:
+
+    $ dno_bpp -l -o pro 
+
+Generate the parsed board parameters for an Arduino pro 8MHzatmega328:
+
+    $ dno_bpp -p pro.8MHzatmega328 
 
 
 # SEE ALSO

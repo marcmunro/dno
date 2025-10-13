@@ -11,6 +11,7 @@
 #
 
 # TODOs:
+# Update dno_menu to deal with changed to dno_bpp
 # handle filenames with spaces and other stupid characters
 # Add programmers.txt into BOARD_INFO
 # deb package build
@@ -821,13 +822,6 @@ define ALL_BUILD_RULES
 			  $$(libdir),$$4,$5,$8,$9,$8,$9)))))
 endef
 
-#$(warning MATCHING FILES: $(call matching_files,*.ino,. ..))
-
-#$(warning $(call uniqify,/Atmega_Board_Detector.ino ./HV_Parallel_Utils.ino ./HV_Serial_Utils.ino ./ICSP_Utils.ino ./Programming_Utils.ino  ../Atmega_Board_Detector.ino ../HV_Parallel_Utils.ino ../HV_Serial_Utils.ino ../ICSP_Utils.ino ../Programming_Utils.ino,filepart))
-
-
-#$(error "DONE")
-
 sketch_deps = $(call feedback,$(call DEPENDENCY_RULE,prebuild presketch,$(1:.d=.o)))\
 	      $(eval $(call DEPENDENCY_RULE,prebuild presketch,$(1:.d=.o)))\
               $(call feedback,$(call DEPENDENCY_RULE,postsketch,$1))\
@@ -846,6 +840,7 @@ core_deps = $(call feedback,$(call DEPENDENCY_RULE,precore,$(1:.d=.o)))\
 # Discovery of source files and dynamic creation of build rules.
 #
 
+$(call debug,CROSS_BUILD)
 ifeq "$(CROSS_BUILD)" "yes"
   # We are doing a cross-build, ie compiling for a different
   # architecture than the host.  This is the normal type of arduino
@@ -867,7 +862,9 @@ ifeq "$(CROSS_BUILD)" "yes"
     # Identify possible libraries.
     USER_LIB_DIRS = $(foreach root,$(USER_LIB_ROOTS),\
 		      $(call is_lib,$(wildcard $(root)/*)))
-    STD_LIB_DIRS = $(call is_lib,$(wildcard $(dir $(BOARD_FILE))/libraries/*))
+    STD_LIB_DIRS = $(call is_lib,\
+	$(wildcard $(runtime.platform.path)/libraries/*))
+
     ALL_LIB_DIRS = $(call uniqify,$(USER_LIB_DIRS) $(STD_LIB_DIRS),libname)
     ALL_LIB_FLAGS = $(foreach dir,$(ALL_LIB_DIRS) $(SRC_DIRS),-I $(dir))
     CXXFLAGS += $(ALL_LIB_FLAGS)
@@ -890,11 +887,6 @@ ifeq "$(CROSS_BUILD)" "yes"
     # bothered with such trivial details.
     #
     ino_compiler_flags = -x c++ --include Arduino.h
-
-    #$(eval recipe.ino.o.pattern = $(subst \
-    #    $(alue compiler.cpp.cmd)", \
-    #	$(value compiler.cpp.cmd)" $(value ino_compiler_flags),\
-    #    $(value recipe.cpp.o.pattern)))
 
     # For debugging purposes we create a copy of the concatenated .ino
     # file sent to the compiler.
@@ -919,11 +911,6 @@ ifeq "$(CROSS_BUILD)" "yes"
     #
     $(eval JOIN_INO = $(value INO_PROTOTYPES) | \
 	         cat - $$(INO_MAIN) $$(INO_INCLUSIONS) $(value INO_SRC_COPY))
-$(call debug,JOIN_INO)
-$(info $(value JOIN_INO))
-
-#$(info recipe.cpp.o.pattern = $(recipe.cpp.o.pattern))
-#$(info recipe.cpp.o.pattern = $(value recipe.cpp.o.pattern))
 
     # Define the recipe for compiling .ino files as described above.
     #
@@ -931,11 +918,6 @@ $(info $(value JOIN_INO))
       $(value JOIN_INO) | \
         $(subst "$$(source_file)", $$(ino_compiler_flags) -, \
 	        $(value recipe.cpp.o.pattern)))
-$(info recipe.ino.o.pattern = $(value recipe.ino.o.pattern))
-#$(error crap)
-#$(info XX)
-
-
 
     # define a pattern for uploading eeprom files.  Don't know why
     # this is not already defined.  This is unlikely to work for
@@ -974,6 +956,10 @@ $(info recipe.ino.o.pattern = $(value recipe.ino.o.pattern))
     $(call debug,REQUIRED_LIBS)
     $(call debug,ALL_DEPS)
     object_files := $(ALL_DEPS:.d=.o)
+
+    # As a final step we make our main object depend on any other .ino
+    # files that may exist.
+$(BUILD_DIR)/$(PROJNAME).ino.d: $(INO_INCLUSIONS)
 
     ifeq "$(strip $(call unbuilt_deps,$(ALL_DEPS)))" ""
       # All Dependency files have been created.  We can now
@@ -1091,6 +1077,7 @@ BPP = $(BINDIR)/dno_bpp
 
 DIRNAME = $(notdir $(realpath $(BOARD_DIR)))
 
+
 # Figure out the dependencies to allow BOARD_INFO to be built based on
 # dirname, BOARD_TYPE, or the value of our BOARD variable.
 #
@@ -1098,25 +1085,26 @@ ifneq "$(BOARD)" ""
   # BOARD has been provided as a parameter
   BI_DEPS += BOARD_TYPE
   BT_DEPS += FORCE
-  # Parameters for board and cpu type can be derived from BOARD and CPU
-  # definitions provided on the command line.  Provide these to the BOARD_TYPE
+  BOARD_PARAM=$(BOARD)
+
+  # Parameters for board type can be derived from a BOARD definitions
+  # provided on the command line.  Provide this to the BOARD_TYPE
   # target, to create a BOARD_TYPE file.
   #
-  BOARD_TYPE_PARAMS = `[ "x$(BOARD)" = "x" ] || echo "-b $(BOARD)"`
-  CPU_TYPE_PARAMS = `[ "x$(CPU)" = "x" ] || echo "-c $(CPU)"`
 else
   BOARD_TYPE := $(wildcard BOARD_TYPE)
   ifeq "$(BOARD_TYPE)" ""
     # We have no BOARD_TYPE file.  Let's see if our directory name
     # specifies a valid board type.
-    BOARD != $(BPP) -b $(DIRNAME) -t
+    BOARD != $(BPP) -t -n $(DIRNAME)
     ifeq "$(.SHELLSTATUS)" "0"
       # Directory name looks valid.  Check that it matches our BOARD_INFO
       BOARD_INFO := $(wildcard BOARD_INFO)
       ifneq "$(BOARD_INFO)" ""
         # BOARD_INFO file exists.  Check if it matches our BOARD
 	BOARD_FROM_INFO != sed -n -e '/^BOARD_TYPE/{s/.*=\s//p}' BOARD_INFO
-        ifneq "$(BOARD)" "$(BOARD_FROM_INFO)"
+	FULLBOARD_SPEC != dno_bpp -t -f -n "$(BOARD)"
+	ifneq "$(FULLBOARD_SPEC)" "$(BOARD_FROM_INFO)"	
 	  # We need to rebuild BOARD_INFO (else nothing to do)
 	  BI_DEPS += FORCE
 	endif
@@ -1134,6 +1122,11 @@ else
   endif
 endif
 
+#
+ifneq "$(OPTIONS)" ""
+    OPTIONS_PARAM=-o
+endif
+
 # Identify any platform.local.txt file: this will be a dependency for
 # BOARD_INFO iff it exists.  Note that dno allows platform.local.txt
 # to be placed in a code directory, where it will take prcedence over
@@ -1143,9 +1136,7 @@ PLATFORM_LOCAL := $(firstword \
 		    $(foreach dir,$(SRC_DIRS),\
 		               $(wildcard $(dir)/platform.local.txt))\
 		    $(wildcard ./platform.local.txt))
-PLATFORM_LOCAL_FLAG := $(if $(PLATFORM_LOCAL), -P $(PLATFORM_LOCAL))
 $(call debug,PLATFORM_LOCAL)
-$(call debug,PLATFORM_LOCAL_FLAG)
 
 # Ditto for boards.local.txt
 #
@@ -1153,9 +1144,7 @@ BOARDS_LOCAL := $(firstword \
 	         $(foreach dir,$(SRC_DIRS),\
 		           $(wildcard $(dir)/boards.local.txt))\
 		 $(wildcard ./boards.local.txt))
-BOARDS_LOCAL_FLAG := $(if $(BOARDS_LOCAL), -B $(BOARDS_LOCAL))
 $(call debug,BOARDS_LOCAL)
-$(call debug,BOARDS_LOCAL_FLAG)
 
 $(call debug,ALL_SOURCES)
 
@@ -1173,8 +1162,7 @@ BOARD_INFO: $(BI_DEPS) $(PLATFORM_LOCAL) $(BOARDS_LOCAL) \
 	    $(BOARD_FILE) $(PLATFORM_FILE)
 	$(TARGET)
 	$(FEEDBACK) Creating $@...
-	$(AT)if $(BPP) -b $(BOARD) -p \
-	         $(PLATFORM_LOCAL_FLAG) $(BOARDS_LOCAL_FLAG) >$@2; then \
+	$(AT)if $(BPP) -p $(BOARD) >$@2; then \
 	    mv $@2 $@; \
 	else \
 	    rm -f $@2; false; fi
@@ -1186,7 +1174,7 @@ BOARD_INFO: $(BI_DEPS) $(PLATFORM_LOCAL) $(BOARDS_LOCAL) \
 BOARD_TYPE: $(BT_DEPS)
 	$(TARGET)
 	$(FEEDBACK) Creating $@...
-	$(AT) $(BPP) $(BOARD_TYPE_PARAMS) $(CPU_TYPE_PARAMS) -t >$@ || \
+	$(AT) $(BPP) -t -f $(BOARD) >$@ || \
 	    (rm $@; \
 	     echo "Unable to create $@.  Try dno help" 1>&2; \
 	     false)
@@ -1218,14 +1206,14 @@ show_extra_boards:
 	fi
 
 # List all supported boards.  You can narrow down the shown options by
-# specifying BOARD and/or CPU on the command line.
+# specifying BOARD on the command line.
 #
 show_boards:
 	$(TARGET)
 	$(AT) echo
-	$(AT) echo "    Supported ArduinoBoard and CPU Types"
+	$(AT) echo "    Supported Arduino Board Types"
 	$(AT) echo ============================================================
-	$(AT) $(BPP) -f $(BOARD_TYPE_PARAMS) $(CPU_TYPE_PARAMS) || true
+	$(AT) $(BPP) -l $(OPTIONS_PARAM) $(BOARD_PARAM) || true
 
 
 ################################################################
@@ -1396,8 +1384,8 @@ endif #QUICKSTART
 #
 .PHONY: tidy clean pristine do_clean do_tidy do_pristine
 
-garbage += \\\#*  .\\\#*  *~ *.dbg
-GENERATED_FILES=doxy.tag
+garbage += \\\#*  .\\\#*  *~ 
+GENERATED_FILES=doxy.tag *.dbg
 
 do_tidy:
 	$(TARGET)
@@ -1456,7 +1444,7 @@ menu options:
 # Device-handling targets
 #
 .PHONY: devices check_device_path reset monitor no-screen noscreen \
-	upload eeprom_image eeprom do_upload do_eeprom \
+	cat upload eeprom_image eeprom do_upload do_eeprom \
 	read_eeprom eeprom_read
 
 # Attempt to determine the serial device to use for uploads and monitoring for
@@ -1488,7 +1476,7 @@ devices:
 #
 check_device_path:
 	$(TARGET)
-	@if [ "x$(DEVICE_PATH)" = "x<undefined>" ]; then \
+	$(AT) if [ "x$(DEVICE_PATH)" = "x<undefined>" ]; then \
 	    echo "\n  ERROR: No DEVICE_PATH provided\n" 1>&2; \
 	    exit 2; fi
 
@@ -1509,18 +1497,37 @@ ifndef MONITOR_BAUD
    SPEEDS = 300 1200 2400 4800 9600 14400 19200 28800 38400 57600 115200
    SPEED_REGEXP = [^0-9]\($(subst $(space),\|,$(SPEEDS))\)\([^0-9]\|$$\)
    USER_SOURCES = $(call matching_files,*.ino *.cpp *.c *.S, $(SRC_DIRS))
+   $(call debug,SPEED_REGEXP)
+   $(call debug,USER_SOURCES)
 endif
 
 # Run a serial monitor in screen.
+# Note that we do our best to determine our baud rate by looking at
+# the code for possible definitions of baud rates.  If multiple
+# candidates are found, we pick the one with the highest value as that
+# is the least likely number to have appeared in a different context.
+# This will certainly fail to be correct from time to time, but the
+# user always has the option of defining BAUD_RATE manually.
 #
 monitor: check_device_path
 	$(TARGET)
-	@$(FEEDBACK) "Running screen: C-a k to exit"
+	@$(FEEDBACK) "Running screenfrom $(DEVICE_PATH) at" \
+		     "$(MONITOR_BAUD): C-a k to exit"
 	$(AT)screen $(DEVICE_PATH) \
 	    $(or $(MONITOR_BAUD), \
-	         $(shell grep "$(SPEED_REGEXP)" $(USER_SOURCES) /dev/null | \
-                         head -1 | sed -e 's/.*\s\([0-9][0-9]*\).*/\1/' ),\
+	         $(shell grep --no-filename --only-matching \
+			      "$(SPEED_REGEXP)" $(USER_SOURCES) /dev/null | \
+			 sed -e 's/[^0-9]*\([0-9][0-9]*\).*/\1/' | \
+			 sort | head -1), \
 		 9600)
+
+cat: check_device_path
+	$(TARGET)
+	@$(FEEDBACK) "Reading from $(DEVICE_PATH) at $(MONITOR_BAUD) baud."
+	$(AT) stty -F $(DEVICE_PATH) cs8 $(MONITOR_BAUD) ignbrk	-brkint \
+	    -icrnl -imaxbel -opost -onlcr -isig -icanon -iexten -echo \
+	    -echoe -echok -echoctl -echoke noflsh -ixon -crtscts
+	$(AT) cat <$(DEVICE_PATH)
 
 # Ensure there is no screen connected to the DEVICE.  Kill the screen if
 # KILLSCREEN has been provided.
@@ -1686,6 +1693,9 @@ help:
   dno [[target] [VARIABLE=value]]...\n\n\
 Major dno commands/targets:\n\
   build          - Build the local arduino code (default target)\n\
+  cat            - Cat the output from the baord's serial port to\n\
+	           stdout.  You may neet to set DEVICE_PATH and/or\n\
+		   MONITOR_BAUD as for monitor (see below).\n\
   ctags          - Build a tags file from all sources.  Once created\n\
 		   this will automatically be kept up to date by\n\
 		   default builds (ditto etags)\n\
@@ -1714,10 +1724,11 @@ Major dno commands/targets:\n\
   reset          - attempt to reset the connected Arduino.  You may need\n\
                    to define DEVICE_PATH=<path to serial device>\n\
   show_boards    - show the available boards: provide BOARD=xx\n\
-                   and/or CPU=yy to narrow down the options\n\
+                   to narrow down the selected boards.  Define OPTIONS\n\
+                   to show the options (eg cpu) for the shown boards.\n\
   BOARD_TYPE     - create a BOARD_TYPE file that identifies the board\n\
-                   we are developing for.  Define BOARD= and/or CPU= on\n\
-                   the command line.\n\
+                   we are developing for.  Define BOARD= on the \n\
+                   command line.\n\
   show_extra_boards\n\
                  - show the current set of extra boards.txt files\n\
   upload         - upload code to the Arduino.  You may need\n\
