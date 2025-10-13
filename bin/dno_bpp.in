@@ -7,12 +7,17 @@
 # 	License: GPL-3.0
 #
 
-# The primary purpose of dno_bpp is to create a dno BOARD_INFO file for
-# a given Arduino board-type.  BOARD_INFO files contain all of the
-# definitions needed to compile, upload, etc software for a given
-# Arduino-like board.
+# The primary purpose of dno_bpp is to, in combination with dno,
+# create a dno BOARD_INFO file for a given Arduino board-type.
+# BOARD_INFO files contain all of the definitions needed to compile,
+# upload, etc software for a given Arduino-like board.
 #
-# This is intended solely for use by dno.
+# This is intended primarily for direct use by dno.
+#
+# It is implemented in bash and gawk in order to reduce dependencies
+# on external packages.  Many more suitable development toolsets exist
+# but all expose the user to greater system complexity and the
+# potential for supply-chain attacks.
 
 ARDUINO_BOARDS_FILE="@BOARDS_TXT@"
 EXTRA_BOARDS_FILE="@DNO_EXTRA_BOARDS_FILE@"
@@ -22,71 +27,668 @@ DNO_IDE_VERSION="@DNO_IDE_VERSION@"
 HOST_OS="@HOST_OS@"
 
 ##
+# error
+# Print an error message to stderr and exit with an error status.
+#
+error()
+{
+    echo -e "dno_bpp error:" "$@" 1>&2
+    exit 2
+}
+
+##
+# version
+#
+# Print version information.
+#
+version()
+{
+    echo "`basename $0`: version ${DNO_VERSION} (part of the dno toolset)"
+}
+
+##
 # usage
 #
 # Print a usage message.
 #
 usage()
 {
-    echo "dno_bpp [options]...
+    echo "dno_bpp [options] [board-specifier]
   Boards and platform parser for dno.
 
   Parses the boards.txt and platform.txt files to create
   inclusion-files for dno (make), to identify the available boards,
-  and to create the BOARD_TYPE and BOARD_INFO files.
+  and to create BOARD_TYPE and BOARD_INFO files.
 
   Options:
-
-  --board, -b board    
-  	      Specify a board to be searched for in the boards.txt file(s)
-              If board is in the form x.y, then cpu will be
-              determined from y, and board from x.
-  --board-local, -B <path to boards.local.txt>
-              Specify a boards.local.txt file to use.
-  --cpu, -c cpu      
-  	      Specify a cpu to be searched for in the boards.txt file(s)
-  --dir, -d dir      
-  	      Specify a directory to search for boards.txt  This may
-              be specified multiple times.
-  --friendly, -f	      
-  	      Friendly format the output
-  --help, -h  Help
-  --no, --nodefaults, -n
-  	      Do not use the system default dno paths for the boards.txt
-  	      files.  You must provide at least one explicit --dir
-  	      option in this case.
-  --params, -p
-	      Print build parameters for inclusion into a makefile,
-  	      etc
-  --platform-local, -P <path to platform.local.txt>
-              Specify a platform.local.txt file to use.
-  --quiet, -q Be silent
-  --type, -t  Print the board type definition for the BOARD_TYPE file
-  --version, -v	      
-  	      Print version information and exit.
-  -x
-	      Provide directory path discovery services to an inferior
-	      version of this script that is determining build parameters.
-
+  -f, --full    Report the full board-specifier name with --type.
+  -h, --help    Provide this help message and exit.
+                Print this help message and exit.
+  -l, --list    List the available boards, filtered by board-specifier
+  -n, -no_options
+	        Do not warn about unused board options with --type
+  -o, --options Print options (menu options) for boards.  This only
+                makes sense in combination with --list
+  -p, --parse   Parse the appropriate boards.txt and platforms.txt
+      		files for a single specified board with output to
+		stdout.  The output may be saved in a BOARD_INFO file.
+  -t, --type    Print a board type string.  This can be saved in a 
+      		BOARD_TYPE file, or used as the directory name for a 
+		board directory.
+  -x            Run as a helper to identify a path.
+  --version, -v	Print version information and exit.
 "
 }
 
 ##
-# version
+# all_board_paths
 #
-# Print version information and exit.
+# Print, to stdout, the vendor, core and full path to the boards.txt
+# file for all of our significant boards.txt files, with each field
+# separated by colons.
+# Note that later entries in our files take precedence over earlier
+# entries for the same vendor and core.
 #
-version()
+all_board_paths()
 {
-    echo "`basename $0`: version ${DNO_VERSION} (part of the dno toolset)"
-    exit
+    (
+        echo ${ARDUINO_BOARDS_FILE}
+        if [ -r ${EXTRA_BOARDS_FILE} ]; then
+	    sed -e 's/#.*//' <"${EXTRA_BOARDS_FILE}"
+        fi
+    ) | gawk '
+        /hardware/ {
+	    elems = split($0, parts, "/")
+	    for (i = 1; i < elems; i++) {
+	        if (parts[i] == "hardware") {
+		    # We have found the hardware element.  Now we want
+		    # to identify vendor and architecture.  The
+		    # platform specification and reality differ
+		    # on how to find this!
+		    if (parts[i + 2] ~ /^[0-9]+/) {
+		       # The second dir after hardware looks like a
+		       # version number.  This matches our experience
+		       # of the arduino dir structure.
+		       vendor = parts[i - 1]
+		       architecture = parts[i + 1]
+		    }
+		    else {
+		       # Assume this matches the platform specification
+		       vendor = parts[i + 1]
+		       architecture = parts[i + 2]
+		    }
+		    break
+		}
+	    }
+	    # Record each line in an array indexed by vendor and
+	    # architecture.  This will eliminate paths that are
+	    # superceded by later alternatives in our
+	    # EXTRA_BOARDS_FILE: only the latest entry for a vendor
+	    # and architecture will be retained.
+	    results[vendor][architecture] = $0
+	}
+	END {
+	    # Print the retained lines
+	    for (i in results) {
+	        for (j in results[i]) {
+		    path = results[i][j]
+		    sub("/?boards.txt$", "", path)
+		    sub("^~/", HOME "/", path)
+		    if ((getline < (path "/boards.txt")) > 0) {
+		        printf("%s:%s:%s\n", i, j, path "/boards.txt");
+		    }
+		    if ((getline < (path "/boards.local.txt")) > 0) {
+		        printf("%s:%s:%s\n", i, j, path "/boards.local.txt");
+		    }
+	    	}
+	    }
+	}
+    ' HOME="${HOME}"
 }
 
+##
+# all_boards
+#
+# Prints, to stdout, all boards from the boards.txt files, specified in
+# board_paths, in the form: vendor.architecture.board_name
+#
+# Requires board_paths to be defined.
+# 
+all_boards()
+{
+    local line
+    echo "${board_paths}" |
+	while read line; do
+            IFS=':' read -a field <<< "${line}"
+	    filepath=`echo "${line}" | cut -d: -f3-`
+	    sed -n "/^[^\.]*\.name=/s/^\([^\.]*\).*/${field[0]}.${field[1]}.\1/p" <"${filepath}"
+        done
+}
+
+##
+# get_matching_vendors
+#
+# From board_paths, identifies vendors and architectures that match $1,
+# a vendor name.  The matches are printed to stdout in the form:
+# vendor.architecture.*
+#
+# Requires board_paths to be defined
+# 
+get_matching_vendors()
+{
+    echo "${board_paths}" | grep "^${1}:" | \
+	sed -e 's!\(^[^:]*\):\([^:]*\):.*!\1.\2.*!'
+}
+
+##
+# get_matching_arch
+#
+# From board_paths, identifies vendors and architectures that match $1,
+# an archirecture name.  The matches are printed to stdout in the form:
+# vendor.architecture.*
+#
+# Requires board_paths to be defined
+# 
+get_matching_arch()
+{
+    echo "${board_paths}" | grep "^[^:]*:${1}:" | \
+	sed -e 's!\(^[^:]*\):\([^:]*\):.*!\1.\2.*!'
+}
+
+##
+# get_board_candidates
+#
+# Prints, to stdout, matches for $1 which is a component of a
+# board-specifier and may specify vendor, architecture, or board-name.
+#
+# The output will be in the form:
+#   vendor.architecture.board-name, if $1 matches a board, plus
+#   vendor.architecture.* if it explicitly matches a vendor and/or
+# architecture.
+#
+# This function will be called for each of the first 3 parts of a
+# dot-separated board-specifier.  The prepended $2 allows the caller
+# to identify which part of a board-specifier we are currently
+# matching.
+#
+# $1 is a field from our board-specifier
+#
+# Requires board_paths and all_boards to be defined
+#
+get_board_candidates()
+{
+    if [ "x$2" != "x3" ]; then
+	get_matching_vendors "$1"
+	get_matching_arch "$1"
+    fi
+    echo "${all_boards}" | grep "\.$1$"
+}
+
+##
+# qualify_one
+#
+# Check whether a $1 is a match for the remaining parameters, which
+# are the components of our board-specifier.  If there is a match $1
+# will be printed to stdout.
+#
+# $1 will have been derived from get_board_candidates().
+# $@ (the remaining args) are the separate parts of the board
+# specifier, possibly truncated to remove menu options.
+#
+qualify_one()
+{
+    local match="$1"
+    local matched=no
+
+    shift 
+    local spec_parts=("$@")
+
+    IFS=. read -a match_parts <<<"${match}"
+
+    if [ "x${#spec_parts[@]}" = "x1" ]; then
+	# We only have a single part in our board-specifier so no
+	# filtering is possible
+	matched=yes
+    else
+	if [ "x${#spec_parts[@]}" = "x3" ]; then
+	    # Our board-param has three parts.  All need
+	    # to match.
+	    if [[ "${spec_parts[@]}" == "${match_parts[@]}" ]]; 
+	    then
+		matched=yes
+	    fi
+	else
+	    # Our param has 2 parts.  The first may be the
+	    # vendor or architecture.  The second may be
+	    # architecture or board.
+	    if [ "${spec_parts[0]}" = "${match_parts[0]}" -o \
+		 "${spec_parts[0]}" = "${match_parts[1]}" ]
+	    then
+		if [ "${spec_parts[1]}" = "${match_parts[1]}" -o \
+		     "${spec_parts[1]}" = "${match_parts[2]}" ]
+		then
+		    matched=yes
+		fi
+	    fi
+	fi
+    fi
+    if [ ${matched} = yes ]; then
+	echo ${match}
+    fi
+}
+
+##
+# bfile_for_board
+#
+# Print to stdout the boards.txt file that seems to be the best match
+# for the parameters.
+#
+# $1-3 board specifier parts
+#
+# Requires board_paths to be provided
+#
+bfile_for_board()
+{
+    grep "$1:$2:" <<<"${board_paths}" |
+	sed -e s'/^[^:]*:[^:]*://' |
+	while read path; do
+	    # check that boards file contains a reference to our board
+	    grep -l "^$3\.name=" "${path}"
+	done | tail -1  # Only issue the last match
+}
+
+##
+# options_for_board
+#
+# Print to stdout the options and possible values for all menu options
+# for the board identified by the parameters.  The output is in the
+# form: <option_name>=<option_value>|<option description>
+#
+# $1-3 board specifier parts
+# $4 path to boards.txt file
+# 
+options_for_board()
+{
+    sed -n -e "s/^$3\.menu\.\([^\.]*\)\.\([^\.=]*\)=/\1=\2|/p" "$4"
+}
+
+##
+# menu_names_from_options
+#
+# With stdin as the output from options_for_board(), print to stdout
+# each option name.
+#
+menu_names_from_options()
+{
+    options=`cut -d= -f1 | uniq`
+    echo ${options}
+}
+
+##
+# is_valid_value_for_option
+#
+# Predicate
+#
+# true if $2 is a valid value for option $1, with options read from
+# stdin
+#
+is_valid_value_for_option()
+{
+    grep -q "^$1=$2|"
+}
+
+##
+# concat
+#
+# print to stdout $1 and $2 separated by a comma.  If $1 is empty,
+# then no comma.
+#
+concat()
+{
+    if [ "x$1" = "x" ]; then
+	echo "$2"
+    else
+	echo "$1,$2"
+    fi
+}
+
+##
+# option_specifier
+#
+# If the option-specifier given in $1 is valid, print a fully
+# specified version of it to stdout.  So, if atmega328p is a valid
+# selection for the cpu option, then print cpu=atmega328p
+#
+# Note that $1 may be a comma-separated list of options, in which case
+# the output will also be comma separated and will show each validated
+# option.
+#
+# $1    option-specifier from board-specifier
+# $2    the board-specifier
+#
+option_specifier()
+{
+    local board_spec board_file options option_names option_values
+    local option_spec option_specs matched spec_parts result i
+    option_spec="$1"
+
+    shift
+    IFS=. read -a board_spec <<<"$@"
+
+    board_file=`bfile_for_board "${board_spec[@]}"`
+    options=`options_for_board "${board_spec[@]}" "${board_file}"`
+    read -a option_names <<<`menu_names_from_options <<<"${options}"`
+    IFS=, read -a option_specs <<<"${option_spec}"
+    # Now we check each part of the option spec for validity.
+    result=""
+    for i in "${!option_specs[@]}"; do
+	# If the option_spec part contains the option name, we will
+	# use that, otherwise we will check based on position.
+	IFS== read -a spec_parts <<<"${option_specs[i]}"
+	matched=no
+	if [ "x${spec_parts[1]}" = "x" ]; then
+	    # No equal sign in spec_parts.
+	    if is_valid_value_for_option "${option_names[i]}" \
+	           "${option_specs[i]}" <<<"${options}"
+	    then
+		matched="yes"
+		result=`concat "${result}" \
+			       "${option_names[i]}=${option_specs[i]}"`
+	    else
+		break  # Failed to match, so abort with matched = no
+	    fi
+	else
+	    if is_valid_value_for_option "${spec_parts[0]}" \
+	           "${spec_parts[1]}" <<<"${options}"
+	    then
+		matched="yes"
+		result=`concat "${result}" "${option_specs[i]}"`
+	    else
+		break  # Failed to match, so abort with matched = no
+	    fi
+	fi
+    done
+    if [ "${matched}" = "yes" ]; then
+	echo "${result}"
+    fi
+}
+
+##
+# qualify_matches
+#
+# This takes the various matches identified by get_board_candidates()
+# for each part of out board-specifier and validates them against the
+# complete board-specifier.  This is harder than you might think as
+# the board specifier may contain the vendor, and architecture, in
+# addition to the board identfier, and may also have menu options
+# provided.  This means that we cannot tell for sure, except in
+# trivial cases, which parts of a board-specifier represent which
+# part.  This function simply tries things out to remove matches that
+# do not work.  If a board-specifier is sufficiently complete, there
+# will only be a single output line from this function.
+#
+# $@ contains the board-specifier in the form of an array of its
+# component parts.
+# 
+# Print, to stdout, only those entries, from stdin, that could be
+# valid based on our board-specifier.
+#
+qualify_matches()
+{
+    local param_parts=("$@")
+    local match match_parts
+    local last_param_idx last_param
+    local last_match_idx last_match
+    local subqual qual
+    sort -u |
+	while read match; do
+	    if [ "x${match}" = "x" ]; then
+		continue
+	    fi
+	    IFS=. read -a match_parts <<<"${match}"
+	    unset 'match_parts[3]' # In case we have options part provided
+	    let last_param_idx=${#param_parts[@]}-1
+	    let last_match_idx=${#match_parts[@]}-1
+	    last_param="${param_parts[${last_param_idx}]}"
+	    last_match="${match_parts[${last_match_idx}]}"
+	    if [ "x${last_param}" != "x${last_match}" -a \
+		 "x${last_match}" != "x*" -a \
+	         "x${last_param_idx}" != "x0" ]; then
+		# The last part of our board-specifier is different
+		# from the last part of our candidate match, and the
+		# candidate match does not end with "*".  This means
+		# that we could have a board match followed by menu
+		# options.  So, let's see if that's what's happening.
+		subqual=`qualify_one "${match}" \
+				     "${param_parts[@]: - 0:${last_param_idx}}"`
+		if [ "x${subqual}" != "x" ]; then
+		    # board-specifier without last part gives us a
+		    # board match.  Check whether the last part
+		    # provides valid options for this board.
+		    qual=`option_specifier "${last_param}" "${subqual}"`
+		    if [ "x${qual}" != "x" ]; then
+			echo "${subqual}.${qual}"
+			continue # This match is qualified.  Try the next
+		    fi
+		fi
+	    fi
+	    qualify_one "${match}" "$@"
+	done
+}
+
+##
+# has_single_match
+#
+# Predicate, returning true iff applying qualify_matches() to stdin
+# and our parameters produces a single fully-qualified result line.
+# Note that the matches provided in stdin might be for vendor or
+# architecture only in which case they will contain "*" in the fincal
+# position, and are not considered fully-qualified.
+#
+# $@ contains the board-specifier in the form of an array of its
+# component parts.
+#
+has_single_match()
+{
+    local param_parts=("$@")
+    local count=`qualify_matches "${param_parts[@]}" | grep -v '\*$' | wc -l`
+    if [ "${count}" -ne "1" ]; then
+	return 1
+    fi
+}
+
+##
+# list_boards
+#
+# For each result in qualified_matches, provide the fully qualified
+# names of all matching boards, with 1 board per output line.
+#
+# $1 is our raw board-specifier
+# 
+# Expects all_boards, board_parts and qualified_matches to be defined.
+#
+list_boards()
+{
+    if [ "${#board_parts[@]}" = "0" ]; then
+	# No board-specifier was provided, so list all boards
+	echo "${all_boards}"
+    else
+	local list_matches=`(echo "${qualified_matches}" | grep "\*$") || \
+      	    (echo "${qualified_matches}" | grep  "[^\*]$")`
+	if [ "x${list_matches}" = "x" ]; then
+	    error "No boards found matching \"$1\"."
+	else
+	    local expr
+	    echo "${list_matches}" | \
+		sed -e 's/^[^:]*://;s/^\([^\.]*\)/\1\\\\/' | \
+		while read expr; do
+		    echo "${all_boards}" | grep "${expr}$"
+		done
+	fi
+    fi
+}
+
+##
+# board_info
+#
+# The output of list boards is piped through this filter to provide more
+# helpful output.  With $1 provided, menu options are identified.
+#
+# With large numbers of boards being listed this will be horribly
+# inefficient: it should probably be re-implemented in gawk.
+#
+board_info()
+{
+    #echo "${board_paths}"
+    local parts
+    local path
+    local name
+    local option_line
+    local options
+    while IFS=. read -a parts; do
+	path=`bfile_for_board "${parts[@]}"`
+	name=`grep "^${parts[2]}\.name=" ${path} | cut -d= -f2-`
+	printf "%-36s %s\n" "${parts[0]}.${parts[1]}.${parts[2]}:" "${name}"
+	if [ "x$1" != "x" ]; then
+	    options_for_board "${parts[@]}" "${path}" | \
+		while read option_line; do
+		    IFS="|" read -a options <<<"${option_line}"
+		    printf "  %-36s %s\n" "${options[0]}" "${options[1]}"
+		done
+	fi
+    done
+}
+
+##
+# ensure_single_match
+#
+# Checks whether a fully qualified board name, provided in
+# board_parts, matches only a single entry from qualified_matches.
+# If so, the matching line will be printed, otherwise an appropriate
+# error message will be printed to stderr, with nothing to stdout.
+#
+# Requires qualified_matches and board_parts array to be defined.
+#
+ensure_single_match()
+{
+    if [ "${#board_parts[@]}" = "0" ]; then
+	error "No board-specifier provided"
+    else
+      	(echo "${qualified_matches}" | grep  "[^\*]$") | \
+	    (
+		local match
+		local count=0
+		local found
+		while read match; do
+		    if [ "x${match}" != "x" ]; then
+			# We have a match
+			let count++
+			found=${match}
+		    fi
+		done
+		if [ "x${count}" = "x0" ]; then
+		    error "No boards matching \"$1\"."
+		fi
+		if [ "x${count}" != "x1" ]; then
+		    error "Too many matches for \"$1\"." \
+			  "\n  (try specifying vendor or architecture)."
+		fi
+		echo ${found}
+	    )
+    fi
+}
+
+##
+# board_type
+#
+# Print an unambiguous board_type identifier.
+# If board has options show warnings unless --nooptions has been
+# specified.  If --full option is provided, provide the fully
+# qualified version of the type.
+#
+# Requires qualified_matches, board_paths
+#
+board_type()
+{
+    local path options parts i 
+    local board_id=`ensure_single_match "$1"`
+    if [ "x${board_id}" = "x" ]; then
+	exit 2
+    fi
+    IFS=. read -a parts <<<"${board_id}"
+    if [ "${warn_of_options}" = "yes" ]; then
+	path=`bfile_for_board "${parts[@]}"`
+	
+	if [ "x$1" != "x" ]; then
+	    read -a options <<<`options_for_board "${parts[0]}" "${parts[1]}" \
+	    			       "${parts[2]}" "${path}" |
+		                    menu_names_from_options`
+	    if [ "${#options[@]}" != "0" ]; then
+		for i in "${!options[@]}"; do
+		    if [[ "${parts[3]}" =~ ${options[${i}]} ]]; then
+			# This option is specified in our
+			# board-specifier
+			options[$i]=""
+		    fi
+		done
+		if [[ "${options[@]}" =~ [a-zA-Z] ]]; then
+		    echo -e "\nNotice: this board can be further specified" \
+			 "with the following -" 1>&2
+		    echo -e "        options: " ${options[@]}"\n" 1>&2
+		fi
+	    fi
+	fi
+    fi
+    if [ "${report_full_name}" = "yes" ]; then
+	echo ${board_id}
+    else
+	# We want to print an abbreviated version of ${board_id}
+	local options=""
+	if [ "${#parts[@]}" = 4 ]; then
+	    # Let's try to abbreviate the options.
+	    local result
+	    options=`sed -e 's/^[^=]*=//;s/,[^=]*=/,/g' <<<"${parts[3]}"`
+	    result=`option_specifier "${options}" \
+				     "${parts[0]}.${parts[1]}.${parts[2]}"`
+	    if [ "x${result}" != "x${parts[3]}" ]; then
+		# Cannot abbreviate the options, so reset the variable.
+		options="${parts[3]}"
+	    fi
+	    if [ "x${options}" != "x" ]; then
+		# prepend a dot
+		options=".${options}"
+	    fi
+	fi
+	# Now we'll see whether we can lose the vendor/architecture
+	# parts.
+	# Start with vendor.
+	if has_single_match "${parts[1]}" "${parts[2]}" <<<"${all_matches}"
+	then
+	    # Try also removing vendor
+	    if has_single_match "${parts[2]}" <<<"${all_matches}"; then
+	    #if [ "x${matched}" != "x" ]; then
+		echo "${parts[2]}${options}"
+	    else
+		echo "${parts[1]}.${parts[2]}${options}"
+	    fi
+	else	
+	    # Apparantly we need the vendor.  Let's see if we
+	    # can lose the architecture
+	    if has_single_match "${parts[0]}" "${parts[2]}" <<<"${all_matches}"
+	    then
+		echo "${parts[0]}.${parts[2]}${options}"
+	    else
+		echo "${parts[0]}.${parts[1]}.${parts[2]}${options}"
+	    fi
+	fi
+    fi
+}
 
 ##
 # projname
+#
 # Echo, to stdout, the project name.  This is the name of the project
-# directory
+# directory.
 #
 projname () {
     if dno_dirinfo | grep -q root; then
@@ -97,274 +699,203 @@ projname () {
 }
 
 ##
-# default_board_paths
-# Echo, to stdout, the paths to boards.txt files determined from
-# the dno installation and the contents of EXTRA_BOARDS_FILE.
+# parse_board_file
 #
-default_board_paths () {
-    if [ -f "${ARDUINO_BOARDS_FILE}" ]; then
-        echo $(printf %q "${ARDUINO_BOARDS_FILE}")
+# Parses boards.txt files, printing only those details that match our
+# board and selected menu options.  This results in a pretty small set
+# of definitions that will later be fully parsed by parse_all_files().
+#
+parse_board_file()
+{
+    local parts
+    IFS=. read -a parts <<<"$2"
+    IFS=, read -a selections <<<"${parts[3]}"
+    {
+	xargs -n 1 <<<"${selections}"
+	[ -f ./BOARD_INFO ] && cat BOARD_INFO
+	echo "##END_SELECTIONS##"
+    } | \
+    gawk '
+    BEGIN {
+        reading_menu = 1
+    }
+    /^##END_SELECTIONS##/ {
+        reading_menu = 0
+    }
+    (reading_menu) {
+        # This is a menu selection entry.  We will record it
+	menu_name = gensub(/^([^=]*)=.*/, "\\1", 1)
+	selection = gensub(/^[^=]*=/, "", 1)
+	menu_selections[menu_name] = selection
+	print "menuselection." menu_name "=" menu_selections[menu_name]
+    }
+    /./ {
+        if ($0 ~ "^" BOARD "\\.") {
+	    # This line is for our selected board.
+	    # Remove the board prefix
+	    sub("^" BOARD "\\.", "")
+	    if ($0 ~ "menu\\.") {
+	        # This is a menu entry line
+		print
+		menu_name = gensub("^menu\\.([^\\.]*)\\..*", "\\1", 1)
+		menu_option = gensub("^menu\\.[^\\.]*\\.([^\\.=]*).*", 
+			    	   "\\1", 1)
+		if ($0 ~ "^menu\\.[^\\.]*\\.[^\\.]*=") {
+		    # This is a menu selection title
+		    if (!(menu_name in menu_selections)) {
+		        # This is the first option for an unchosen 
+			# menu option.  This is the menu default
+			menu_selections[menu_name] = menu_option  
+			print "menuselection." menu_name "=" \
+			          menu_selections[menu_name]
+		    }
+		    next # No more to do for this line
+		}
+		if (menu_option == menu_selections[menu_name]) {
+		    print gensub("^menu." menu_name "." \
+		   	         menu_selections[menu_name] ".", "", 1)
+		}
+	    }
+	    else {
+	        print gensub("^" BOARD "\\.", "", 1)
+	    }
+	}
+    }
+    ' VENDOR="${parts[0]}" ARCH="${parts[1]}" BOARD="${parts[2]}" - "$1"
+}
+
+##
+# platform_files
+#
+# Identifies platform.txt and platform.local.txt files within the
+# directories provided in $1 and $2.  If a file is found in $1, it
+# will not be looked-for in $2.
+#
+# Each found file is printed as a full pathname to stdout.
+#
+# $1 is the directory that may contain the file
+# $2 is a possible extra directory to search
+#
+platform_files()
+{
+    if [ -f "$1/platform.txt" ]; then
+	echo "$1/platform.txt"
+    elif [ -f "$2/platform.txt" ]; then 
+	echo "$2/platform.txt"
     fi
-    if [ -f "${EXTRA_BOARDS_FILE}" ]; then
-        sed -e 's/^#.*//' <"${EXTRA_BOARDS_FILE}" |
-	    while  read dir; do
-		# Force tilde expansion
-		dir=${dir/#\~/$HOME}
-	        if [ -f "${dir}/boards.txt" ]; then
-                    echo $(printf %q "${dir}/boards.txt")
-		fi
-	    done 
+    if [ -f "$1/platform.local.txt" ]; then
+	echo "$1/platform.local.txt"
+    elif [ -f "$2/platform.local.txt" ]; then 
+	echo "$2/platform.local.txt"
     fi
 }
 
 ##
-# add_board_path
+# identfify_platform_files
 #
-# Echo an updated board_paths value.
+# Print the set of platform files for parsing to stdout.  This is
+# partly determined from any core references in our boards.txt file.
+#
+# $1 is board_file
+# $2 is architecture
+# stdin is board_defns
+# board_paths is required
+#
+identify_platform_files()
+{
+    local refs platform 
+    read -a refs <<<`sed -n -e '/=.*:/s/.*=\(.*\):[^:]*$/\1/p' | sort -u`
+    for platform in "${refs[@]}"; do
+	if ! [[ "${platform}" =~ ":" ]]; then
+	    platform="${platform}:$2"
+	fi
+	platform_dir=`sed -n "/^${platform}/s/^[^:]*:[^:]*://p" \
+			      		      <<<"${board_paths}"`
+	platform_files `dirname "${platform_dir}"`
+    done
+
+    platform_files `dirname "$1"`
+    
+    # Finally, add any local platform.local.txt file.  This is a dno
+    # extension that allows platform definitions to be overridden
+    # locally.  The developer of dno does not buy in to the notion
+    # that this is insecure.  Given that the user will create this
+    # file in their own directory, and will add commands that they
+    # could in any case run manually this seems pretty harmless.
+    #
+    if dno_dirinfo | grep -q root; then
+	platform_files . | grep "platform.local.txt$"
+    else 
+	platform_files . .. | grep "platform.local.txt$"
+    fi 
+}
+
+##
+# arch_path
+# Identify the arduino architecture directory from the platform path.
+#
 # Params:
-#   $1 - a new board directory or file to add in
-#   $2 - the current list of paths
+#   $1 - the directory of the platform.txt file
 #
 # stdout:
-#   Space-separated list of $2 and a validated $1
-# stderr:
-#   Error messages associated with non-existence, etc, of $1
-# result:
-#   Success or 1 if $1 is invalid
-#
-add_board_path()
+#   The arduino arch path
+# 
+arch_path()
 {
-    if [ "a" = "a$1" ]; then
-	# Nothing to be done
-	echo $2
+    # We may have a dir structure of hardware/arch/[version]/
+    # or hardware/vendor/arch/[version]/, or version may be missing.
+    if echo `basename "$1"` | grep -q "^[0-9\.]*$"; then
+	dirname "$1"
+    else
+	# ...version may be missing
+	echo $1
+    fi
+}
+
+##
+# hardware_path
+#
+# Identify the arduino hardware directory from the arch path.
+#
+# Params:
+#   $1 - the arch path directory (as returned by the arch_path function)
+#
+# stdout:
+#   The arduino arch path
+#
+hardware_path()
+{
+    dir=`dirname "$1"`
+    if [ `basename "${dir}"` = "hardware" ]; then
+	echo ${dir}
 	return 0
     fi
-    if [ "b`basename $1`" = "bboards.txt" ]; then
-	if [ -r "$1" ]; then
-	    echo $2 $1
-	    return 0
-	else
-	    echo "`basename $0`: $1 is not a readable file" 1>&2
-	fi
-    elif [ -d "$1" ]; then
-	if [ -f "$1/boards.txt" ]; then
-	    echo $2 $1/boards.txt
-	    return 0
-	else
-	    echo "`basename $0`: $1 does not contain a boards.txt file" 1>&2
-	fi
-    else
-	echo "`basename $0`: $1 is not a directory" 1>&2
+    dir=`dirname "${dir}"`
+    if [ `basename "${dir}"` = "hardware" ]; then
+	echo ${dir}
+	return 0
     fi
-    echo $2
+    echo "`basename $0`: Unable to identify hardware path" 1>&2
     return 1
 }
 
-
-##
-# identify_boards
-# Simple parser for boards.txt files.  This can: list the available
-# boards, with cpu options; confirm that a board exists, is fully
-# specified and identify the boards.txt file in which it is defined.
-# In the event of multiple definitions being found for a board, the
-# latest one found takes precedence.
-# 
-# Params:
-#   $*    - a list of variable definitions as follows:
-#           BOARD=boardname
-#           CPU=cpuname
-#           DEFINITION=yes
-#           FRIENDLY=yes
-#           SILENT=yes
-#           PRINT_FILENAME=yes
-#   ${!#} - (the last argument) a list of paths from which to find our
-#           boards.txt files 
+## 
+# parse_all_files
 #
-# stdout:
-# result:
-#   Success if only a single board is found, otherwise 1
+# Print, to stdout, a parsed version of all of the input files.  This
+# converts the files into makfile syntax, and provides a few missing
+# definitions.
 #
-identify_boards()
+# $1     - the path to the boards.txt file
+# $2..$N - the various platform files
+#
+parse_all_files()
 {
-    gawk '
-	function board_match(board) {
-	    # Determine whether board matches what we are looking
-	    # for.  It does if we are not looking for anything
-	    # specific.
-	    return (BOARD == "") || (board ~ "^" BOARD "$")
-	}
-        function cpu_match(board, cpu) {
-	    # Determine whether board matches what we are looking
-	    # for.  It does if we are not looking for anything
-	    # specific. 
-	    return board_match(board) && 
-	           ((CPU == "") || (cpu ~ "^" CPU "$"))
-	}
-	function print_board(board, board_descr) {
-	    if (CPU == "") {
-	        if (DEFINITION) {
-		    if (!(board in cpus)) {
-	                print board 
-		    }
-		}
-		else if (FRIENDLY) {
-		    printf("%-*s  %s\n", id_col_width, board, board_descr)
-		}
-		else if (!SILENT){
-	            print board ".name=" board_descr
-		}
-	    }
-	}
-	function print_cpu(board, cpu, cpu_descr) {
-	    if (DEFINITION) {
-	        # Print Definition version
-	        print board "." cpu
-	    }
-	    else if (FRIENDLY) {
-		printf("  %-*s  %s\n", id_col_width, cpu, cpu_descr)
-	    }
-	    else if (!SILENT){
-	        print board ".menu.cpu." cpu "=" cpu_descr
-	    }
-	}
-	function record_width(id,   len) {
-	    len = length(id)
-	    if (len > id_col_width) {
-	        id_col_width = len
-	    }
-	}
-	BEGIN {
-	    board_matches = 0 # Count of distinct boards matched
-	    cpu_matches = 0   # Ditto for cpus
-	    id_col_width = 20 # Width of widest board or cpu name
+    boards_file="$1"
+    shift
+    local platform_path=`dirname $1`
+    local arch_path=`arch_path ${platform_path}`
 
-	    # Arrays:
-	    #  boards[]     board descriptions indexed by board name
-	    #  sources[]    filenames (source of board info) indexed
-	    #               by board name
-	    #  cpus[][]     cpu descriptions indexed by board and cpu names
-	    #  cpu_sources[][] filenames for cpu definitions
-	}
-    	/.name=/ {
-	    board = gensub(/\.name=.*/, "", "1")
-	    if (board_match(board)) {
-	        record_width(board)
-	        matched_board = board
-	        board_descr = gensub(/.*\.name=/, "", "1")
-		if (!(board in boards)) {
-		    # Board may be already recorded for another input
-		    # file.  
-		    board_matches = board_matches + 1
-		}
-		boards[board] = board_descr
-		sources[board] = FILENAME
-	    }
-	}
-	/\.menu\.cpu\.[^\.]*=/ {
-	    # Match a cpu definition  Some boards are identified by
-	    # the combination of board and cpu, and some only by the
-	    # board. 
-	    if ($0 ~ "^" matched_board "\\.") {
-		cpu = gensub(/.*.menu.cpu.([^=]*).*/, "\\1", "1")
-		if (cpu_match(matched_board, cpu)) {
-	            record_width(cpu)
-		    if (!(cpus[matched_board][cpu])) {
-		        cpu_matches++
-			cpu_descr = gensub(/[^=]*=/, "", "1")
-		        cpus[matched_board][cpu] = cpu_descr
-		    }
-		    cpu_sources[matched_board][cpu] = FILENAME
-		}
-	    }
-	}
-	END {
-	    # TODO: Sort the following
-	    for (board in boards) {
-	        print_board(board, boards[board])
-		source_filename = sources[board]
-		if (board in cpus) {
-		    for (cpu in cpus[board]) {
-			print_cpu(board, cpu, cpus[board][cpu])
-		        source_filename = cpu_sources[board][cpu]
-		    }
-		}
-	    }
-	    if ((board_matches == 1) &&
-	        ((cpu_matches == 0) || (cpu_matches == 1)))
-	    {
-	        # We have a single match.  We may want to print the filename
-		if (PRINT_FILENAME) {
-		    print source_filename
-		}
-		exit(0)
-	    }
-	    exit(1)
-	}
-    ' $* /dev/null
-    return $?
-}
-
-##
-# platform_parameters
-#
-# Echo initial, fundamental, parameter definitions.
-# Params:
-#    $1 - path to boards.txt
-#    $2 - path to platform.txt
-#    $3 - board identifier
-#    $4 - optional cpu identifier
-#
-# stdout:
-#    Initial definitions for our BOARD_INFO file.
-#
-platform_parameters()
-{
-    if [ "c$4" = "c" ]; then
-	echo "BOARD_TYPE =" $3
-    else
-	echo "BOARD_TYPE =" $3.$4
-    fi
-    echo "BOARD_FILE = $1"
-    echo "PLATFORM_FILE = $2"
-    echo "runtime.os = ${HOST_OS}"
-    echo "build.project_name = `projname`"
-}
-
-##
-# file_parser
-#
-# Parameters:
-#    BOARD=<board name>
-#    OS=<host operating system string (linux or macosx)>
-#    PLATFORM_PATH=<path to the platform.txt file>
-#    ARCH_NAME=<name of arduino architecture for board>
-#    HARDWARE_PATH=<path to the arduino hardware directory>
-#    DNO_IDE_VERSION=<version number for the installed version of dno>
-#    THIS_SCRIPT=<path to this script - used for a recursive call>
-#    platform_file    - the plaform.txt file
-#    [platform_local] - any platform.local.txt file
-#    board_file       - the boards.txt file
-#    [board_local]    - any boards.local.txt file
-# Result:
-#    Output is written to stdout.  No errors are expected to be
-#     returned.
-#
-# Extract from and translate our input files (platform.txt,
-# platform.local.txt and boards.txt), to create a BOARDS_INFO file
-# that can be read by make and that will provide the definitions
-# necessary to allow dno to build arduino software.
-# There are a number of distinct jobs that this does:
-#  - extract from boards.txt only those entries that apply for our
-#    selected (arduino) board;
-#  - convert entries into a form that make can directly read;
-#  - identify default menu selections;
-#  - OS-ify OS-specific definitions (ie make the appropriate
-#    OS-sepcific definition take effect over any generic one);
-#  - provide definitions for unspecified build paths;
-#  - provide a template value for the fqbn definition .
-#
-file_parser()
-{
     gawk '
         # Record incoming input lines, identifying those that are
 	# definitions and recording them separately.
@@ -423,50 +954,6 @@ file_parser()
 		}
 	    }
 	}
-	# Convert a line from platform.txt, etc, into a form suitable
-	# for make.  This means converting "{ref}" into "$(ref)".
-	#
-	function makify(line) {
-	    gsub(/{/, "$(", line)
-	    gsub(/}/, ")", line)
-	    return line
-        }
-
-	function print_recorded_lines(  idx) {
-	   for (idx = 1; idx < next_line; idx++) {
-	       print(makify(lines[idx]))
-	   }
-	}
-	function menu_entry(menu_line) {
-	    # Return the menu entry name from a menu_line
-	    # The menu line is in the form menu.ENTRY...
-
-	    return gensub("^menu\\.([^\\.]*).*", "\\1", 1, menu_line)
-	}
-	function menu_option(menu_line) {
-	    # Return the menu option name from a menu_line
-	    # The menu line is in the form menu.entry.OPTION...
-
-	    return gensub("^menu\\.[^\\.]*.([^\\.=]*).*", "\\1", 1, menu_line)
-	}
-	function menu_selection(menu_line) {
-	    # Return the menu selection details from a menu_line
-	    # The menu line is in the form menu.entry.option.SELECTION
-
-	    return gensub("^menu\\.[^\\.]*.[^\\.]*\\.", "", 1, menu_line)
-	}
-	# Print a definition iff it is not already defined.
-	#
-	function print_undefined(name, value) {
-	    if ((name in undefined) || !(name in definitions)) {
-		print name " = " value
-	        definitions[name] = value
-		delete undefined[name]
-	    }
-	}
-	function build_variant_path() {
-	    return PLATFORM_PATH "/variants/" definitions["build.variant"] 
-	}
 
 	# Replace the substring in VALUE starting at FROM and of
 	# length LEN, with the string WITH.
@@ -505,6 +992,44 @@ file_parser()
 	    }
 	    return rhs
        	}
+
+	# Identify references that exist within our definitions that
+	# are not currently defined.
+	#
+	function identify_undefined(def) {
+	    for (def in definitions) {
+	        expand_definition(def)
+	    }
+	}
+
+	# Convert a line from platform.txt, etc, into a form suitable
+	# for make.  This means converting "{ref}" into "$(ref)".
+	#
+	function makify(line) {
+	    gsub(/{/, "$(", line)
+	    gsub(/}/, ")", line)
+	    return line
+        }
+
+	function print_recorded_lines(  idx) {
+	   for (idx = 1; idx < next_line; idx++) {
+	       print(makify(lines[idx]))
+	   }
+	}
+
+	# Print a definition iff it is not already defined.
+	#
+	function print_undefined(name, value) {
+	    if ((name in undefined) || !(name in definitions)) {
+		print name " = " value
+	        definitions[name] = value
+		delete undefined[name]
+	    }
+	}
+
+	function build_variant_path() {
+	    return PLATFORM_PATH "/variants/" definitions["build.variant"] 
+	}
 
 	# Attempt to identify a file or sub-path from the path (def)
 	# that is to be defined/discovered.  Eg if we have the
@@ -551,16 +1076,8 @@ file_parser()
 		}
 	    }
 	}
-	# Identify references that exist within our definitions that
-	# are not currently defined.
-	#
-	function identify_undefined(  def) {
-	    for (def in definitions) {
-	        expand_definition(def)
-	    }
-	}
 	# Attempt to determine paths for an undefined definition def.
-	# We iqdentify potential paths by calling our enclosing script
+	# We identify potential paths by calling our enclosing script
 	# (dno_bpp) with the -x parameter.
 	#
 	function print_runtime_paths(def,
@@ -596,6 +1113,7 @@ file_parser()
 		}
 	    }
 	}
+
 	# Identify (discover) and print undefined required runtime paths
 	# 
 	function print_undefined_runtime_paths(  def) {
@@ -605,31 +1123,18 @@ file_parser()
 		}
 	    }
 	}
+
 	BEGIN {
 	    next_line = 1
 	    split("", ossified) # Init the ossified array
 	}
         (FNR == 1) {
+	    filename =(FILENAME == "-")? STDIN_FILENAME: FILENAME
 	    record_line("")
 	    record_line("#")
-	    record_line("# From: " FILENAME)
+	    record_line("# From file: " filename)
 	    record_line("#")
 	    record_line("")
-	}
-	(FILENAME ~ "/boards.txt") {
-	    # Much of boards.txt needs to be ignored - ie the stuff
-	    # for boards that we are not using.
-	    if  ($0 ~ "^" BOARD "\\.") {
-	        # Matching board entries have the board prefix removed.
-	        sub("^" BOARD "\\.", "")
-	    }
-	    else if ($0 ~ /^menu./) {
-	        # Non-board specific menu entries are based verbatim
-	    }
-	    else {
-	        # Anything else is ignored
-	        next
-	    }
 	}
     	{
 	    # OS-ify our entry.  This means replacing OS-specific
@@ -651,44 +1156,6 @@ file_parser()
 	{
 	    record_line($0)
 	}
-	/^menu\.cpu\./ {
-	    # Handle cpu menu entries as a special case.  We only need
-	    # to print and record details for the selected case
-	    entry = "cpu"
-	    option = menu_option($0)
-	    if (option == CPU) {
-	        if (entry != cur_entry) {
-		    # This is the first entry for this cpu so record
-		    # it as the selected cpu. 
-		    cur_entry = entry
-		    record_line("menuselection." entry "=" option)
-		}
-		else {
-		    record_line(menu_selection($0))
-		}
-	    }	    
-	    next # Do not process the following stanza
-        }
-	/^menu\.[^\.]*\./ {
-	    # The first occurrence of a particular, non-cpu, menu
-	    # entry provides the default value.
-	    entry = menu_entry($0)
-	    option = menu_option($0)
-	    if (entry != cur_entry) {
-		# This is the first entry for this menu so this is the
-		# selected option. 
-		cur_entry = entry
-		selected_option = option
-		record_line("menuselection." entry "=" option)
-	    }
-	    else {
-	        # This is an entry for the selected (default) menu
-		# option, so we record it as a selected value.
-		if (option == selected_option) {
-		    record_line(menu_selection($0))
-		}
-	    }
-	}
 	END {
 	    update_tool_references()
 	    identify_undefined()
@@ -705,98 +1172,62 @@ file_parser()
 	    		              definitions["runtime.hardware.path"])
 	    base_search_path = gensub(/\/[^\/]*\/?$/, "", "1", base_search_path)
 	    print_undefined_runtime_paths()
-	}
-    ' "$@"
+	    printf("\n")
+        }
+    ' OS="${HOST_OS}" \
+	 PLATFORM_PATH="${platform_path}" \
+	 HARDWARE_PATH=`hardware_path "${arch_path}"` \
+	 ARCH_NAME=`basename "${arch_path}"` \
+	 DNO_IDE_VERSION="${DNO_IDE_VERSION}" \
+	 THIS_SCRIPT="$0" \
+	 STDIN_FILENAME="${boards_file}" \
+	 "$@" - # Note the last input is stdin
     return $?
-
 }
 
 ##
-# arch_path
-# Identify the arduino architecture directory from the platform path.
+# parse_config_files
 #
-# Params:
-#   $1 - the directory of the platform.txt file
+# Identify the set of boards.txt and platforms.txt files that we need
+# to parse and then parse them, with output to stydout.
 #
-# stdout:
-#   The arduino arch path
-# 
-arch_path()
+# $1 our board-specifier.
+#
+parse_config_files()
 {
-    # We may have a dir structure of hardware/arch/[version]/
-    # or hardware/vendor/arch/[version]/, or version may be missing.
-    if echo `basename "$1"` | grep -q "^[0-9\.]*$"; then
-	dirname "$1"
-    else
-	# ...version may be missing
-	echo $1
-    fi
-}
+    local parts board_defns platform_files file
+    local board_id=`ensure_single_match "$1"`
+    IFS=. read -a parts <<<"${board_id}"
+    local board_file=`bfile_for_board "${parts[@]}"`
+    board_defns=`parse_board_file "${board_file}" "${board_id}"`
 
-##
-# hardware_path
-#
-# Identify the arduino hardware directory from the arch path.
-#
-# Params:
-#   $1 - the arch path directory (as returned by the arch_path function)
-#
-# stdout:
-#   The arduino arch path
-#
-hardware_path()
-{
-    dir=`dirname "$1"`
-    if [ `basename "${dir}"` = "hardware" ]; then
-	echo ${dir}
-	return 0
-    fi
-    dir=`dirname "${dir}"`
-    if [ `basename "${dir}"` = "hardware" ]; then
-	echo ${dir}
-	return 0
-    fi
-    echo "`basename $0`: Unable to identify hardware path" 1>&2
-    return 1
-}
+    # Find any referenced platforms in board_defns
+    platform_files=()
+    while IFS='' read -r file; do
+	platform_files+=("${file}")
+    done <<<`identify_platform_files "${board_file}" \
+    					    "${parts[1]}" <<<"${board_defns}"`
 
-##
-# parse_board_platform
-#
-# Generate the contents of a BOARD_INFO file based on the parameters
-# and any platform.local.txt files.  See file_parser for more.
-#
-# Params:
-#    $1 - path to boards.txt
-#    $2 - board identifier
-#    $3 - optional cpu identifier
-#
-parse_board_platform()
-{
-    platform_path=`dirname $1`
-    platform_file="${platform_path}/platform.txt"
-    board_file="$1"
-    board="$2"
-    cpu="$3"
-    shift
-    
-    platform_parameters "${board_file}" "${platform_file}" "$@"
 
-    arch_path=`arch_path ${platform_path}`
-    arch_name=`basename ${arch_path}`
-    hardware_path=`hardware_path ${arch_path}`
-    status=$?
-    if [ "${status}" -ne 0 ]; then
-	return ${status}
-    fi
+    # General header
+    cat - <<EOF
+# Parsed board info for ${board_id}
+# generated `date "+%Y%m%d %H%M%S"`
+#
 
-    file_parser BOARD="${board}" CPU="${cpu}" OS=${HOST_OS} \
-		PLATFORM_PATH="${platform_path}" \
-		ARCH_NAME="${arch_name}" HARDWARE_PATH="${hardware_path}" \
-		DNO_IDE_VERSION="${DNO_IDE_VERSION}" \
-		THIS_SCRIPT="$0" \
-    	        "${platform_file}" "${platform_local}" \
-		"${board_file}" "${board_local}"
+BOARD_TYPE = ${board_id}
+BOARD_FILE = ${board_file}
+
+runtime.os = ${HOST_OS}
+build.project_name = `projname`
+EOF
+
+    # Remove any referenced alternate core/variant/tool before passing
+    # our filtered board definitions into our parser.
+    #
+    sed -e 's/=.*:/=/' <<<"${board_defns}" | \
+        parse_all_files "${board_file}" "${platform_files}"
+
     return $?
 }
 
@@ -829,121 +1260,89 @@ find_paths()
 }
 
 
-##
-# Script starts here.
+# Handle options.
+#
+# OTHER OPTIONS TO DO:
+#   create data for BOARD_TYPE
+#   create name for directory
+#   parse for BOARD_INFO
+#
+action=identify
+options=""
+report_full_name=no
+warn_of_options=yes
+findpaths=no
 
-# Handle options
-
-board_paths=""
-board=""
-cpu=""
-friendly=""
-use_dno_default_paths=yes
-definition=""
-verify=""
-quiet=""
-params=""
-findpaths=""
-while getopts "B:P:b:c:d:fhnpqtvx-:" opt; do
+while getopts "fhlnoptvx-:" opt; do
     case "${opt}" in
 	-)
 	    case "${OPTARG}" in
-		board)
-		    board="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-		    ;;
-		board-local=*)
-		    export board_local=${OPTARG#*=}
-		    ;;
-		board=*)
-		    board=${OPTARG#*=}
-		    ;;
-		cpu)
-		    cpu="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-		    ;;
-		cpu=*)
-		    cpu=${OPTARG#*=}
-		    ;;
-		dir)
-		    board_paths=`add_board_path ${OPTARG#*=} "${board_paths}"`
-		    ;;
-		dir=*)
-		    board_paths=`add_board_path ${OPTARG#*=} "${board_paths}"`
-		    ;;
-		friendly)
-	            friendly="FRIENDLY=yes"
+		full)
+		    report_full_name=yes
 		    ;;
 		help)
 		    usage
 		    exit 0
 		    ;;
-		no | nodefaults)
-		    use_dno_default_paths=no
+		list)
+		    action=list
 		    ;;
-		params)
-		    params="PARAMETERS=yes"
+		no* | no_options | no-options)
+		    warn_of_options=no
 		    ;;
-		platform-local=*)
-		    export platform_local=${OPTARG#*=}
+		options)
+		    options=options
 		    ;;
-		quiet)
- 		    quiet="SILENT=yes"
+		parse)
+		    action=parse
 		    ;;
 		type)
-		    definition="DEFINITION=yes"
+		    action=type
 		    ;;
 		version)
 		    version
+		    exit 0
 		    ;;
 		*)
 		    if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
                         echo "`basename $0`: Unknown option --${OPTARG}" 1>&2
+			echo ARGS: "$@" 1>&2
 			exit 2
                     fi
 		    ;;
 	    esac
 	    ;;
-	B)
-	    export board_local="${OPTARG}"
-	    ;;
-	P)
-	    export platform_local="${OPTARG}"
-	    ;;
-	b)
-	    board="${OPTARG}"
-	    ;;
-	c)
-	    cpu="${OPTARG}"
-	    ;;
-	d)
-	    board_paths=`add_board_path ${OPTARG#*=} "${board_paths}"`
-	    ;;
 	f)
-	    friendly="FRIENDLY=yes"
+	    report_full_name=yes
 	    ;;
 	h)
 	    usage
 	    exit 0
 	    ;;
+	l)
+	    action=list
+	    ;;
 	n)
-	    use_dno_default_paths=no
+	    warn_of_options=no
+	    ;;
+	o)
+	    options=options
 	    ;;
 	p)
-	    params="PARAMETERS=yes"
-	    ;;
-	q)
-	    quiet="SILENT=yes"
+	    action=parse
 	    ;;
 	t)
-	    definition="DEFINITION=yes"
+	    action=type
 	    ;;
 	v)
 	    version
+	    exit 0
 	    ;;
-	x)
-	    findpaths="yes"
+	x)  findpaths=yes
 	    ;;
 	*)
 	    echo "`basename $0`: Unexpected option: -${OPTARG}" 1>&2
+			echo ARGS: "$@" 1>&2
 	    exit 1
 	    ;;
     esac
@@ -952,7 +1351,8 @@ shift $((OPTIND-1))
 
 if [ "${findpaths}" = "yes" ]; then
     # Run in path "finder" mode.  This is called recursively from
-    # parse_board_platform.
+    # parse_all_finds()
+    #
     if [ "d$1" != "d" -a -d "$1" ]; then
 	find_paths "$1" "$2"
 	exit $?
@@ -962,74 +1362,43 @@ if [ "${findpaths}" = "yes" ]; then
     fi
 fi
 
-if [ "e${board}" != "e" ]; then
-    if echo "${board}" | grep -q "\."; then
-        cpu=`echo "${board}" | cut -d. -f2`
-        board=`echo "${board}" | cut -d. -f1`
-    fi
-    board_defn="BOARD=${board}"
-fi
-
-if [ "f${cpu}" != "f" ]; then
-    cpu_defn="CPU=${cpu}"
-fi
-
-if [ "g${quiet}" != "g" ]; then
-    if [ "h${friendly}" != "h" ]; then
-	usage
-        echo "`basename $0`: friendly(-f) and quiet(-q)" \
-	     "options are incompatible" 1>&2
-        exit 2
-    fi
-    if [ "j${definition}" != "j" ]; then
-	usage
-        echo "`basename $0`: type(-t) and quiet(-q)" \
-	     "options are incompatible" 1>&2
-        exit 2
-    fi
-fi
-
-if [ "k${friendly}" != "k" ]; then
-    if [ "m${definition}" != "m" ]; then
-	usage
-        echo "`basename $0`: friendly(-f) and type(-t)" \
-	     "options are incompatible" 1>&2
-        exit 2
-    fi
-fi
-
-# Identify standard board directories and boards.txt files
+# Get our board information
 #
-if [ "n${use_dno_default_paths}" = "nyes" ]; then
-    board_paths="`default_board_paths` ${board_paths}"
-fi
+board_paths=`all_board_paths`
+all_boards=`all_boards`
 
-if [ "p${board_paths}" = "p" ]; then
-    usage
-    echo "`basename $0`: no board paths provided." 1>&2
-    exit 2
-fi
+# Read board-specifier, $1, into the board_parts array. 
+#
+IFS=. read -a board_parts <<<"$1"
 
-if [ "q${params}" = "q" ]; then
-    identify_boards ${board_defn} ${cpu_defn} ${quiet} ${definition} \
-		    ${friendly} "${board_paths}"
-    exit $?
-fi
+#echo "BOARD_PARTS" ${#board_parts[@]} ${board_parts[@]}
 
+# Our board will be fully specified within the first three parameters,
+# so let's identify some candidate matches.
+#
+all_matches=`(get_board_candidates "${board_parts[0]}"
+	      get_board_candidates "${board_parts[1]}"
+              get_board_candidates "${board_parts[2]}")`
+#echo ALL MATCHES: "${all_matches}"
 
-# We get here if the params option has been provided.  In this case,
-# identify_boards will be silent except for identifying the source
-# file for our board.
+# Filter out those candidates that do not match the board-specifier
+#
+qualified_matches=`echo "${all_matches}" | qualify_matches "${board_parts[@]}"`
 
-if filename=`identify_boards ${board_defn} ${cpu_defn} SILENT=yes \
-   			  PRINT_FILENAME=yes "${board_paths}"`; then
-    parse_board_platform "${filename}" ${board} ${cpu}
-    exit $?
-else
-    echo "`basename $0`: Invalid/incomplete board/cpu" \
-         "options provided." 1>&2
-    exit 2
-fi
+#echo "QUALIFIED MATCHES:" "${qualified_matches}"
 
-exit $?
+case "${action}" in
+    "list")
+	list_boards "$1" | board_info ${options}
+	;;
+    "identify")
+	ensure_single_match "$1"
+	;;
+    "parse")
+	parse_config_files "$1"
+	;;
+    "type")
+	board_type "$1"
+	;;
+esac
 

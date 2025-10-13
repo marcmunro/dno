@@ -8,6 +8,109 @@
     <literal>dno</literal>'s features and capabilities without really
     explaining or delving into them.  So, let's look a little closer.
   </para>
+  <section xml:id="board-specifiers">
+    <title>On Board Specifiers</title>
+    <para>
+      We saw in <link linkend='create_board_type'>the previous
+      section</link> that our <literal>BOARD_TYPE</literal> file is
+      used to specify the type of board, along with options for that
+      board.  We also saw that although the board-specifier could be
+      provided in a short abbreviated form, the
+      <literal>BOARD_TYPE</literal> file contained a longer form.
+      Let's take a closer look.
+    </para>
+    <section>
+      <title>Components of Board-Specifiers</title>
+      <para>
+	A fully-specified Arduino board definition consists of 3
+	parts, separated by dots.  These are:
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      vendor
+	    </para>
+	    <para>
+	      This is the vendor or maintainer for a family of
+	      boards.  It is the top level of the hierarchical
+	      directory structure defined by
+	      <link xlink:href="https://arduino.github.io/arduino-cli/0.21/platform-specification">the
+	      Arduino platform  specification</link>.  This might
+	      typically be <literal>arduino</literal> or
+	      <literal>esp32</literal>. 
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      architecture
+	    </para>
+	    <para>
+	      This describes an architecture for a family of boards.
+	      It is quite possible for one vendor/maintainer to support
+	      multiple architectures.  Similarly some architectures
+	      are supported by multiple vendors/maintainers.
+	    </para>
+	    <para>
+	      An example of this would be <literal>avr</literal>.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      board
+	    </para>
+	    <para>
+	      This identifies a specific board within a vendor and architecture.
+	    </para>
+	    <para>
+	      Note that sometimes vendors and architectures might have
+	      the same name as a board.  For example
+	      <literal>esp32</literal> is the name of a vendor, it's
+	      architecture, and one of its boards.  Where such
+	      ambiguity exists, it is safer not to use abbreviated
+	      board-specifiers.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+      <para>
+	If a board name is unique across all vendors and architectures
+	it need not be completely specified: it is enough in such
+	cases to simply use the board name: ie <literal>uno</literal>
+	rather than <literal>arduino.avr.uno</literal>.
+      </para>
+    </section>
+    <section>
+      <title>Specifying Options</title>
+      <para>
+	Board options can be appended to board-specifiers to provide
+	some or all of the board's options.  In <link
+	linkend='create_board_type'>our previous example</link> we
+	identified the 3.3v 8MHz variant of our arduino pro mini by
+	appending <literal>.8MHzatmega328</literal> to our
+	board-specifier.  Note that in our
+	<literal>BOARD_TYPE</literal> file this became
+	<literal>.cpu=8MHzatmega328</literal>.  A full
+	option-specifier consists of
+	<literal>&lt;option-name&gt;=&lt;option-value&gt;</literal>.
+      </para>
+      <para>
+	Multiple option values can be provided by separating them with
+	commas, eg: <literal>optiboot32.8MHz,atmega328p</literal>
+	specifies an optiboot32 board with two selected options.
+      </para>
+      <para>
+	If options appear in the same order that are defined in their
+	<literal>platform.txt</literal> file (also the same order that
+	they are shown in dno's <literal>show_boards</literal>
+	target), their corresponding option names can be avoided.
+      </para>
+      <para>
+	Note that in our <literal>BOARD_TYPE</literal> file the
+	board-specifier is fully specified.  The abbreviated forms are
+	simply a convenience.
+      </para>
+      
+    </section>
+  </section>
   <section xml:id="dno_is_make">
     <title>On Being Based On <literal>make</literal></title>
     <section>
@@ -113,7 +216,7 @@
 	linkend="create_board_type">example</link> of this with the
 	command:
 	<programlisting>
-blink$ dno BOARD_TYPE BOARD=pro CPU=8MHzatmega328
+blink$ dno BOARD_TYPE BOARD=pro.8MHzatmega328
   Creating BOARD_TYPE...
 blink$
 	</programlisting>
@@ -133,15 +236,7 @@ blink$
 	      This is used to identify a specific type of Arduino
 	      board.  For boards that have multiple CPU options, the
 	      cpu can also be specified within this variable following
-	      a period (".").  The following are therefore equivalent:
-	      <itemizedlist>
-		<listitem>
-		  <literal>BOARD=pro CPU=8MHzatmega328</literal>;
-		</listitem>
-		<listitem>
-		  <literal>BOARD=pro.8MHzatmega328</literal>.
-		</listitem>
-	      </itemizedlist>
+	      a period (".").  
 	    </para>
 	    <para>
 	      Targets which make use of this variable are:
@@ -156,15 +251,6 @@ blink$
 		  <literal>show_boards</literal>.
 		</listitem>
 	      </itemizedlist>
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      <literal>CPU</literal>
-	    </para>
-	    <para>
-	      This is used to identify the cpu variant for board
-	      specified by the <literal>BOARD</literal> variable.
 	    </para>
 	  </listitem>
 	  <listitem xml:id="device_path">
@@ -222,6 +308,17 @@ blink$
 	      This can be provided to the noscreen target to kill any
 	      <literal>screen</literal> instance that is connected to
 	      your Arduino.
+	    </para>
+	  </listitem>
+	  <listitem id="OPTIONS">
+	    <para>
+	      <literal>OPTIONS</literal>
+	    </para>
+	    <para>
+	      This variable is only used by the show_boards target.
+	      If defined (<literal>OPTIONS=y</literal>) show_boards
+	      will list any options that can be provided to the board
+	      along with their values.
 	    </para>
 	  </listitem>
 	  <listitem id="VERBOSE">
@@ -288,11 +385,7 @@ pro.8MHzatmega328$
       You can change the name of your project by simply changing the
       name of the project directory.  When you next run
       <literal>dno</literal>, it will figure out that the name has
-      changed and will rebuild everything <footnote>
-      <para>
-	Yes.  I know.
-      </para>
-    </footnote>.
+      changed and will rebuild everything.
     </para>
   </section>
   <section xml:id="board_type">
@@ -494,7 +587,12 @@ pro.8MHzatmega328$
     <para>
       It is created by running <literal>dno menu</literal>, which
       presents the user with menus of board-specific configuration
-      options.  If the user selects any non-default options, a
+      options.  Note that this does not include any options that are
+      specified by the board directory name or the
+      <literal>BOARD_TYPE</literal> file.
+    </para>
+    <para>
+      If the user selects any non-default options, a
       <literal>BOARD_OPTIONS</literal> file will be created to
       document the selections.
     </para>

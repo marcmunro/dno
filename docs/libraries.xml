@@ -509,13 +509,9 @@ pro.8MHzatmega328$
 	We see that our sketch has been recompiled (because we've
 	updated it), and also that the Deferal library got compiled.
 	This means that dno has automatically discovered that the
-	library is now needed<footnote xml:id='be-very-impressed'>
-	  <para>
-	    This would be a good time to be impressed.
-          </para>
-	</footnote>.  We haven't had to tell it to use the library, or
-	where to find it.  We have just placed the library into our
-	project directory, and starting using it in the code.
+	library is now needed.  We haven't had to tell it to use the
+	library, or where to find it.  We have just placed the library
+	into our project directory, and starting using it in the code.
       </para>
       <para>
 	So, now we need to start using Deferal objects.

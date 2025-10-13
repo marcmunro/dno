@@ -9,7 +9,7 @@
 #  
 #  ----------
 #
-AC_INIT([dno], [0.9.1 beta],
+AC_INIT([dno], [0.9.2 beta],
         [https://github.com/marcmunro/dno/issues],,
         [https://github.com/marcmunro/dno])
 
@@ -25,7 +25,7 @@ AC_ARG_WITH([arduino-dir],
 # Make this definition available to all config files.
 # It might be worth making this a config option at some point.
 #
-DNO_EXTRA_BOARDS_FILE=${HOME}/.dno_boards_paths
+DNO_EXTRA_BOARDS_FILE=~/.dno_boards_paths
 AC_SUBST([DNO_EXTRA_BOARDS_FILE])
 
 # We need sed and gawk, so fail configure step if they are not

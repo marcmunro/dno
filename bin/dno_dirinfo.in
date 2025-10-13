@@ -98,9 +98,9 @@ is_board_dir() {
     # Let's see if the directory name itself specifies a board name.
     dir=`pwd`
     dirname=`basename "${dir}"`
-    board="-b ${dirname}"
+    board="${dirname}"
 
-    if dno_bpp ${bpp_params} ${board} ${cpu} >/dev/null; then
+    if dno_bpp -t ${board} 2>/dev/null >/dev/null; then
 	# Our directory is named for a board: return success
         return 0
     fi
@@ -148,8 +148,6 @@ is_docs_dir() {
 	[ "x${dirname}" = "xdocs" ]
     )
 }
-
-bpp_params=""
 
 while getopts "d:hnv-:" opt; do
     case "${opt}" in

@@ -12,7 +12,7 @@
       </programlisting>
     </para>
     <para>
-      That's it.  It's no harder than that.  But to make this section
+      That's it: it's no harder than that.  But to make this section
       more interesting, let's run <literal>dno</literal> in this
       directory:
       <programlisting>
@@ -114,22 +114,24 @@ blink$
       the board name for this is <quote>pro</quote>, and that there
       are 4 cpu options:
       <programlisting>
-blink$ dno show_boards BOARD=pro
+blink$ dno show_boards BOARD=pro OPTIONS=y
+
+    Supported Arduino Board Types
+============================================================
+arduino.avr.pro:                     Arduino Pro or Pro Mini
+  cpu=16MHzatmega328                   ATmega328P (5V, 16 MHz)
+  cpu=8MHzatmega328                    ATmega328P (3.3V, 8 MHz)
+  cpu=16MHzatmega168                   ATmega168 (5V, 16 MHz)
+  cpu=8MHzatmega168                    ATmega168 (3.3V, 8 MHz)
 
     Supported ArduinoBoard and CPU Types
-============================================================
-pro                   Arduino Pro or Pro Mini
-  16MHzatmega168        ATmega168 (5V, 16 MHz)
-  8MHzatmega168         ATmega168 (3.3V, 8 MHz)
-  16MHzatmega328        ATmega328P (5V, 16 MHz)
-  8MHzatmega328         ATmega328P (3.3V, 8 MHz)
 blink$
       </programlisting>
     </para>
     <para xml:id="create_board_type">
       We create our <literal>BOARD_TYPE</literal> file as follows:
       <programlisting>
-blink$ dno BOARD_TYPE BOARD=pro CPU=8MHzatmega328
+blink$ dno BOARD_TYPE BOARD=pro.8MHzatmega328
   Creating BOARD_TYPE...
 blink$ ls
 blink.ino  BOARD_TYPE
@@ -142,13 +144,14 @@ blink$
       Looking at it:
       <programlisting>
 blink$ cat BOARD_TYPE
-pro.8MHzatmega328
+arduino.avr.pro.cpu=8MHzatmega328
 blink$ 
       </programlisting>
     </para>
     <para>
-      We see that it simply contains the board and cpu identification
-      for our pro mini board.
+      We see that it contains the full
+      <link linkend="board-specifiers">board-specifier</link> and cpu
+      identification for our pro mini board.  
     </para>
   </section>
   <section>
@@ -336,7 +339,7 @@ blink$
 ~$ mkdir blink
 ~$ cd blink
 blink$ [create blink.cpp using your favourite editor]
-blink$ dno BOARD_TYPE BOARD=pro CPU=8MHzatmega328
+blink$ dno BOARD_TYPE BOARD=pro.8MHzatmega328
 [ . . . ]
 blink$ dno
 [ . . . ]

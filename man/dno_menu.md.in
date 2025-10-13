@@ -25,8 +25,9 @@ The **--list** option prints the currently selected options in a form
 suitable for use in the Arduino "fqbn" property (see the 
 Platform Specification for more details).
 
-Note that the "cpu" option, eg for Arduino promini boards, is handled
-separately and such options are not selectable through **dno_menu**.
+Any options which are preselected through the BOARD_TYPE file or the
+directory name of a dn board directory, will not be selectable through
+dno_menu.
 
 This is part of the dno Arduino software builder package.
 

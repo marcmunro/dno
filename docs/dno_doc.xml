@@ -247,6 +247,7 @@
   <xi:include href="parts/dno_checksize.xml"/>
   <xi:include href="parts/dno_commands_for.xml"/>
   <xi:include href="parts/dno_dirinfo.xml"/>
+  <xi:include href="parts/dno_menu.xml"/>
   <xi:include href="parts/dno_requote.xml"/>
   <xi:include href="parts/BOARD_INFO.xml"/>
   <xi:include href="parts/BOARD_OPTIONS.xml"/>
