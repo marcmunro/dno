@@ -4,8 +4,8 @@
 <title>Chapter 4. A Little Exploration</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno (0.9.1) User Guide">
-<link rel="up" href="index.html" title="Dno (0.9.1) User Guide">
+<link rel="home" href="index.html" title="Dno (0.9.2) User Guide">
+<link rel="up" href="index.html" title="Dno (0.9.2) User Guide">
 <link rel="prev" href="ch03.html" title="Chapter 3. Getting Started">
 <link rel="next" href="ch05.html" title="Chapter 5. The Dno Directory System">
 </head>
@@ -25,7 +25,7 @@
 </div>
 <div class="chapter">
 <div class="titlepage"><div><div><h1 class="title">
-<a name="idm311"></a>Chapter 4. A Little Exploration</h1></div></div></div>
+<a name="idm314"></a>Chapter 4. A Little Exploration</h1></div></div></div>
 <p>
     The previous section shows how to get started with
     <code class="literal">dno</code> for a simple project.  It introduces a lot of
@@ -34,11 +34,117 @@
   </p>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dno_is_make"></a>4.1. On Being Based On <code class="literal">make</code>
+<a name="board-specifiers"></a>4.1. On Board Specifiers</h2></div></div></div>
+<p>
+      We saw in <a class="link" href="ch03.html#create_board_type">the previous
+      section</a> that our <code class="literal">BOARD_TYPE</code> file is
+      used to specify the type of board, along with options for that
+      board.  We also saw that although the board-specifier could be
+      provided in a short abbreviated form, the
+      <code class="literal">BOARD_TYPE</code> file contained a longer form.
+      Let's take a closer look.
+    </p>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm325"></a>4.1.1. Components of Board-Specifiers</h3></div></div></div>
+<p>
+	A fully-specified Arduino board definition consists of 3
+	parts, separated by dots.  These are:
+	</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+<p>
+	      vendor
+	    </p>
+<p>
+	      This is the vendor or maintainer for a family of
+	      boards.  It is the top level of the hierarchical
+	      directory structure defined by
+	      <a class="link" href="https://arduino.github.io/arduino-cli/0.21/platform-specification" target="_top">the
+	      Arduino platform  specification</a>.  This might
+	      typically be <code class="literal">arduino</code> or
+	      <code class="literal">esp32</code>. 
+	    </p>
+</li>
+<li class="listitem">
+<p>
+	      architecture
+	    </p>
+<p>
+	      This describes an architecture for a family of boards.
+	      It is quite possible for one vendor/maintainer to support
+	      multiple architectures.  Similarly some architectures
+	      are supported by multiple vendors/maintainers.
+	    </p>
+<p>
+	      An example of this would be <code class="literal">avr</code>.
+	    </p>
+</li>
+<li class="listitem">
+<p>
+	      board
+	    </p>
+<p>
+	      This identifies a specific board within a vendor and architecture.
+	    </p>
+<p>
+	      Note that sometimes vendors and architectures might have
+	      the same name as a board.  For example
+	      <code class="literal">esp32</code> is the name of a vendor, it's
+	      architecture, and one of its boards.  Where such
+	      ambiguity exists, it is safer not to use abbreviated
+	      board-specifiers.
+	    </p>
+</li>
+</ul></div>
+<p>
+      </p>
+<p>
+	If a board name is unique across all vendors and architectures
+	it need not be completely specified: it is enough in such
+	cases to simply use the board name: ie <code class="literal">uno</code>
+	rather than <code class="literal">arduino.avr.uno</code>.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm348"></a>4.1.2. Specifying Options</h3></div></div></div>
+<p>
+	Board options can be appended to board-specifiers to provide
+	some or all of the board's options.  In <a class="link" href="ch03.html#create_board_type">our previous example</a> we
+	identified the 3.3v 8MHz variant of our arduino pro mini by
+	appending <code class="literal">.8MHzatmega328</code> to our
+	board-specifier.  Note that in our
+	<code class="literal">BOARD_TYPE</code> file this became
+	<code class="literal">.cpu=8MHzatmega328</code>.  A full
+	option-specifier consists of
+	<code class="literal">&lt;option-name&gt;=&lt;option-value&gt;</code>.
+      </p>
+<p>
+	Multiple option values can be provided by separating them with
+	commas, eg: <code class="literal">optiboot32.8MHz,atmega328p</code>
+	specifies an optiboot32 board with two selected options.
+      </p>
+<p>
+	If options appear in the same order that are defined in their
+	<code class="literal">platform.txt</code> file (also the same order that
+	they are shown in dno's <code class="literal">show_boards</code>
+	target), their corresponding option names can be avoided.
+      </p>
+<p>
+	Note that in our <code class="literal">BOARD_TYPE</code> file the
+	board-specifier is fully specified.  The abbreviated forms are
+	simply a convenience.
+      </p>
+</div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno_is_make"></a>4.2. On Being Based On <code class="literal">make</code>
 </h2></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm319"></a>4.1.1. Dno Rebuilds Only What It Needs To</h3></div></div></div>
+<a name="idm366"></a>4.2.1. Dno Rebuilds Only What It Needs To</h3></div></div></div>
 <p>
 	We saw in the previous section that after everything had been
 	compiled and linked, running <code class="literal">dno</code> again didn't
@@ -72,7 +178,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="targets"></a>4.1.2. Dno "Commands" Are <code class="literal">make</code> "Targets"</h3></div></div></div>
+<a name="targets"></a>4.2.2. Dno "Commands" Are <code class="literal">make</code> "Targets"</h3></div></div></div>
 <p>
 	We have been introduced to a number of different
 	<code class="literal">dno</code> invocations:
@@ -125,7 +231,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm364"></a>4.1.3. Dno Accepts All Make Options</h3></div></div></div>
+<a name="idm411"></a>4.2.3. Dno Accepts All Make Options</h3></div></div></div>
 <p>
 	Of particular interest here is the <code class="literal">-j N</code>
 	option.  This allows make to perform multiple actions ("jobs")
@@ -136,7 +242,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm369"></a>4.1.4. Dno Variables</h3></div></div></div>
+<a name="idm416"></a>4.2.4. Dno Variables</h3></div></div></div>
 <p>
 	There are a number of variables that can be defined on the dno
 	command line that provide information to
@@ -145,7 +251,7 @@
 	command:
 	</p>
 <pre class="programlisting">
-blink$ dno BOARD_TYPE BOARD=pro CPU=8MHzatmega328
+blink$ dno BOARD_TYPE BOARD=pro.8MHzatmega328
   Creating BOARD_TYPE...
 blink$
 	</pre>
@@ -167,17 +273,7 @@ blink$
 	      This is used to identify a specific type of Arduino
 	      board.  For boards that have multiple CPU options, the
 	      cpu can also be specified within this variable following
-	      a period (".").  The following are therefore equivalent:
-	      </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; ">
-<li class="listitem">
-<code class="literal">BOARD=pro CPU=8MHzatmega328</code>;
-		</li>
-<li class="listitem">
-<code class="literal">BOARD=pro.8MHzatmega328</code>.
-		</li>
-</ul></div>
-<p>
+	      a period (".").  
 	    </p>
 <p>
 	      Targets which make use of this variable are:
@@ -194,15 +290,6 @@ blink$
 		</li>
 </ul></div>
 <p>
-	    </p>
-</li>
-<li class="listitem">
-<p>
-	      <code class="literal">CPU</code>
-	    </p>
-<p>
-	      This is used to identify the cpu variant for board
-	      specified by the <code class="literal">BOARD</code> variable.
 	    </p>
 </li>
 <li class="listitem">
@@ -264,6 +351,17 @@ blink$
 	    </p>
 </li>
 <li class="listitem">
+<p><a name="OPTIONS"></a>
+	      <code class="literal">OPTIONS</code>
+	    </p>
+<p>
+	      This variable is only used by the show_boards target.
+	      If defined (<code class="literal">OPTIONS=y</code>) show_boards
+	      will list any options that can be provided to the board
+	      along with their values.
+	    </p>
+</li>
+<li class="listitem">
 <p><a name="VERBOSE"></a>
 	      <code class="literal">VERBOSE</code>
 	    </p>
@@ -322,7 +420,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm437"></a>4.2. The Project Directory</h2></div></div></div>
+<a name="idm479"></a>4.3. The Project Directory</h2></div></div></div>
 <p>
       The name for a dno project comes from the name of the <a class="link" href="ch05.html#project_dir" title="5.1. The Project/Root Directory">project directory</a>.  The Arduino IDE
       handles this in much the same way, but setting the name in the
@@ -332,12 +430,12 @@ pro.8MHzatmega328$
       You can change the name of your project by simply changing the
       name of the project directory.  When you next run
       <code class="literal">dno</code>, it will figure out that the name has
-      changed and will rebuild everything <a href="#ftn.idm443" class="footnote" name="idm443"><sup class="footnote">[2]</sup></a>.
+      changed and will rebuild everything.
     </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="board_type"></a>4.3. 
+<a name="board_type"></a>4.4. 
       The BOARD_TYPE File, And Board Types
     </h2></div></div></div>
 <p>
@@ -454,7 +552,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="clean"></a>4.4. Cleaning</h2></div></div></div>
+<a name="clean"></a>4.5. Cleaning</h2></div></div></div>
 <p>
       The section above introduced the "clean" and "pristine"
       targets.  These, along with "tidy" are used for carefully
@@ -473,7 +571,7 @@ pro.8MHzatmega328$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm481"></a>4.4.1. <code class="literal">Tidy</code>
+<a name="idm521"></a>4.5.1. <code class="literal">Tidy</code>
 </h3></div></div></div>
 <p>
 	The <code class="literal">tidy</code> target removes all files that look
@@ -482,7 +580,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm486"></a>4.4.2. <code class="literal">Clean</code>
+<a name="idm526"></a>4.5.2. <code class="literal">Clean</code>
 </h3></div></div></div>
 <p>
 	The <code class="literal">Clean</code> target does all that the
@@ -494,7 +592,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="pristine"></a>4.4.3. <code class="literal">Pristine</code>
+<a name="pristine"></a>4.5.3. <code class="literal">Pristine</code>
 </h3></div></div></div>
 <p>
 	The <code class="literal">pristine</code> target does all that the
@@ -509,7 +607,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm503"></a>4.5. The BOARD_INFO file</h2></div></div></div>
+<a name="idm543"></a>4.6. The BOARD_INFO file</h2></div></div></div>
 <p>
       The <code class="literal">BOARD_INFO</code> file is derived from the
       files:
@@ -534,7 +632,7 @@ pro.8MHzatmega328$
     </p>
 <p>
       Dno parses these files, based on the user's
-      <a class="link" href="ch04.html#board_type" title="4.3.  The BOARD_TYPE File, And Board Types">
+      <a class="link" href="ch04.html#board_type" title="4.4.  The BOARD_TYPE File, And Board Types">
 	board selection
       </a>, creating a file that conforms with
       <code class="literal">makefile</code> syntax and provides all of the
@@ -544,7 +642,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm519"></a>4.6. The BOARD_OPTIONS file</h2></div></div></div>
+<a name="idm559"></a>4.7. The BOARD_OPTIONS file</h2></div></div></div>
 <p>
       The <code class="literal">BOARD_OPTIONS</code> file describes selected,
       non-default, board-specific configuration values.
@@ -552,14 +650,19 @@ pro.8MHzatmega328$
 <p>
       It is created by running <code class="literal">dno menu</code>, which
       presents the user with menus of board-specific configuration
-      options.  If the user selects any non-default options, a
+      options.  Note that this does not include any options that are
+      specified by the board directory name or the
+      <code class="literal">BOARD_TYPE</code> file.
+    </p>
+<p>
+      If the user selects any non-default options, a
       <code class="literal">BOARD_OPTIONS</code> file will be created to
       document the selections.
     </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm526"></a>4.7. Connecting to Physical Arduino Boards</h2></div></div></div>
+<a name="idm568"></a>4.8. Connecting to Physical Arduino Boards</h2></div></div></div>
 <p>
       Dno provides a number of commands for interfacing with Arduino
       boards.  It can upload compiled code to a board, modify a
@@ -568,7 +671,7 @@ pro.8MHzatmega328$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm529"></a>4.7.1. Identifying Devices</h3></div></div></div>
+<a name="idm571"></a>4.8.1. Identifying Devices</h3></div></div></div>
 <p>
 	Generally, when a single Arduino board is connected to your
 	computer, dno is able to identify the serial device it is
@@ -594,7 +697,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm537"></a>4.7.2. Uploading Software</h3></div></div></div>
+<a name="idm579"></a>4.8.2. Uploading Software</h3></div></div></div>
 <p>
 	Software is uploaded using dno's <code class="literal">upload</code>
 	target.  More can be found <a class="link" href="ch03.html#upload" title="3.5. Uploading To A Board">here</a>.
@@ -602,7 +705,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm542"></a>4.7.3. Communicating With The Arduino</h3></div></div></div>
+<a name="idm584"></a>4.8.3. Communicating With The Arduino</h3></div></div></div>
 <p>
 	The equivalent to the Arduino IDE's Serial Monitor is invoked
 	by the <code class="literal">monitor</code> target.  More <a class="link" href="ch08.html#monitor" title="8.5. Serial Communication">here</a>.
@@ -610,7 +713,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm547"></a>4.7.4. Writing EEPROM data</h3></div></div></div>
+<a name="idm589"></a>4.8.4. Writing EEPROM data</h3></div></div></div>
 <p>
 	Writing to an Arduino's EEPROM from outside of a program is a
 	bit hit and miss.  Dno kind-of, mostly, sort-of supports writing
@@ -620,7 +723,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm551"></a>4.8. Performance</h2></div></div></div>
+<a name="idm593"></a>4.9. Performance</h2></div></div></div>
 <p>
       Generally speaking dno will easily outperform the Arduino IDE or
       CLI.  This is because dno:
@@ -685,7 +788,7 @@ pro.8MHzatmega328$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm574"></a>4.8.1. Quantified Performance Comparison</h3></div></div></div>
+<a name="idm616"></a>4.9.1. Quantified Performance Comparison</h3></div></div></div>
 <p>
 	The following tests were performed using the standard
 	<code class="literal">blink.cpp</code> sketch, compiled for a
@@ -700,10 +803,10 @@ pro.8MHzatmega328$
       </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm581"></a>4.8.1.1. Comparing Build Times</h4></div></div></div>
+<a name="idm623"></a>4.9.1.1. Comparing Build Times</h4></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="idm583"></a>Arduino CLI</h5></div></div></div>
+<a name="idm625"></a>Arduino CLI</h5></div></div></div>
 <p>
 	    To do this we ran the Arduino IDE to show the build
 	    commands.  These commands were extracted into a script,
@@ -767,7 +870,7 @@ cli_blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="idm593"></a>Dno</h5></div></div></div>
+<a name="idm635"></a>Dno</h5></div></div></div>
 <p>
 	    We created a directory containing our sketch, and created
 	    <code class="literal">BOARD_TYPE</code> and
@@ -830,7 +933,7 @@ dno_blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="idm606"></a>Conclusion</h5></div></div></div>
+<a name="idm648"></a>Conclusion</h5></div></div></div>
 <p>
 	    In a pure compilation and linking invocation, with no
 	    cached results, dno is a little faster (about 6%) than the
@@ -845,7 +948,7 @@ dno_blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm609"></a>4.8.1.2. Comparing Parse and Build Times</h4></div></div></div>
+<a name="idm651"></a>4.9.1.2. Comparing Parse and Build Times</h4></div></div></div>
 <p>
 	  Let's now also consider parse times.  This is the time for
 	  <code class="literal">arduino-builder</code> to dump its preferences,
@@ -854,7 +957,7 @@ dno_blink$
 	</p>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="idm615"></a>Arduino CLI</h5></div></div></div>
+<a name="idm657"></a>Arduino CLI</h5></div></div></div>
 <p>
 	    For this test, we modify our script as shown below:
 	    </p>
@@ -912,7 +1015,7 @@ cli_blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="idm625"></a>Dno</h5></div></div></div>
+<a name="idm667"></a>Dno</h5></div></div></div>
 <p>
 	    We slightly modify our previous invocation and, again, run
 	    4 times:
@@ -945,7 +1048,7 @@ dno_blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="idm629"></a>Conclusion</h5></div></div></div>
+<a name="idm671"></a>Conclusion</h5></div></div></div>
 <p>
 	    In this test, dno does even better, achieving around 65%
 	    better performance.  This is quite surprising since the
@@ -956,7 +1059,7 @@ dno_blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm632"></a>4.8.1.3. Final Conclusions</h4></div></div></div>
+<a name="idm674"></a>4.9.1.3. Final Conclusions</h4></div></div></div>
 <p>
 	  Even in relatively simple comparisons with simple sketches,
 	  dno outperforms the standard Arduino CLI.  Given that: the
@@ -967,12 +1070,6 @@ dno_blink$
 	</p>
 </div>
 </div>
-</div>
-<div class="footnotes">
-<br><hr style="width:100; text-align:left;margin-left: 0">
-<div id="ftn.idm443" class="footnote"><p><a href="#idm443" class="para"><sup class="para">[2] </sup></a>
-	Yes.  I know.
-      </p></div>
 </div>
 </div>
 <div class="navfooter">

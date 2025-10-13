@@ -1,18 +1,18 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Appendix F. man page for dno_requote(1)</title>
+<title>Appendix F. man page for dno_menu(1)</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno (0.9.1) User Guide">
-<link rel="up" href="index.html" title="Dno (0.9.1) User Guide">
+<link rel="home" href="index.html" title="Dno (0.9.2) User Guide">
+<link rel="up" href="index.html" title="Dno (0.9.2) User Guide">
 <link rel="prev" href="ape.html" title="Appendix E. man page for dno_dirinfo(1)">
-<link rel="next" href="apg.html" title="Appendix G. man page for board_info(5)">
+<link rel="next" href="apg.html" title="Appendix G. man page for dno_requote(1)">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div class="navheader">
 <table width="100%" summary="Navigation header">
-<tr><th colspan="3" align="center">Appendix F. man page for dno_requote(1)</th></tr>
+<tr><th colspan="3" align="center">Appendix F. man page for dno_menu(1)</th></tr>
 <tr>
 <td width="20%" align="left">
 <a accesskey="p" href="ape.html">Prev</a> </td>
@@ -26,38 +26,54 @@
 <div class="appendix">
 <div class="titlepage"><div>
 <div><h1 class="title">
-<a name="idm1667"></a>man page for dno_requote(1)</h1></div>
+<a name="idm1719"></a>man page for dno_menu(1)</h1></div>
 <div><div class="authorgroup"><div class="author"><h3 class="author">
 <span class="firstname">Marc</span> <span class="surname">Munro</span>
 </h3></div></div></div>
 </div></div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dno_requote-name"></a>NAME</h2></div></div></div>
+<a name="dno_menu-name"></a>NAME</h2></div></div></div>
 <p>
-      dno_requote - Process the quotes in an Arduino recipe command into
-      a format suitable for bash
+      dno_menu - Manage Arduino board options for
+      <span class="strong"><strong>dno</strong></span>
     </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dno_requote-synopsis"></a>SYNOPSIS</h2></div></div></div>
+<a name="dno_menu-synopsis"></a>SYNOPSIS</h2></div></div></div>
 <p>
-      echo <span class="quote">“<span class="quote">COMMAND</span>”</span> |
-      <span class="strong"><strong>dno_requote</strong></span>
+      <span class="strong"><strong>dno_menu</strong></span>
+      <a class="link" href="apf.html#dno_menu-options" title="OPTIONS">OPTIONS</a>
     </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dno_requote-description"></a>DESCRIPTION</h2></div></div></div>
+<a name="dno_menu-description"></a>DESCRIPTION</h2></div></div></div>
 <p>
-      <span class="strong"><strong>dno_requote</strong></span> is a filter that
-      takes Arduino recipe commands as stdin, and converts the quoting
-      within these commands to be compatible with bash.
+      <span class="strong"><strong>dno_menu</strong></span> allows a caller to
+      change options for the currently selected Arduino board type in a
+      dno board directory.
     </p>
 <p>
-      It is not clear to the author what the original quoting is
-      compatible with.
+      With the <span class="strong"><strong>–menu</strong></span> option (the
+      default) selected <span class="strong"><strong>dno_menu</strong></span>
+      allows the user to select from various options for each of the
+      optional build parameters for that board. Any non-default values
+      that are selected for any option are written to the BOARD_OPTIONS
+      file. If no non-default options are selected, this file will not
+      be written and will be deleted if present.
+    </p>
+<p>
+      The <span class="strong"><strong>–list</strong></span> option prints the
+      currently selected options in a form suitable for use in the
+      Arduino <span class="quote">“<span class="quote">fqbn</span>”</span> property (see the Platform
+      Specification for more details).
+    </p>
+<p>
+      Any options which are preselected through the BOARD_TYPE file or
+      the directory name of a dn board directory, will not be selectable
+      through dno_menu.
     </p>
 <p>
       This is part of the dno Arduino software builder package.
@@ -65,24 +81,77 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dno_requote-see-also"></a>SEE ALSO</h2></div></div></div>
+<a name="dno_menu-options"></a>OPTIONS</h2></div></div></div>
 <p>
-      <span class="strong"><strong>dno</strong></span>(1)
-      <span class="strong"><strong>BOARD_INFO</strong></span>(5)
+      <span class="strong"><strong>-h, –help</strong></span>
+    </p>
+<pre class="programlisting">
+Provide help.
+</pre>
+<p>
+      <span class="strong"><strong>-l, –list</strong></span>
+    </p>
+<pre class="programlisting">
+Generate a list of selected options in a format suitable for the
+"fqbn" Arduino Platform Specification property.  Do not present
+the user with any menus.
+</pre>
+<p>
+      <span class="strong"><strong>-m, –menu</strong></span>
+    </p>
+<pre class="programlisting">
+Interact with the user using menus, to allow them to choose
+various platform properties.  This is the default option for
+**dno_menu** so does not need to be explicitly provided.
+</pre>
+<p>
+      <span class="strong"><strong>-v, –version</strong></span>
+    </p>
+<pre class="programlisting">
+Print version information and exit
+</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno_menu-exit-status"></a>EXIT STATUS</h2></div></div></div>
+<p>
+      Returns success as long as nothing goes horribly wrong.
     </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dno_requote-license"></a>LICENSE</h2></div></div></div>
+<a name="dno_menu-files"></a>FILES</h2></div></div></div>
 <p>
-      <span class="strong"><strong>dno_requote</strong></span> is free software:
-      you can redistribute it and/or modify it under the terms of the
-      GNU General Public License as published by the Free Software
+      The BOARD_INFO in the current directory is read and parsed in
+      order to identify the set of options for the currently selected
+      Arduino board.
+    </p>
+<p>
+      The BOARD_OPTIONS file will be written to with the set of
+      non-default selected options.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno_menu-see-also"></a>SEE ALSO</h2></div></div></div>
+<p>
+      <span class="strong"><strong>dno</strong></span>(1)
+      <span class="strong"><strong>BOARD_INFO</strong></span>(5)
+      <span class="strong"><strong>BOARD_OPTIONS</strong></span>(5)
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno_menu-license"></a>LICENSE</h2></div></div></div>
+<p>
+      <span class="strong"><strong>dno_menu</strong></span> is free software: you
+      can redistribute it and/or modify it under the terms of the GNU
+      General Public License as published by the Free Software
       Foundation, version 3 of the License.
     </p>
 <p>
-      <span class="strong"><strong>dno_requote</strong></span> is distributed in
-      the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+      <span class="strong"><strong>dno_menu</strong></span> is distributed in the
+      hope that it will be useful, but WITHOUT ANY WARRANTY; without
       even the implied warranty of MERCHANTABILITY or FITNESS FOR A
       PARTICULAR PURPOSE. See the GNU General Public License for more
       details.
@@ -107,7 +176,7 @@
 <tr>
 <td width="40%" align="left" valign="top">Appendix E. man page for dno_dirinfo(1) </td>
 <td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
-<td width="40%" align="right" valign="top"> Appendix G. man page for board_info(5)</td>
+<td width="40%" align="right" valign="top"> Appendix G. man page for dno_requote(1)</td>
 </tr>
 </table>
 </div>

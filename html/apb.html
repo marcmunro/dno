@@ -4,8 +4,8 @@
 <title>Appendix B. man page for dno_bpp(1)</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno (0.9.1) User Guide">
-<link rel="up" href="index.html" title="Dno (0.9.1) User Guide">
+<link rel="home" href="index.html" title="Dno (0.9.2) User Guide">
+<link rel="up" href="index.html" title="Dno (0.9.2) User Guide">
 <link rel="prev" href="apa.html" title="Appendix A. man page for dno(1)">
 <link rel="next" href="apc.html" title="Appendix C. man page for dno_checksize(1)">
 </head>
@@ -26,7 +26,7 @@
 <div class="appendix">
 <div class="titlepage"><div>
 <div><h1 class="title">
-<a name="idm1358"></a>man page for dno_bpp(1)</h1></div>
+<a name="idm1395"></a>man page for dno_bpp(1)</h1></div>
 <div><div class="authorgroup"><div class="author"><h3 class="author">
 <span class="firstname">Marc</span> <span class="surname">Munro</span>
 </h3></div></div></div>
@@ -44,13 +44,15 @@
 <a name="dno_bpp-synopsis"></a>SYNOPSIS</h2></div></div></div>
 <p>
       <span class="strong"><strong>dno_bpp</strong></span> [OPTION]…
+      [BOARD-SPECIFIER]
     </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="dno_bpp-description"></a>DESCRIPTION</h2></div></div></div>
 <p>
-      Parses Arduino boards.txt and platform.txt files to create
+      Validates board-specifiers, lists matching boards and parses
+      Arduino boards.txt and platform.txt files to create
       inclusion-files for dno (a make-based build system), to identify
       the available boards, and to help create dno BOARD_TYPE and
       BOARD_INFO files.
@@ -63,60 +65,38 @@
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="dno_bpp-options"></a>OPTIONS</h2></div></div></div>
 <p>
-      <span class="strong"><strong>-b board, –board board</strong></span>
+      <span class="strong"><strong>-f, –full</strong></span>
     </p>
 <p>
-      Specify a board to be searched for in the boards.txt file(s) If
-      board is in the form x.y, then cpu will be determined from y, and
-      board from x. If the board is not completely specified, a list of
-      possible boards will be printed.
-    </p>
-<p>
-      <span class="strong"><strong>-c cpu, –cpu cpu</strong></span>
-    </p>
-<p>
-      Specify a cpu to be searched for in the boards.txt file(s)
-    </p>
-<p>
-      <span class="strong"><strong>-d dir, –dir dir</strong></span>
-    </p>
-<p>
-      Specify a directory to search for boards.txt This may be specified
-      multiple times to allow for multiple boards.txt files.
-    </p>
-<p>
-      <span class="strong"><strong>-f, –friendly</strong></span>
-    </p>
-<p>
-      Friendly-format the output. This is mostly useful when not fully
-      specifying the board that we are interested in. This makes the
-      board listing output more human-friendly.
+      In combination with –type, report the full board specifier
+      including any selected options.
     </p>
 <p>
       <span class="strong"><strong>-h, –help</strong></span>
     </p>
 <p>
-      Provide help.
+      Provide basic help.
     </p>
 <p>
-      <span class="strong"><strong>-n, –no, –nodefaults</strong></span>
+      <span class="strong"><strong>-n, –no, –nooptions</strong></span>
     </p>
 <p>
-      Do not use the system default dno paths for the boards.txt files.
-      You must provide at least one explicit –dir option in this case.
+      In combination with –type prevent warning notices about
+      unspecified options.
     </p>
 <p>
-      <span class="strong"><strong>-p, –params</strong></span>
+      <span class="strong"><strong>-o, –options</strong></span>
+    </p>
+<p>
+      In combination with –list show the menu options for the matching
+      boards.
+    </p>
+<p>
+      <span class="strong"><strong>-p, –parse</strong></span>
     </p>
 <p>
       Print build parameters for inclusion into a makefile, etc. This is
       used to create a BOARD_INFO file for dno.
-    </p>
-<p>
-      <span class="strong"><strong>-q, –quiet</strong></span>
-    </p>
-<p>
-      Be silent
     </p>
 <p>
       <span class="strong"><strong>-t, –type</strong></span>
@@ -141,10 +121,65 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno_bpp-board-specifiers"></a>BOARD-SPECIFIERS</h2></div></div></div>
+<p>
+      A full board specification identfies the vendor, architecture,
+      board and any important board options in a dot separated format.
+      For example, the arduino uno would be fully specified as:
+    </p>
+<pre class="programlisting">
+arduino.avr.uno
+</pre>
+<p>
+      If a board can be unambiguously specified without the vendor
+      and/or architecture, those parts may be dropped. So the Arduino
+      uno can be simply specified as:
+    </p>
+<pre class="programlisting">
+uno
+</pre>
+<p>
+      Board options such as cpu type, or clock speed can be provided as
+      comma-separated option specfications, where each option may be
+      identified by either position or name. For example the arduino pro
+      mini with an optiboot boot loader can be specified as:
+    </p>
+<pre class="programlisting">
+optiboot32.mhz=8MHz,cpu=atmega328p
+</pre>
+<p>
+      Or as:
+    </p>
+<pre class="programlisting">
+optiboot32.8MHz,atmega328p
+</pre>
+<p>
+      It could also be less completely specified as:
+    </p>
+<pre class="programlisting">
+optiboot32.8MHz
+</pre>
+<p>
+      or:
+    </p>
+<pre class="programlisting">
+optiboot32.cpu=atmega328p
+</pre>
+<p>
+      Note that it cannot be specified as
+      <code class="literal">optiboot32.atmega328p</code> as the
+      <code class="literal">cpu</code> option, for which
+      <code class="literal">atmega328p</code> is a valid option, is not the first
+      option for the <code class="literal">optiboot32</code> board.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="dno_bpp-files"></a>FILES</h2></div></div></div>
 <p>
       By default, <span class="strong"><strong>dno_bpp</strong></span> looks for
-      platforms.txt and boards.txt files in the paths specified in:
+      platforms.txt, platforms.local.txt, boards.txt and
+      boards.local.txt files in the paths specified in:
     </p>
 <pre class="programlisting">
 ~/.dno_boards_paths
@@ -160,6 +195,17 @@
       boards.txt files, the one that is specified last in
       ~/.dno_boards_paths is the one that will be used.
     </p>
+<p>
+      As a non-standard extension to Arduino IDE functionality, a
+      platform.local.txt file can be placed in the board or root
+      directory or a dno project to provide overrides of specific
+      functionality. The Arduino IDE developers thing this would be a
+      security issue. The dno developer disagrees: if a dno user wants
+      to redefine some flags or some such, we should make it as easy as
+      is reasonable. If they can create a local file that could act as a
+      trojan, they could manually run the same exploit themselves.
+      Protecting developers from themselves is not in dno’s perview.
+    </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
@@ -173,26 +219,36 @@
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="dno_bpp-examples"></a>EXAMPLES</h2></div></div></div>
 <p>
-      Provide a human readable list of all board types from the
-      boards.txt file in a given board-path:
+      Provide a list of all known board types:
     </p>
 <pre class="programlisting">
-$ dno_bpp -d /usr/share/arduino/hardware/arduino/avr -f
+$ dno_bpp -l
 </pre>
 <p>
-      List the set of arduino pro board types, in a form suitable for a
-      dno BOARD_TYPE file:
+      Provide a list of only Arduino board types:
     </p>
 <pre class="programlisting">
-$ dno_bpp -d /usr/share/arduino/hardware/arduino/avr -b pro -t
+$ dno_bpp -l arduino
 </pre>
 <p>
-      List the full set of board parameters, for inclusion into a dno
-      BOARD_INFO file, for an Arduino pro 8MHzatmega328:
+      Provide the full board-specifier for an arduino pro board, in a
+      form suitable for a dno BOARD_TYPE file:
     </p>
 <pre class="programlisting">
-$ dno_bpp -d /usr/share/arduino/hardware/arduino/avr \
-        -b pro -c 8MHzatmega328 -p
+$ dno_bpp -t pro 
+</pre>
+<p>
+      List the menu options for an arduino pro board:
+    </p>
+<pre class="programlisting">
+$ dno_bpp -l -o pro 
+</pre>
+<p>
+      Generate the parsed board parameters for an Arduino pro
+      8MHzatmega328:
+    </p>
+<pre class="programlisting">
+$ dno_bpp -p pro.8MHzatmega328 
 </pre>
 </div>
 <div class="section">
