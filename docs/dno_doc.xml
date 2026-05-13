@@ -54,9 +54,9 @@
       creation of professional-quality software for Arduino platforms.
     </para>
     <para>
-      Finally, it aims to be as simple to use as possible - requiring
-      minimal configuration while providing maximal flexibility and
-      ease of use.
+      Finally, it aims to be as simple to use as possible.  It
+      provides the simplest possible commands and requires
+      minimal configuration while providing maximal flexibility.
     </para>
   </preface>
   <xi:include href="installation.xml"/>
