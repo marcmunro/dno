@@ -1,14 +1,21 @@
 #! /usr/bin/env bash
 #
-#       dno_menu - Menu options handler for dno
+#       dno_menu - Arduino menu options handler for dno
 # 
-#       Copyright (c) 2024 Marc Munro
+#       Copyright (c) 2025 Marc Munro
 #       Author:  Marc Munro
 # 	License: GPL-3.0
 #
 
 DNO_VERSION=@DNO_VERSION@
-DIALOG=@DIALOG@
+
+# DIALOG can be provided in the calling environment to override the
+# configured value.
+#
+[ "x${DIALOG}" = "x" ] && DIALOG=@DIALOG@
+
+ARDUINO_BOARDS_FILE="@BOARDS_TXT@"
+EXTRA_BOARDS_FILE="@DNO_EXTRA_BOARDS_FILE@"
 
 ##
 # usage
@@ -17,19 +24,24 @@ DIALOG=@DIALOG@
 #
 usage()
 {
-    echo "dno_menu [options]...
+    echo "dno_menu [options]... [board-specifier]
   Provide menu-based updating of board options for the dno build
-  system.  Also, provide a list of currently selected options for
-  inclusion in the fqbn parameter.
+  system, identify the selected board options, and provide a list of
+  currently selected options for inclusion in the fqbn parameter.
+
+  With no board specifier, use the name of the current directory.
 
   Options:
   --menu, -m  Interact with the caller via a menu-based interface.
-  	      This is the default mode of operation.
-  --list, -l  List the currently selected menu options in a form that
-              can be included into the fqbn parameter.
+  	      This is the default mode of operation
+  --list, -l  List the currently selected menu options with the board
+  	      parameters associated with those options.  The output is
+	      in the form that would be saved to BOARD_OPTIONS
+  --fqbn, -f  Output the list of menu selections in a form suitable
+  	      for inclusion into the Fully Qualified Board Name (fqbn)
   --help, -h  Help
   --version, -v	      
-  	      Print version information and exit.
+  	      Print version information and exit
 "
 }
 
@@ -44,13 +56,49 @@ version()
     exit
 }
 
-
-menu_details ()
+# process_menu
+# Does the hard work of understanding which options are selected,
+# which are default, which are preselected, etc, and for invoking our
+# DIALOG command to allow the user to make changes.
+#
+process_menu()
 {
     gawk '
+        # Return true if option is one of our preselected options.
+        #
+	function menu_is_preselected(menu_name) {
+	    return (PRESELECTED_OPTIONS ~ "^" menu_name "=") ||
+	    	   (PRESELECTED_OPTIONS ~ "," menu_name "=")
+	}
+
+	# Return the preselected option associated with the menu given
+	# by menu_name
+	#
+	function menu_preselection(menu_name) {
+	    entry = gensub("(^" menu_name ".|.*," menu_name ".)", 
+	    	    	   "", "1", PRESELECTED_OPTIONS)
+	    return gensub("([^,]*),.*", "\\1", "1", entry)
+	}
+
+	# Return the selected option for the menu given by menu_name.
+	#
+	function menu_selection(menu_name) {
+	    return (menu_name in menu_selections) ?
+		           menu_selections[menu_name] :
+			   menu_defaults[menu_name]
+	}
+	# Predicate, does what it name suggests
+	#
+	function have_selection(menu_name) {
+	    return (menu_name in menu_selections) ||
+	           (menu_name in menu_defaults)
+	}
+	# Return the largest of 2 values
+	#
 	function max(a, b) {
 	    return a > b? a: b
 	}
+
 	# Comparison function that handles numeric as well as string
 	# comparisons.
 	#
@@ -72,76 +120,66 @@ menu_details ()
 	    else
 	        return 1
 	}
-	function confirm_save(box, result)
-	{
-	    box = sprintf("%s --title \"Save changes for %s\" --yesno " \
-	    	           "\"        Save changes to options for %s?\" " \
-		   	   "8 78 3>&1 1>&2 2>&3", \
-		    	   MENU_CMD, board_name, board_name)
-	    box | getline input
-	    result = close(box)
-	    return (result == 0)
+
+	# Record the current state of selections as menu_initial_selection
+	#
+	function record_initial_selections(menu_name) {
+	    for (menu_name in menus) {
+	        menu_initial_selection[menu_name] = menu_selection(menu_name)
+	    }
 	}
-	function save_changes(menu_selections, entry_counts, option_entries,
-		 	      menu, selection, i, written)
-	{
-	    for (menu in menu_selections) {
-	        if (menu_selections[menu]["selected"] != \
-		         menu_selections[menu]["default"]) {
-		    selected = menu_selections[menu]["selected"]
-		    for (i = 1; i <= entry_counts[menu][selected]; i++) {
-		        print option_entries[menu][selected][i] >OPTIONS_FILE
-		    }
-		    print "menuselection." menu "=" selected >OPTIONS_FILE
-		    written = 1
+
+	# Predicate identifying whether we have made any changes to
+	# our initial selections.
+	#
+	function selections_updated(menu_name) {
+	    for (menu_name in menus) {
+	        if (menu_selection(menu_name) != \
+	            menu_initial_selection[menu_name]) {
+		    return 1
 		}
 	    }
-	    return written
+	    return 0
 	}
-	function id_from_entry(menu_entry) {
-	    return gensub("^([^.=]*).*", "\\1", "1", menu_entry)
-	}
-	function option_from_entry(menu_entry) {
-	    return gensub("^([^.]*.([^.=]*)).*", "\\2", "1", menu_entry)
-	}
-	function print_options(board_name, menus, menu_options, 
-		 	       menu_selections,
-			       n, sorted_menus, i, menu_id, comma) {
-	    n = asorti(menus, sorted_menus)
-	    comma = ""
-	    for (i = 1; i <= n; i++) {
-	        menu_id = sorted_menus[i]
-		if (length(menu_options[menu_id])) {
-		    printf(comma menu_id "=" \
-		    	   menu_selections[menu_id]["selected"])
-		    comma = ","
+
+	# Predicate showing whether our selections are the same as
+	# the default options.  If so, we do not need a BOARD_OPTIONS
+	# file. 
+	#
+	function selections_as_defaults() {
+	    for (menu_name in menus) {
+	        if (menu_selection(menu_name) != \
+	            menu_defaults[menu_name]) {
+		    return 0
 		}
 	    }
-	    printf("\n")
+	    return 1
 	}
-	function option_is_preselected(option) {
-	    return (PRESELECTED_OPTIONS ~ "^" option "=") ||
-	    	   (PRESELECTED_OPTIONS ~ "," option "=")
-	}	
-	function main_menu(board_name, menus, menu_options, menu_selections,
-		 	   n, sorted_menus, i, option, selected,
-			   entries, entry_count) 
-	{
+
+	# Create main menu command to invoke our dialog mechanism.
+	#
+	function main_menu(sorted_menus, n, i, menu_name,
+		 	   entry_idx, selected, selected_name,
+			   entries) {
+	    # Create sorted version of menus
 	    n = asorti(menus, sorted_menus)
 	    for (i = 1; i <= n; i++) {
-	        menu_id = sorted_menus[i]
-		if (option_is_preselected(menu_id)) {
+	        menu_name = sorted_menus[i]
+		if (menu_is_preselected(menu_name)) {
+		    print "menu " menu_name " is pre-selected"
+		    exit 1
 		    continue
 		}
-		if (length(menu_options[menu_id])) {
-		    entry_count++
-		    selected = menu_selections[menu_id]["selected"]
-		    selected_name = menu_options[menu_id][selected]
+		if (length(menu_options[menu_name])) {
+		    # We have entries for this menu
+		    entry_idx++
+		    selected = menu_selection(menu_name)
+		    selected_name = menu_options[menu_name][selected]
 		    if (length(selected_name) > 20) {
 		        selected_name = substr(selected_name, 1, 20) "..."
 		    }
 		    entries = entries sprintf("\"%s\" \"[%s]\" ", 
-		    	          menus[menu_id], selected_name)
+		    	          menus[menu_name], selected_name)
 		}
 	    }
 	    if (entries) {
@@ -149,156 +187,219 @@ menu_details ()
 	    	           "--cancel-button \"%s\" " \
 	    	    	   "--menu Options %d 78 %d %s 3>&1 1>&2 2>&3", 
 	    	  	   MENU_CMD, board_name,
-			   selections_updated(menu_selections)? "Save": "Exit",
-			   max(entry_count + 6, 15), 
-			   entry_count, entries)
+			   selections_updated()? "Save": "Exit",
+			   max(entry_idx + 6, 15), 
+			   entry_idx, entries)
 	    }
 	    return 0
 	}
-	function menu_for(menu_id, menu_name,
-		 	  menus, menu_options, menu_selections,
-			  n, sorted_options, i, option, entries,
-			  option_is_selected, option_is_default)
-	{
-	    n = asorti(menu_options[menu_id], sorted_options, "bettercmp")
+
+	# Create menu for selected_menu.  This does selection using a
+	# radio-list UI.
+	#
+	function menu_for(selected_menu,
+			  sorted_options, n, i,
+			  option_id, option_name, 
+			  is_selected, is_default,
+			  entry_str, entries) {
+	    n = asorti(menu_options[selected_menu], sorted_options, "bettercmp")
 	    for (i = 1; i <= n; i++) {
-	        option = sorted_options[i]
-		option_name = menu_options[menu_id][option]
-		option_is_selected = \
-		    menu_selections[menu_id]["selected"] == option
-		option_is_default = \
-		    menu_selections[menu_id]["default"] == option
+	        option_id = sorted_options[i]
+		option_name = menu_options[selected_menu][option_id]
+		is_selected = menu_selection(selected_menu) == option_id
+		is_default = menu_defaults[selected_menu] == option_id
 		entry_str = option_is_default? "\"*[%s]*\"": "\" [%s]\""
 		entries = entries \
 			  sprintf("\"%s\" " entry_str " %d ", 
-			  	  option, option_name, option_is_selected)
+			  	  option_id, option_name, is_selected)
 	    }
 	    return sprintf("%s --title \"%s\" " \
 	    	    	   "--radiolist \"%s\" %d 78 %d %s 3>&1 1>&2 2>&3", \
 			   MENU_CMD, menu_name, menu_name,
 			   max(n + 6, 15), n, entries)
 	}
-	function selections_updated(menu_selections,
-				    option) {
-	    for (option in menu_selections) {
-	        if (menu_selections[option]["selected"] != \
-		         menu_selections[option]["initial"]) {
-		    return 1
-		}
-	    }
-	    return 0
+
+	/^menuselection\./ {
+	    # A menu selection line, as provided by a BOARD_OPTIONS
+	    # file.  This tells us which option has been selected for
+	    # a menu.	    
+	    menu_name = gensub(/^menuselection\.([^=]*).*/, "\\1", "1")
+	    menu_option = gensub(/^.*=([^=]*)$/, "\\1", "1")
+	    menu_selections[menu_name] = menu_option
 	}
         /^menu\./ {
-	    sub(/^menu./, "")
-	    menu_id = id_from_entry($0)
-	    menu_name = gensub("^([^.=]*=(.*))|.*", "\\2", "1")
-	    menu_option = option_from_entry($0)
-
-	    if (menu_option) {
-		option_value = gensub("^" menu_id "." menu_option, "", "1")
-		if (substr(option_value, 1, 1) == ".") {
-		    option_value = substr(option_value, 2)
+	    # This line identifies a menu - a set of options, one of
+	    # which can be selected.
+	    menu_name = gensub(/^menu\.([^=]*).*/, "\\1", "1")
+	    menu_label = gensub(/^menu\.[^=]*=/, "", "1")
+	    menus[menu_name] = menu_label
+	    menus_by_label[menu_label] = menu_name
+	    if (menu_is_preselected(menu_name)) {
+	        # Record the preselected selection
+		menu_selections[menu_name] = menu_preselection(menu_name)
+	    }
+	    else {
+	        # available_menus are the menus for options that are
+		# not pre-selected
+	        available_menus[menu_name] = 1
+	    }
+	}
+	($0 ~ "^" BOARD "\\.") {
+	    # This line is specific to our board.
+	    sub("^" BOARD ".", "")
+	    if ($0 ~ /^menu\./) {
+	        # This line is a menu entry for our board.
+	        menu_name = gensub(/^menu\.([^\.]*).*/, "\\1", "1")
+		option_name = gensub(/^menu\.[^\.]*\.([^\.=]*).*/, "\\1", "1")
+		if (!(menu_name in menu_defaults)) {
+		    menu_defaults[menu_name] = option_name
+		}
+		if ($0 ~ /^menu.[^\.]*\.[^\.=]*=/) {
+		    # This defines a menu option.  It looks like:
+		    # menu.<menu_name>.<option_name>=<option_label>
+		    option_label = gensub(/.*=/, "", "1")
+		    menu_options[menu_name][option_name] = option_label
 		}
 		else {
-		    option_name = substr(option_value, 2)
-		    option_value = ""
-		}
-	    }
-
-	    if (!(menu_id in menus)) {
-	        # Record menu name for menu_id
-		menu_name = menu_name? menu_name: menu_id
-	        menus[menu_id] = menu_name
-		menus_by_name[menu_name] = menu_id
-		# Create empty menu_options array
-		menu_options[menu_id][1]
-		split("", menu_options[menu_id]) 
-		entry_counts[menu_id][1]
-		split("", entry_counts[menu_id]) 
-		option_entries[menu_id][1]
-		split("", option_entries[menu_id]) 
-		menu_selections[menu_id][1]
-		split("", menu_selections[menu_id])
-	    }
-	    if (menu_option) {
-	        if (!("default" in menu_selections[menu_id])) {
-		    menu_selections[menu_id]["default"] = menu_option
-		    if (!("selected" in menu_selections[menu_id])) {
-		        menu_selections[menu_id]["selected"] = menu_option
-			menu_selections[menu_id]["initial"] = menu_option
+		    # This must be a value definition associated with
+		    # the menu option.
+	            if ((ACTION == "list") &&
+		        (option_name == menu_selection(menu_name))) {
+			sub("^menu." menu_name "." option_name ".", "")
+			print
 		    }
 		}
-	        if (!(menu_option in menu_options[menu_id])) {
-		    # Add menu option
-		    menu_options[menu_id][menu_option] = \
-		        option_name? option_name: menu_option
-		    entry_counts[menu_id][menu_option] = 0
-		}
-		if (option_value) {
-		    entry_counts[menu_id][menu_option]++
-		    idx = entry_counts[menu_id][menu_option]
-		    option_entries[menu_id][menu_option][idx] = option_value
+	    }
+	    else {
+	        if (ACTION == "list") {
+	            # This is a non-menu entry for the board, so print it.
+		    print $0
 		}
 	    }
-	    next
 	}
-        /^menuselection\./ {
-	    sub(/^menuselection./, "")
-	    menu_id = id_from_entry($0)
-	    menu_selection = gensub("^" menu_id "=", "", "1")
-	    menu_selections[menu_id]["selected"] = menu_selection
-	    menu_selections[menu_id]["initial"] = menu_selection
-	}
-	/^name=/ {
-	    board_name = $0
-	    sub(/^[^=]*=/, "", board_name)
-	    next
-	}
-	END {
-	    if (LISTONLY == "Y") {
-	        print_options(board_name, menus, 
-		      	      menu_options, menu_selections)
+        END {
+	    if (ACTION == "list") {
+	        n = asorti(menus, sorted_menus)
+		first_entry = 1
+	        for (i = 1; i <= n; i++) {
+	            menu_name = sorted_menus[i]
+		    if (have_selection(menu_name)) {
+		        selection = menu_selection(menu_name)
+		    	printf("menuselection.%s=%s\n", menu_name, selection)
+		    	if (first_entry) {
+		            selections = menu_name "=" selection
+		    	    first_entry = 0
+		    	}
+		    	else {
+		            selections = selections "," menu_name "=" selection
+		       }
+		   } 
+		}
+		print "build.menu_selections=" selections
 		exit 0
 	    }
-	    while (1) {
-	        mmenu = main_menu(board_name, menus, 
-		      		  menu_options, menu_selections)
-
-		if (!mmenu) {
-		    print "No menu options found"
-		    exit(0)
-		}				  
-		mmenu | getline option_name
-		result = close(mmenu)
-		if (result == 1) {
-		    break
+	    if (ACTION == "fqbn") {
+	        n = asorti(menus, sorted_menus)
+		printed = 0
+	        for (i = 1; i <= n; i++) {
+	            menu_name = sorted_menus[i]
+		    if (menu_selection(menu_name)) {
+		        if (printed) {
+		            printf(",")
+		        }
+		        printf("%s=%s", menu_name, menu_selection(menu_name))
+			printed = 1
+		    }
 		}
-		else if (result != 0) {
-		    exit(1)
-		}
-		option = menus_by_name[option_name]
-		omenu = menu_for(option, option_name, 	   
-		      		 menus, menu_options, menu_selections)
-	        omenu | getline selected_option
-		result = close(omenu)
-		if (result == 1) {
-		    # Cancelled out of this menu, return to main
-		    continue
-		}
-		else if (result != 0) {
-		    exit(1)
-		}
-		menu_selections[option]["selected"] = selected_option
+		printf("\n")
+	        exit 0
 	    }
-	    if (selections_updated(menu_selections)) {
-		if (confirm_save()) {
-		    if (!save_changes(menu_selections, entry_counts, 
-		                      option_entries)) {
-		        system("rm -f " OPTIONS_FILE)
+	    record_initial_selections()
+	    while (1) {
+	        if (length(available_menus) == 0) {
+		    # There are no unpreselected options
+		    exit 0
+		}
+		# Build main menu
+		if ((length(menus) > 1) || selections_updated()) {
+		    # We only show the main menu if it has more than
+		    # one entry, or if we have updated our selection.
+		    # We need the main menu even in the 1 entry case
+		    # if we have updated a selection as it gives us a
+		    # save option which the sub-menus do not.
+	            menu = main_menu()
+		    if (menu) {
+		        # Execute main meny
+		        menu | getline menu_label
+		        result = close(menu)
+		        if (result == 1) {
+		            break;
+		        }
+		        if (result != 0) {
+		            exit 1
+		        }
+		        # Determine selected option
+		        menu_name = menus_by_label[menu_label]
+		    }
+		    else {
+		        # No menu options found
+		        exit 0
 		    }
 		}
 		else {
+		    # We only have one option available.  Set
+		    # menu_name accordingly
+		    for (menu_name in available_menus) {
+		        break
+		    }
+		}
+		# Build selected sub-menu
+		menu = menu_for(menu_name)
+		# Execute sub-menu
+	        menu | getline selected_option
+		result = close(menu)
+		if (result == 1) {
+		    # Cancelled out of this menu, return to main
+		    if ((length(menus) > 1) || selections_updated()) {
+		        continue
+		    }
+		    else {
+		        # Nothing updated and main menu only has a
+			# single entry, so there is no point in
+			# returning to it.
+		        exit 0
+		    }
+		}
+		else if (result != 0) {
+		    exit 1
+		}
+		menu_selections[menu_name] = selected_option
+		if ((length(menus) == 1) && !selections_updated()) {
+		    # Nothing has been updated and main menu only has
+		    # a single entry (so will not be shown), so we are
+		    # done. 
 		    exit 0
+		}
+	    }
+	    if (selections_updated()) {
+	        # We have made changes to our options
+		if (selections_as_defaults()) {
+		    # All of our options are now defaulted.  We can
+		    # remove OPTIONS_FILE
+		    system("rm -f " OPTIONS_FILE)
+		}
+		else {
+		    # We need to save the new selections.  We will
+		    # create a bunch of menuselection entries which
+		    # will be passed as input to a second invocation
+		    # of this function acting in list mode.
+		    # The SAVE THIS LINE tells our caller to run that
+		    # second invocation.
+		    print "SAVE THIS"
+		    for (menu_name in menus) {
+		        print "menuselection." menu_name "=" \
+			      menu_selections[menu_name]
+		    }
 		}
 	    }
 	}
@@ -306,26 +407,25 @@ menu_details ()
     return $?
 }
 
-if [ -r "./BOARD_OPTIONS" ]; then
-    options="./BOARD_OPTIONS"
-else
-    options=""
-fi
-
-list_only=N
-while getopts "hlmv-:" opt; do
+# Process command line options
+#
+action=menu
+while getopts "fhlmv-:" opt; do
     case "${opt}" in
 	-)
 	    case "${OPTARG}" in
+		fqbn)
+		    action=fqbn
+		    ;;
 		help)
 		    usage
 		    exit 0
 		    ;;
 		list)
-		    list_only=Y
+		    action=list
 		    ;;
 		menu)
-		    list_only=N
+		    action=menu
 		    ;;
 		version)
 		    version
@@ -338,15 +438,18 @@ while getopts "hlmv-:" opt; do
 		    ;;
 	    esac
 	    ;;
+	f)
+	    action=fqbn
+	    ;;
 	h)
 	    usage
 	    exit 0
 	    ;;
 	l)
-	    list_only=Y
+	    action=list
 	    ;;
 	m)
-	    list_only=N
+	    action=menu
 	    ;;
 	v)
 	    version
@@ -362,26 +465,80 @@ if [ "x${DIALOG}" = "x" ]; then
     echo "`basename $0`: No menu command found.  Bailing out..." 1>&2
     exit 1
 fi
-
-if [ ! -f BOARD_INFO ]; then
-    echo "`basename $0`: No BOARD_INFO file found.  Bailing out..." 1>&2
-    exit 1
-fi
-
-# Identify the menu options that have been already specified in our
-# board definition.  These options will not be managed by our menu.
+# Identify any menu options that have been already specified in our
+# board name.  These options will not be managed by our menu as they
+# are considered immutable.
 #
+if [ "x$1" = "x" ]; then
+    board_spec="$(basename $(pwd))"
+else
+    board_spec="$1"
+fi
+board_info=`dno_bpp -t -f -q ${board_spec}`
 preselected_options=`if [ -f BOARD_TYPE ]; then
     cat BOARD_TYPE
 else
-    dno_bpp -t -f $(basename $(pwd))
+    echo "${board_info}"
 fi | cut -d. -f4 `
 
-menu_details BOARD_INFO  ${options} LISTONLY=${list_only} \
-	     MENU_CMD="${DIALOG}" OPTIONS_FILE="BOARD_OPTIONS" \
-             PRESELECTED_OPTIONS="${preselected_options}" || \
-{
-    status=$?
-    echo "`basename $0`: Aborted" 1>&2
-    exit ${status}
-}
+# Split board_info into its component parts and figure out where our
+# boards.txt file can be found.
+#
+IFS=. read -a board_parts <<<"${board_info}"
+board_file=`dno_bpp -b "${board_parts[0]}" "${board_parts[1]}" \
+		       "${board_parts[2]}"`
+
+if [ ! -r "${board_file}" ]; then
+    echo "`basename $0`: No boards.txt file found.  Bailing out..." 1>&2
+    exit 1
+fi
+
+# If we have a BOARD_OPTIONS file we'll make use of it.
+#
+if [ -f BOARD_OPTIONS ]; then
+    board_options_file=BOARD_OPTIONS
+else
+    board_options_file=""
+fi
+
+case "${action}" in
+    fqbn)
+	process_menu BOARD="${board_parts[2]}" ACTION="fqbn" \
+		     MENU_CMD="${DIALOG}" \
+		     PRESELECTED_OPTIONS="${preselected_options}" \
+		     ${board_options_file} "${board_file}"
+	;;
+    list)
+	    cat - <<EOF
+# Parsed board info for ${board_info}
+# generated `date "+%Y%m%d %H%M%S"`
+#
+
+BOARD_TYPE = ${board_info}
+BOARD_FILE = ${board_file}
+
+EOF
+	process_menu BOARD="${board_parts[2]}" ACTION="list" \
+		     MENU_CMD="${DIALOG}" \
+		     PRESELECTED_OPTIONS="${preselected_options}" \
+		     ${board_options_file} "${board_file}"
+	;;
+    menu)
+	process_menu BOARD="${board_parts[2]}" ACTION="menu" \
+		     MENU_CMD="${DIALOG}" \
+		     PRESELECTED_OPTIONS="${preselected_options}" \
+		     ${board_options_file} "${board_file}" | \
+	    { read line
+	      if [ "x${line}" = "xSAVE THIS" ]; then
+		  # We have new stuff to save to the BOARD_INFO file.
+		  # Run process_menu again in list mode, reading the
+		  # menuselection values from stdin
+		  process_menu BOARD="${board_parts[2]}" ACTION="list" \
+		     MENU_CMD="${DIALOG}" \
+		     PRESELECTED_OPTIONS="${preselected_options}" \
+		     - "${board_file}" >BOARD_OPTIONS
+	      fi
+	    }
+	;;
+esac
+exit $?

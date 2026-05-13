@@ -1,0 +1,67 @@
+#! /usr/bin/env bash
+
+
+# Ensure check_full_build is defined
+#
+. ${SCRIPTDIR}/check_projname
+
+check_boardchange_cleanup()
+{
+    rm -rf tests/proj
+}
+
+check_invalid_board()
+{
+    dno -j 4 >make.log 2>&1 &&
+        fail "$1 Build for $2 should have failed with invalid board." \
+         "\n        (see `pwd`/make.log)"
+    grep -q "dno_bpp error: No boards matching" make.log ||
+	fail "$1 Build for $2 should have failed "
+}
+
+check_boardchange()
+{
+    echo -n "Checking automated builds when board type changes"
+    cd "${test_startdir}"
+    mkdir -p tests/proj/blink
+    cp ${SCRIPTDIR}/assets/src/blink.ino tests/proj/blink
+    cd tests/proj/blink
+    echo arduino.uno >BOARD_TYPE
+    run check_full_build blink arduino.uno
+    # Update BOARD_TYPE
+    echo arduino.pro >BOARD_TYPE
+    run check_full_build blink arduino.pro
+    dno pristine >/dev/null 2>&1
+    # Create board_dir
+    mkdir arduino.uno
+    cd arduino.uno
+    run check_full_build blink
+    # Change board name without changing the board type - no rebuild
+    cd ..
+    mv arduino.uno arduino.avr.uno
+    cd arduino.avr.uno
+    run check_no_build blink arduino.avr.uno
+
+    # Change board name - full rebuild
+    cd ..
+    mv arduino.avr.uno arduino.avr.pro
+    cd arduino.avr.pro
+    run check_full_build blink arduino.avr.pro
+
+    # Change board options - full rebuild which should fail
+    cd ..
+    mv arduino.avr.pro arduino.avr.pro.cpu=8MHz
+    cd arduino.avr.pro*
+    run check_invalid_board blink arduino.avr.pro.cpu=8MHz
+
+    # Change board name - full rebuild back to working
+    cd ..
+    rm -rf arduino.avr*
+    mkdir arduino.avr.pro
+    cd arduino.avr.pro
+    run check_full_build blink arduino.avr.pro
+    cd ..
+    mv arduino.avr.pro arduino.avr.pro.cpu=8MHzatmega328
+    cd arduino.avr.pro*
+    run check_full_build blink arduino.avr.pro.cpu=8MHzatmega328
+}

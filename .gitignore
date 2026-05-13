@@ -22,6 +22,7 @@ bin/dno_commands_for
 bin/dno_dirinfo
 bin/dno_menu
 bin/dno_requote
+bin/dno_prog
 
 # autotools crap
 autom4te.cache

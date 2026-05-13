@@ -1,0 +1,167 @@
+#! /usr/bin/env bash
+
+# Included from main test runner
+
+
+# Do cleanup for dir_handling
+check_dir_handling_cleanup()
+{
+    cd "${test_startdir}"
+    rm -rf blink >/dev/null 2>&1
+    rm -rf test >/dev/null 2>&1
+    rm -rf proj >/dev/null 2>&1
+}
+
+# Ensure dno_dirinfo correctly identifies the directory type
+check_dirtype()
+{
+    dirtype=`dno_dirinfo`
+    [ "x${dirtype}" = "x$1" ] ||
+	fail "Incorrect dir type for `pwd`." \
+	     "\n        Expected $1, got ${dirtype}."
+}
+
+# Ensure dno correctly identifies and sets PROJNAME
+check_projname()
+{
+    dno DEBUG=PROJNAME 2>&1 | grep -q "PROJNAME = ${1}$" ||
+	fail "Incorrect PROJNAME from dno: expecting $1"
+}
+
+# Create some root directories and ensure that they are correctly
+# identified
+#
+check_root_dir()
+{
+    cd "${test_startdir}"
+    mkdir -p test/blink
+    cd test/blink
+    run check_dirtype test # It looks like we are in a test subdir
+    touch .DNO_ROOT
+    run check_dirtype root # Now we know it's root
+    touch blink.ino
+    run check_dirtype root_code
+    touch BOARD_INFO
+    run check_dirtype root_board
+    cd ../..
+    mkdir -p proj/blink
+    cd proj/blink
+    run check_dirtype unknown # We cannot tell what type of dir this is
+    touch blink.ino
+    run check_dirtype root_code
+    rm blink.ino
+    mkdir wiblib
+    touch wiblib/wiblib.h
+    run check_dirtype root
+    run check_projname blink
+}
+
+# Checks that detection of lib directories works.
+# Expects check_root_dir to have been run.
+#
+check_lib_dir()
+{
+    cd "${test_startdir}"
+    cd proj/blink
+    cd wiblib
+    run check_dirtype lib
+    mkdir src
+    mv wiblib.h src
+    run check_dirtype lib
+}
+
+# Checks for detection of test directories.
+# Expects check_root_dir to have been run.
+#
+check_test_dir()
+{
+    cd "${test_startdir}"
+    cd proj/blink
+    mkdir tests
+    cd tests
+    run check_dirtype test_container
+    touch test_stuff.cpp
+    run check_dirtype test
+    cd ..
+    mv tests test
+    cd test
+    run check_dirtype test
+    cd ..
+    mv test unit
+    cd unit
+    run check_dirtype test
+    cd ..
+    mv unit something_else
+    cd something_else
+    run check_dirtype root_code # Now it looks like a root directory.
+}
+
+# Check for board subdirectories
+# Expects check_root_dir to have been run.
+#
+check_subdir()
+{
+    cd "${test_startdir}"
+    cd proj/blink
+    mkdir pro
+    cd pro
+    run check_dirtype sub_board
+    cd ..
+    mv pro pro.8MHzatmega328
+    cd pro*
+    run check_dirtype sub_board
+    cd ..
+    mv pro* pro2
+    cd pro2
+    run check_dirtype unknown
+    touch BOARD_TYPE
+    run check_dirtype sub_board
+    mv BOARD_TYPE BOARD_INFO
+    run check_dirtype sub_board
+}
+
+# Check for doc subdirectories
+# Expects check_root_dir to have been run.
+#
+check_docs_dir()
+{
+    cd "${test_startdir}"
+    cd proj/blink
+    mkdir docs
+    cd docs
+    run check_dirtype docs
+}
+
+# Check for bootloader subdirectories
+# Expects check_root_dir to have been run.
+#
+check_boot_dir()
+{
+    cd "${test_startdir}"
+    cd proj/blink
+    mkdir boot
+    run check_dirtype root
+    # Check boot dir below root
+    cd boot
+    run check_dirtype boot
+    # Check boot dir below board
+    cd ..
+    mkdir avr.pro
+    cd avr.pro
+    mkdir boot
+    cd boot
+    run check_dirtype boot
+}
+
+check_dir_handling()
+{
+    echo -n "Checking project directory system handling"
+    check_dir_handling_cleanup
+    cd "${test_startdir}"
+    check_root_dir
+    check_lib_dir
+    check_test_dir
+    check_subdir
+    check_docs_dir
+    check_boot_dir
+}

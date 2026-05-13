@@ -23,15 +23,15 @@
       <literal>autotools</literal>, so any OS supported by
       <link xlink:href="https://en.wikipedia.org/wiki/GNU_Autotools">
       <literal>autotools</literal></link> should work.  It is unlikely
-      that Windows(Tm) will ever be supported.
+      that Windows(tm) will ever be supported.
     </para>
   </section>
   <section><title>Dependencies</title>
   <para>
     Dno requires <literal>bash</literal>, <literal>make</literal>,
-    <literal>sed</literal>, <literal>gawk</literal> and either
-    <literal>dialog</literal> or <literal>whiptail</literal> in order
-    to run.
+    <literal>sed</literal>, <literal>gawk</literal>,
+    <literal>perl</literal>, and either <literal>dialog</literal> or
+    <literal>whiptail</literal> in order to run.
   </para>
   <para>
     For building and installing dno, <literal>gcc</literal> is also

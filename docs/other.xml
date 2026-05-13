@@ -84,44 +84,61 @@
   </section>
   <section xml:id="monitor">
     <title>Serial Communication</title>
-    <para>
-      You can monitor and interact with your Arduino's serial
-      connection using <literal>dno monitor</literal>.
-    </para>
-    <para>
-      This creates a connection to your Arduino using the Linux
-      <literal>screen</literal> command.
-    </para>
-      <para>
-      You should read the <literal>screen</literal> man page if you
-      are unfamiliar with screen.
-    </para>
     <section>
-      <title>Getting Out of <literal>screen</literal></title>
+      <title>Using screen (the <literal>monitor</literal> target)</title>
       <para>
-	If you are unfamiliar with <literal>screen</literal> you will
-	quickly find yourself wondering, "how do I get out of this"?
+	You can monitor and interact with your Arduino's serial
+	connection using <literal>dno monitor</literal>.
       </para>
       <para>
-	If you find yourself in the monitor and want to get out, use
-	<literal>C-a k</literal>.  That is Control-A followed by k.
+	This creates a connection to your Arduino using the Linux
+	<literal>screen</literal> command.
       </para>
       <para>
-	Another way to kill the screen program is by running
-	<literal>dno noscreen</literal> from another session.
+	You should read the <literal>screen</literal> man page if you
+	are unfamiliar with screen.
       </para>
+      <section>
+	<title>Getting Out of <literal>screen</literal></title>
+	<para>
+	  If you are unfamiliar with <literal>screen</literal> you will
+	  quickly find yourself wondering, "how do I get out of this"?
+	</para>
+	<para>
+	  If you find yourself in the monitor and want to get out, use
+	  <literal>C-a k</literal>.  That is Control-A followed by k.
+	</para>
+	<para>
+	  Another way to kill the screen program is by running
+	  <literal>dno noscreen</literal> from another session.
+	</para>
+      </section>
+      <section>
+	<title>Why <literal>screen</literal>?</title>
+	<para>
+	  The screen utility provides multiplexed virtual terminals.
+	  This allows you to run multiple sessions from a single
+	  terminal.
+	</para>
+	<para>
+	  By using screen as our monitor tool, we allow the user to
+	  switch between a command line session and the connection to
+	  the Arduino serial interface.  This seemed like a good idea.
+	</para>
+      </section>
     </section>
     <section>
-      <title>Why <literal>screen</literal>?</title>
+      <title>Output to termainl (using the <literal>cat</literal> target)</title>
       <para>
-	The screen utility provides multiplexed virtual terminals.
-	This allows you to run multiple sessions from a single
-	terminal.
+	If you just to watch the output from your Arduino's serial
+	connection and do not need to provide input, you can use the
+	<literal>cat</literal> target.
       </para>
       <para>
-	By using screen as our monitor tool, we allow the user to
-	switch between a command line session and the connection to
-	the Arduino serial interface.  This seemed like a good idea.
+	This acts as though you were <literal>cat</literal>ting the
+	output of the connected board to your terminal.  Just as with
+	the standard <literal>cat</literal> command, that output can
+	be redirected to files, piped through filters, etc.
       </para>
     </section>
   </section>
@@ -472,5 +489,12 @@ Node 554 says Here, put this fish in your ear
 	</para>
       </section>
     </section>
+  </section>
+  <section>
+    <title>Using Programmers</title>
+    <para>
+      Coming soon.  MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE
+      MORE MORE MORE MORE MORE MORE MORE  MORE MORE MORE.
+    </para>
   </section>
 </chapter>

@@ -50,13 +50,13 @@
 	So, after running <literal>dno pristine</literal>, we have a
 	directory system that looks like this:
 	<programlisting>
-blink$ ls -l
-total 8
--rw-r--r-- 1 user user 1233 Jan  6 11:04 blink.ino
-drwxr-xr-x 2 user user 4096 Jan 12 11:30 pro.8MHzatmega328
-blink$ ls -l pro.8MHzatmega328/
-total 0
-blink$
+blink$ tree
+.
+├── blink.ino
+└── pro.8MHzatmega328
+
+1 directory, 1 file
+blink$ 
 	</programlisting>
       </para>
       <para>
@@ -113,7 +113,7 @@ blink$
       <para>
 	Taking a look at the new library:
 	<programlisting>
-	  cd Deferal/
+blink$ cd Deferal/
 Deferal$ ls
 Deferal.cpp  Deferal.h	docs  tests
 Deferal$ 
@@ -652,9 +652,9 @@ pro.8MHzatmega328$
 	by compiling the file
 	<literal>test_&lt;LIBNAME&gt;.cpp</literal> or
 	<literal>test_&lt;LIBNAME&gt;.c</literal>.  Having created the
-	executable, it will then run it with no parameters.  It is
-	assumed that if the executable completes with a success code,
-	that the tests have passed.
+	executable, it will then be run with no parameters.  It is
+	assumed that if the executable completes with a success code
+	then the tests have passed.
       </para>
       <para>
 	Dno does not itself provide a unit-testing framework.
@@ -667,9 +667,40 @@ pro.8MHzatmega328$
 	    xlink:href="https://github.com/cppunit/cppunit.git">CPlusPlusUnit</link>,
 	which is very small and simple but provides just about all of
 	the functionality you might need, though the documentation is
-	a little sparse.  Check the Deferal library for examples of
-	usage.
+	a little sparse.  Check the
+	<link
+	    xlink:href="https://github.com/marcmunro/Deferal">Deferal</link>
+	 library for examples of usage.
       </para>
+      <section xml:id="stubs">
+	<title xml:id="stubs.title">Stubs and Test
+	Headers</title>
+	<para>
+	  Since unit tests are run on the host machine and not on an
+	  Arduino, you will need to provide versions of the various
+	  non-local headers that your library references.
+      </para>
+      <para>
+	Such test headers should be provided in the
+	<literal>tests</literal> subdirectory.  As a minumum, this
+	usually means creating a version of
+	<literal>Arduino.h</literal> that provides whatever
+	definitions your library makes use of.
+      </para>
+      <para>
+	You are likely to also need to provide
+	<emphasis>stub</emphasis> functions to provide test versions
+	of various standard functions.  These will usually be provided
+	in the <literal>test_&lt;libname>.cpp</literal> file.
+      </para>
+      <para>
+	If your project has multiple libraries, common test code can
+	be placed in a <literal>tests</literal> directory in the
+	project root directory.  The contents of this directory will
+	then be available to unit tests for all of your project's
+	libraries. 
+      </para>
+      </section>
     </section>
   </section>
 </chapter>

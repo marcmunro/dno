@@ -27,6 +27,7 @@ dno_commands_for hook_name
   Options:
 
   --help, -h  Help
+  --list, -l  List available recipe options
   --version, -v	      
   	      Print version information and exit.
 "
@@ -45,6 +46,19 @@ version()
 
 
 ##
+# list_recipes
+#
+# List the available hook recipes.
+#
+list_recipes()
+{
+    grep "^recipe\.hooks\..*\.pattern *=" BOARD_INFO 2>/dev/null | \
+	cut -d. -f3,4 | \
+	sed -e 's/\.[0-9]*$//' | sort -u
+}
+
+
+##
 # recipe_filter
 # stdin:
 #   Raw recipe lines extracted from BOARD_INFO
@@ -59,14 +73,13 @@ recipe_filter () {
 	    max_idx = 0
 	}
 	function pattern_no(line) {
-	    return gensub(/^[^=]*\.([0-9]+)\.pattern[\.=].*$/,\
-			  "\\1", "1", line) + 0
+	    return gensub(/.*\.([^.]*)\.pattern.*=/, "\\1", 1, line)
 	}
 	function pattern(line) {
 	    return gensub(/^[^=]*= */, "", "1", line)
 	}
 	{
-	    idx = pattern_no($0)
+	    idx = pattern_no($0) + 0
 	    if (idx > max_idx) {
 	        max_idx = idx
 	    }
@@ -86,16 +99,20 @@ recipe_filter () {
 #   $1 the suffix for the recipe hooks we want to extract.
 #
 patterns_for () {
-    grep "^recipe\.hooks\.$1\.[^.]*\.pattern=" BOARD_INFO 2>/dev/null | \
+    grep "^recipe\.hooks\.$1\.[^.]*\.pattern *=" BOARD_INFO 2>/dev/null | \
 	recipe_filter
 }
 
-while getopts "hv-:" opt; do
+while getopts "hlv-:" opt; do
     case "${opt}" in
 	-)
 	    case "${OPTARG}" in
 		help)
 		    usage
+		    exit 0
+		    ;;
+		list_recipes)
+		    list
 		    exit 0
 		    ;;
 		version)
@@ -111,6 +128,10 @@ while getopts "hv-:" opt; do
 	    ;;
 	h)
 	    usage
+	    exit 0
+	    ;;
+	l)
+	    list_recipes
 	    exit 0
 	    ;;
 	v)

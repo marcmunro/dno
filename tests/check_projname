@@ -1,0 +1,66 @@
+#! /usr/bin/env bash
+
+check_no_build()
+{
+    # Check that no changes => no build
+    run; dno -j 4 >make.log 2>&1 ||
+	fail "$1 build for uno failed(2) see `pwd`/make.log"
+    grep -q 'Nothing to be done for' make.log ||
+	fail "Non-nothing $1 build did something unexpected."
+}
+
+# Included from main test runner
+# Ensure that changing projname causes everything to be rebuilt
+# $1 is name of project
+# $2 is name of board
+check_full_build()
+{
+    # Check full build from clean slate
+    run; dno -j 4 >make.log 2>&1 ||
+	fail "$1 full build for $2 failed see `pwd`/make.log"
+    grep -q "C++.*blink.ino" make.log ||
+	fail "$1 build for $2: blink.ino not (re-)compiled"
+    grep -q "C++.*\[core\]" make.log ||
+	fail "$1 build for $2: core files not (re-)compiled"
+    grep -q "AR.*\[libcore\]" make.log ||
+	fail "$1 build for $2: core library not rebuilt"
+    grep -q "OBJCOPY" make.log ||
+	fail "$1 build for $2: OBJCOPY not done"
+    # Check for only update of .ino
+    if [ -f blink.ino ]; then
+	touch blink.ino
+    elif [ -f ../blink.ino ]; then
+	touch ../blink.ino
+    fi
+    run; dno -j 4 >make.log 2>&1 ||
+	fail "$1 single recompilation for $1 ($2) failed see `pwd`/make.log"
+    grep -q "C++.*blink.ino" make.log ||
+	fail "$1 build for $2: blink.ino not (re-)compiled(2)"
+    grep "C++" make.log | wc -l | grep -q '^1$' ||
+	fail "$1 build for $2: too many recompilations"
+    grep -q "OBJCOPY" make.log ||
+	fail "$1 build for $2: OBJCOPY not done(2)"
+    grep -q "AR.*\[libcore\]" make.log &&
+	fail "$1 build for $2: core library was unexpectedly rebuilt"
+    check_no_build $1
+}
+
+check_projname_cleanup()
+{
+    rm -rf tests/proj
+}
+
+check_projname()
+{
+    echo -n "Checking automated builds when projname changes"
+    cd "${test_startdir}"
+    mkdir -p tests/proj/blink
+    cp ${SCRIPTDIR}/assets/src/blink.ino tests/proj/blink
+    cd tests/proj/blink
+    echo arduino.uno >BOARD_TYPE
+    check_full_build blink uno
+    cd ..
+    mv blink blink2
+    cd blink2
+    check_full_build blink2 uno
+}

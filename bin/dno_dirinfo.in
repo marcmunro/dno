@@ -35,6 +35,10 @@ usage()
       This directory contains library code.  Running a dno build in
       this directory will attempt by default to build and run any
       defined unit tests.
+    - boot
+      This is for bootloaders.  Running a dno build in this directory
+      will attempt by default to build, or check for the presence of,
+      a bootloader.
     - test
       This directory contains unit tests.
     - test_container
@@ -42,6 +46,12 @@ usage()
       This is a documentation directory.  Running dno here will
       attempt by default to build project documentation using
       Doxygen. 
+
+  Sometimes dno_dirinfo will be confused and will not properly
+  recognise a root directory.  This can happen when, for example, the
+  project root is below a directory named tests.  In such cases we can
+  force dno_dirinfo to recognise a root directory by placing a file
+  called .DNO_ROOT into the directory.
 
   Options:
   --dir, -d dir      
@@ -73,16 +83,27 @@ version()
 }
 
 ##
+# Does path contain a .DNO_ROOT file.  If so, it is a root directory,
+# no matter what else it may look like.
+#
+is_rootdir() {
+    [ -f "$1/.DNO_ROOT" ]
+}
+
+##
 # Does the supplied path look like a unit test directory?
 #
 is_testdirname() {
+    if is_rootdir $1; then
+	return 1
+    fi
     (
 	cd $1
 	name=`pwd`
 	dirname=`basename "${name}"`
 	[ "x${dirname}" = "xtest" -o \
 	  "x${dirname}" = "xtests" -o \
-	  "x${dirname}" = "unit" ]
+	  "x${dirname}" = "xunit" ]
     )
 }
 
@@ -100,7 +121,7 @@ is_board_dir() {
     dirname=`basename "${dir}"`
     board="${dirname}"
 
-    if dno_bpp -t ${board} 2>/dev/null >/dev/null; then
+    if dno_bpp -q -t ${board} >/dev/null; then
 	# Our directory is named for a board: return success
         return 0
     fi
@@ -117,25 +138,74 @@ is_code_dir() {
 	 -name '*.h' -o -name '*.ino' | grep -q .
 }
 
-##
-# True if the directory contains code directories other than $1
+# Echo the number of lib directories found within the current
+# directory.
+# If any subdirs are not lib directories but appear to contain code,
+# then return 0.
 #
-is_container_dir() {
-    # Look for any file named *.c, *.cpp, *.h, *.S, or *.ino
-    find -L . -maxdepth 2 -mindepth 2 -name '*cpp' -o \
-	 -name '*.c' -o -name '*.S' -o \
-	 -name '*.h' -o -name '*.ino' | grep -v /$1/ | grep -q .
-    return $?
+count_lib_dirs() {
+    find -L . -maxdepth 1 -mindepth 1 -type d | grep -v "/$1" | \
+	{
+	    count=0
+	    while read dir; do
+		if (cd "${dir}"; is_lib_dir); then
+		    count=$((${count} + 1))
+		else
+		    # If this dir contains C/C++ code but is not a
+		    # library, then something is wrong, so return 0 to
+		    # our caller.
+		    found=`find -L "${dir}" -maxdepth 2 -mindepth 2 \
+			 	-name '*cpp' -o \
+			 	-name '*.c' -o -name '*.S' -o \
+			 	-name '*.h' -o -name '*.ino'`
+		    if [ "x${found}" != "x" ]; then
+			echo 0
+			return
+		    fi
+		fi
+	    done
+	    echo ${count}
+	}
 }
 
 ##
+# True if the directory contains lib directories and no other code
+# directories apart from $1.
+#
+is_lib_container_dir() {
+    [ `count_lib_dirs "$1"` != 0 ]
+}
+		      
+
+##
 # True if the directory contains a header with the same root as the
-# directory name.
+# directory name, or has a src dir containing such a header.
 #
 is_lib_dir() {
     path=`pwd`
     dirname=`basename "${path}"`
-    [ -f "${dirname}.h" ]
+    [ -f "${dirname}.h" ] ||
+	[ -d src -a -f src/"${dirname}.h" ]
+}
+
+##
+# True if the directory is named boot and is below the root directory.
+#
+is_boot_dir() {
+    path=`pwd`
+    if [ `basename "${path}"` = "boot" ]; then
+	parent=`{ cd ..
+	  $0
+	}`
+	case "${parent}" in
+	    root*) return 0
+		   ;;
+	    *board) return 0
+		    ;;
+	    *);;
+	esac
+    fi
+    return 1
 }
 
 ##
@@ -222,7 +292,19 @@ if [ "x$1" != "x-n" ]; then
 
 basename `pwd` | (
     read thisdir
-    if is_testdirname .; then
+    if is_boot_dir; then
+	echo boot
+    elif is_rootdir .; then
+	if is_board_dir; then
+	    echo root_board
+	elif is_code_dir; then
+            echo root_code
+        elif is_board_dir; then
+            echo root_board
+	else
+            echo root
+        fi
+    elif is_testdirname .; then
         if [ "x`echo test_*.cpp`" = "xtest_*.cpp" ]; then
     	    # No file found named test_*.cpp
     	    echo test_container
@@ -234,7 +316,7 @@ basename `pwd` | (
     elif is_board_dir; then
         if (cd ..; is_code_dir); then
     	    echo sub_board
-        elif (cd ..; is_container_dir ${thisdir}); then
+        elif (cd ..; is_lib_container_dir ${thisdir}); then
     	    echo sub_board
         else
             echo root_board
@@ -248,7 +330,9 @@ basename `pwd` | (
         else
             echo root_code
         fi
-    elif is_container_dir; then
+    elif is_lib_dir; then
+        echo lib
+    elif is_lib_container_dir ~; then
         echo root
     elif is_docs_dir; then
 	echo docs

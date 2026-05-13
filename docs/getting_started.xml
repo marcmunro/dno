@@ -160,8 +160,7 @@ blink$
       Let's now run <literal>dno</literal> again and see what happens:
       <programlisting>
 blink$ dno
-  Creating BOARD_INFO...
-  C++  [.] blink.ino
+  C++  ./blink.ino 
   AS  [core] wiring_pulse.S
   C  [core] wiring_shift.c
   C  [core] wiring_pulse.c
@@ -190,12 +189,18 @@ blink$ dno
   AR [libcore] abi.o...
   LD blink.ino.o
   OBJCOPY (hex) blink.elf
+Program size:    924 out of 30720  (3%: 29796 remaining)
+   Data size:      9 out of 2048   (0%: 2039 remaining)
+marc:blink$ 
+blink$ ls
+blink.ino  BOARD_INFO  BOARD_TYPE  build  pro.8MHzatmega328
+blink$ rm -rf pro.8MHzatmega328/
 blink$ ls -l
-total 28
--rw-r--r-- 1 user user  1233 Jan  6 11:04 blink.ino
--rw-r--r-- 1 user user 12701 Jan  6 12:15 BOARD_INFO
--rw-r--r-- 1 user user    18 Jan  6 12:04 BOARD_TYPE
-drwxr-xr-x 3 user user  4096 Jan  6 12:15 build
+total 24
+-rw-r--r-- 1 user user  1192 May  9 17:02 blink.ino
+-rw-r--r-- 1 user user 11086 May  9 17:03 BOARD_INFO
+-rw-r--r-- 1 user user    34 May  9 17:03 BOARD_TYPE
+drwxr-xr-x 3 user user  4096 May  9 17:03 build
 blink$ 
       </programlisting>
     </para>
@@ -227,14 +232,14 @@ blink$ dno VERBOSE=y
       <literal>build</literal> directory was created.  This is where
       all of our object, lib and executable files are created:
       <programlisting>
-blink$ ls -l build
+blink$ ls -l build/
 total 372
--rwxr-xr-x 1 user user  14108 Jan  6 12:15 blink.elf
--rw-r--r-- 1 user user   2615 Jan  6 12:15 blink.hex
--rw-r--r-- 1 user user   1104 Jan  6 12:15 blink.ino.d
--rw-r--r-- 1 user user   3860 Jan  6 12:15 blink.ino.o
-drwxr-xr-x 2 user user   4096 Jan  6 12:15 libcore
--rw-r--r-- 1 user user 345554 Jan  6 12:15 libcore.a
+-rwxr-xr-x 1 user user  14104 May 10 12:47 blink.elf
+-rw-r--r-- 1 user user   2615 May 10 12:47 blink.hex
+-rw-r--r-- 1 user user   1113 May 10 12:47 blink.ino.d
+-rw-r--r-- 1 user user   3840 May 10 12:47 blink.ino.o
+drwxr-xr-x 2 user user   4096 May 10 12:47 libcore
+-rw-r--r-- 1 user user 345462 May 10 12:47 libcore.a
 blink$ ls build/libcore
 abi.d		   HardwareSerial.o  Stream.d	       wiring.o
 abi.o		   hooks.d	     Stream.o	       wiring_pulse.d
@@ -264,7 +269,7 @@ blink$
     <para>
       Note that the message says <literal>make:...</literal>.  This is
       because dno is <link linkend='dno_is_make'>implemented using
-      <literal>make</literal></link>.
+      <literal>GNU make</literal></link>.
     </para>
   </section>
   <section xml:id="upload">

@@ -14,7 +14,7 @@
  * rules that are guaranteed to work when running the commands through
  * a shell, then please let the author know.
  *
- * This is implemented in C rather than as a regexp as the C-code tyo
+ * This is implemented in C rather than as a regexp as the C-code to
  * do this is very straightforward, and the regexp would not be.
  */ 
 

@@ -1,0 +1,41 @@
+
+recipe.hooks.prebuild.1.pattern = echo --------
+recipe.hooks.prebuild.2.pattern = echo prebuild
+recipe.hooks.prebuild.3.pattern = echo --------
+
+recipe.hooks.sketch.prebuild.1.pattern = echo presketch
+recipe.hooks.sketch.prebuild.2.pattern = echo 
+
+recipe.hooks.sketch.postbuild.1.pattern = echo postsketch
+recipe.hooks.sketch.postbuild.2.pattern = echo 
+
+recipe.hooks.libraries.prebuild.1.pattern = echo prelib
+recipe.hooks.libraries.prebuild.2.pattern = echo 
+
+recipe.hooks.libraries.postbuild.1.pattern = echo postlib
+recipe.hooks.libraries.postbuild.2.pattern = echo 
+
+recipe.hooks.core.prebuild.1.pattern = echo precore
+recipe.hooks.core.prebuild.2.pattern = echo 
+
+recipe.hooks.core.postbuild.1.pattern = echo postcore
+recipe.hooks.core.postbuild.2.pattern = echo 
+
+recipe.hooks.linking.prelink.1.pattern = echo prelink
+recipe.hooks.linking.prelink.2.pattern = echo 
+
+recipe.hooks.linking.postlink.1.pattern = echo postlink
+recipe.hooks.linking.postlink.2.pattern = echo 
+
+recipe.hooks.objcopy.preobjcopy.1.pattern = echo preobjcopy
+recipe.hooks.objcopy.preobjcopy.2.pattern = echo 
+
+recipe.hooks.objcopy.postobjcopy.1.pattern = echo postobjcopy
+recipe.hooks.objcopy.postobjcopy.2.pattern = echo 
+
+recipe.hooks.savehex.presavehex.1.pattern = echo presavehex
+recipe.hooks.savehex.presavehex.2.pattern = echo 
+
+recipe.hooks.savehex.postsavehex.1.pattern = echo postsavehex
+recipe.hooks.savehex.postsavehex.2.pattern = echo 
+

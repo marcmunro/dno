@@ -1,0 +1,67 @@
+#! /usr/bin/env bash
+# Check that tags build targets do as expected
+#
+
+
+check_tags_cleanup()
+{
+    rm -rf ${test_startdir}/tests/proj
+}
+
+# Check tag targets
+check_tag_targets()
+{
+    # Tests for ctags
+    run; dno >make.log 2>&1 || fail "simple board build fails"
+    [ -f ctags ] && fail "ctags file unexpectedly exists"
+    run; dno ctags >make.log 2>&1 || fail "ctag build fails"
+    grep -q "CTAGS ../blink.cpp" make.log ||
+	fail "CTAGS does not appear in make output."
+    find .. -newer tags | grep -q blink.cpp &&
+	fail "ctags is older than it should be"
+    sleep 0.1 # Allow timestamps to keep up
+    touch ../blink.cpp
+    run; dno >make.log 2>&1 || fail "simple board build fails(2)"
+    grep -q "CTAGS ../blink.cpp" make.log ||
+	fail "CTAGS does not appear in make output(2)."
+    find .. -newer tags | grep -q blink.cpp &&
+	fail "ctags is older than it should be (2)"
+    run; dno clean >make.log 2>&1 || fail "clean target fails"
+    touch ../blink.cpp  
+    run; dno >make.log 2>&1 || fail "simple board build fails(3)"
+    grep -q "CTAGS ../blink.cpp" make.log ||
+	fail "CTAGS does not appear in make output(3)."
+
+    # Now the same for etags
+    rm tags
+    run; dno etags >make.log 2>&1 || fail "etag build fails"
+    grep -q "ETAGS ../blink.cpp" make.log ||
+	fail "ETAGS does not appear in make output."
+    find .. -newer TAGS | grep -q blink.cpp &&
+	fail "TAGS is older than it should be"
+    sleep 0.1
+    touch ../blink.cpp
+    run; dno >make.log 2>&1 || fail "simple board build fails(4)"
+    grep -q "ETAGS ../blink.cpp" make.log ||
+	fail "ETAGS does not appear in make output(2)."
+    find .. -newer TAGS | grep -q blink.cpp &&
+	fail "TAGS is older than it should be (2)"
+    run; dno clean >make.log 2>&1 || fail "clean target fails(2)"
+    touch ../blink.cpp  
+    run; dno >make.log 2>&1 || fail "simple board build fails(5)"
+    grep -q "ETAGS ../blink.cpp" make.log ||
+	fail "ETAGS does not appear in make output(3)."
+}
+
+check_tags()
+{
+    echo -n "Checking tag targets"
+    cd ${test_startdir}
+    mkdir -p tests/proj/blink
+    cd tests/proj/blink
+    cp ${SCRIPTDIR}/assets/src/blink.cpp .
+    mkdir avr.pro
+    cp -r ${SCRIPTDIR}/assets/lib/Deferal .
+    cd avr.pro
+    check_tag_targets
+}

@@ -1,0 +1,210 @@
+#! /usr/bin/env bash
+#
+#       dno_prog - programmers.txt parser for dno
+# 
+#       Copyright (c) 2026 Marc Munro
+#       Author:  Marc Munro
+# 	License: GPL-3.0
+#
+#
+ARDUINO_BOARDS_FILE="@BOARDS_TXT@"
+DIALOG=@DIALOG@
+DNO_VERSION=@DNO_VERSION@
+
+##
+# error
+# Print an error message to stderr and exit with an error status.
+#
+error()
+{
+    if [ "x${quiet}" != "xyes" ]; then
+	echo -e "dno_bpp error:" "$@" 1>&2
+    fi
+    exit 2
+}
+
+##
+# version
+#
+# Print version information.
+#
+version()
+{
+    echo "`basename $0`: version ${DNO_VERSION} (part of the dno toolset)"
+}
+
+##
+# usage
+#
+# Print a usage message.
+#
+usage()
+{
+    echo "dno_prog [options] [arg]
+
+  Parses programmers.txt file to identify, list or extract definitions
+  for a programmer.
+
+  Options:
+  -c, --check   Determine whether arg is a valid programmer
+  -e, --extract Extract details for programmer given as arg
+  -h, --help    Provide this help message and exit.
+  -l, --list    List the available programmers.
+  -s, --show*   In combination with -l, show the path to our
+                programmers.txt file.
+  -v, --version	Print version information and exit.
+"
+}
+
+# Return path to programmers.txt based on path to boards.txt, or
+# return an error status.
+#
+programmers_txt()
+{
+    candidate=`dirname "$1"`/programmers.txt
+    if [ -f "${candidate}" ]; then
+        echo "${candidate}"
+    else
+        return 2
+    fi
+}
+
+# Identify boards.txt file based on path to boards.txt
+find_programmers_txt()
+{
+    if [ -f BOARD_INFO ]; then
+        programmers_txt \
+            `grep BOARD_FILE BOARD_INFO | tail -1 | sed -e s'/.*= *//'`
+    elif [ -f ../BOARD_INFO ]; then
+        programmers_txt \
+            `grep BOARD_FILE ../BOARD_INFO | tail -1 | sed -e s'/.*= *//'`
+    else
+        programmers_txt "${ARDUINO_BOARDS_FILE}"
+    fi
+    return $?
+}
+
+#
+# $1 is path to programmers.txt
+# $2 is pretty print
+list_programmers()
+{
+    if [ "x$2" != "x" ]; then
+	echo "Programmers from $1:"
+    fi
+    grep '^[^\.]*\.name=' $1 |
+	while read match; do
+	    name=`echo ${match} | cut -d. -f1`
+	    descr=`echo ${match} | cut -d= -f2`
+	    if [ "x$2" = "xn" ]; then
+	        echo ${name}: ${descr}
+	    else
+		printf "  %-22s %s\n" "${name}" "${descr}"
+	    fi
+	done
+}
+
+##
+# Extract and convert to makefile syntax, the details for our
+# programmer.
+#
+# $1 is path to programmers.txt
+# $2 is programmer name
+#
+extract_programmer_entries()
+{
+    echo "program.identifier=$2"
+    grep "^$2\." $1 | \
+	sed -e 's/^[^\.]*.//;s/^name/program.name/' \
+	    -e 's/{/\$(/g;s/}/)/g'
+}
+
+operation=none
+while getopts "c:e:hlsv-:" opt; do
+    case "${opt}" in
+	-)
+	    case "${OPTARG}" in
+		help)
+		    usage
+		    exit 0
+		    ;;
+		check)
+		    operation=check
+		    progname="$2"
+		    shift
+		    ;;
+		extract)
+		    operation=extract
+		    progname="$2"
+		    shift
+		    ;;
+		list)
+		    operation=list
+		    ;;
+		show*)
+		    show_source=y
+		    ;;
+		version)
+		    version
+		    ;;
+		*)
+		    if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
+                        echo "`basename $0`: Unknown option --${OPTARG}" 1>&2
+			exit 2
+                    fi
+		    ;;
+	    esac
+	    ;;
+	c)
+	    operation=check
+	    progname="${OPTARG}"
+	    ;;
+	e)
+	    operation=extract
+	    progname="${OPTARG}"
+	    ;;
+	h)
+	    usage
+	    exit 0
+	    ;;
+	l)
+	    operation=list
+	    ;;
+	s)
+	    show_source=y
+	    ;;
+	v)
+	    version
+	    ;;
+	*)
+	    echo "`basename $0`: Unexpected option: -${OPTARG}" 1>&2
+	    exit 1
+	    ;;
+    esac
+done
+shift $((OPTIND-1))
+
+pfile=`find_programmers_txt`
+if [ ! $? -eq 0 ]; then
+    echo "`basename $0`: Unable to find programmers.txt file" 1>&2
+    exit 1
+fi
+case "${operation}" in
+    list)
+        list_programmers "${pfile}" ${show_source}
+	;;
+    check)
+	if [ "x${progname}" = "x" ]; then
+	    echo "`basename $0`: no programmer provided to check" 1>&2
+	    usage
+	fi
+	list_programmers "${pfile}" n | grep --silent "^${progname}:"
+	;;
+    extract)
+	if [ "x$1" = "x" ]; then
+	    echo "`basename $0`: parameter required" 1>&2
+	    usage
+	fi
+	extract_programmer_entries "${pfile}" "$1"
+	;;
+esac	

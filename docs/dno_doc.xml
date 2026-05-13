@@ -11,7 +11,7 @@
        The docbook5 dno user guide.
        This is part of dno, the Arduino build system.
 
-       Copyright (c) 2025 Marc Munro
+       Copyright (c) 2025,2026 Marc Munro
        Author:  Marc Munro
        License: GPL-3.0
 
@@ -55,7 +55,8 @@
     </para>
     <para>
       Finally, it aims to be as simple to use as possible - requiring
-      minimal configuration while providing maximal flexibility.
+      minimal configuration while providing maximal flexibility and
+      ease of use.
     </para>
   </preface>
   <xi:include href="installation.xml"/>
@@ -66,6 +67,7 @@
   <xi:include href="libraries.xml"/>
   <xi:include href="documentation.xml"/>
   <xi:include href="other.xml"/>
+  <xi:include href="benchmarks.xml"/>
   <chapter>
     <title>Developing and Debugging Dno</title>
     <para>
@@ -191,10 +193,9 @@
 	    directory structured.
 	  </para>
 	  <para>
-	    The IDE provides no way to actually develop libraries.
-	    You can write them, but you can't test them or document
-	    them.  It's a toy development environment for toy
-	    devlopment.
+	    The IDE, as far as I can tell, provides no way to actually
+	    develop libraries.  You can write them, but you can't test
+	    them or document them.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -203,11 +204,16 @@
       <title>And How?</title>
       <para>
 	So, I didn't like the IDE.  I tried using a proper editor and
-	cutting and pasting my code into the IDE.  That sucked.
+	cutting and pasting my code into the IDE.  That sucked. 
       </para>
       <para>
 	I know there are other IDEs, like eclipse, that maybe don't
 	suck, but I still don't like IDEs.
+      </para>
+      <para>
+	And I know that I could use a different editor from the IDE,
+	but then I'd be using an editor <emphasis>and</emphasis> an
+	IDE, and that is no way to make things simpler.
       </para>
       <para>
 	I tried using the CLI.  But the commands are pure mental: way
@@ -238,7 +244,7 @@
 	<literal>platform.txt</literal> file.  I finally realised that
 	a simple transform could turn it into makefile syntax.  And
 	then I discovered make's <literal>eval</literal> function and
-	everything was suddenly possible.
+	suddenly everything was possible.
       </para>
     </section>
   </chapter>
@@ -248,6 +254,7 @@
   <xi:include href="parts/dno_commands_for.xml"/>
   <xi:include href="parts/dno_dirinfo.xml"/>
   <xi:include href="parts/dno_menu.xml"/>
+  <xi:include href="parts/dno_prog.xml"/>
   <xi:include href="parts/dno_requote.xml"/>
   <xi:include href="parts/BOARD_INFO.xml"/>
   <xi:include href="parts/BOARD_OPTIONS.xml"/>

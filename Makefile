@@ -174,7 +174,7 @@ configure: $(CONFIGURE_DEP)
 # get in the way (eg for the clean targets).  This definition allows those
 # targets to work without attempting to refresh the dependency files.
 #
-NO_DEP_TARGETS = clean tidy distclean 
+NO_DEP_TARGETS = clean tidy distclean test check
 
 HAVE_NODEP_GOALS = $(strip \
 	             $(foreach target,$(NO_DEP_TARGETS),\
@@ -249,7 +249,7 @@ DOC_SOURCES = docs/dno_doc.xml docs/installation.xml \
 	      docs/toolsets.xml docs/getting_started.xml \
 	      docs/a_little_exploration.xml docs/directory_system.xml \
 	      docs/libraries.xml docs/documentation.xml \
-	      docs/other.xml
+	      docs/other.xml docs/benchmarks.xml
 DOC_IMAGES = $(wildcard docs/*.png)
 
 COMBINED_DOC = docs/full_doc.xml
@@ -411,7 +411,11 @@ uninstall:
 
 ################################################################
 # Release targets
-# 
+# These help to ensure that a release is viable.
+# Use make release to get prompts on what you need to do to complete a
+# new release: each failed check will give you a clue about what to do
+# next.  If all checks pass then your release has probably been
+# successfully completed.
 
 .PHONY: release tarball check_commit check_remote check_tag \
 	check_tarball release_tarball release_docs
@@ -476,6 +480,11 @@ release_tarball:
 	    mv dno_$(DNO_VERSION).tgz releases; \
 	fi
 
+.PHONY: test tests check
+test tests check:
+	$(FEEDBACK) Running system tests...
+	$(AT) cd tests; ./run_tests -f \
+		`[ "x${NOCLEANUP}" = "x" ] || printf '%s' '-n'` $(TESTS) 
 
 # Local Variables:
 # mode: makefile

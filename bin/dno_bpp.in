@@ -26,13 +26,16 @@ DNO_VERSION="@DNO_VERSION@"
 DNO_IDE_VERSION="@DNO_IDE_VERSION@"
 HOST_OS="@HOST_OS@"
 
+
 ##
 # error
 # Print an error message to stderr and exit with an error status.
 #
 error()
 {
-    echo -e "dno_bpp error:" "$@" 1>&2
+    if [ "x${quiet}" != "xyes" ]; then
+	echo -e "dno_bpp error:" "$@" 1>&2
+    fi
     exit 2
 }
 
@@ -64,19 +67,29 @@ usage()
   -f, --full    Report the full board-specifier name with --type.
   -h, --help    Provide this help message and exit.
                 Print this help message and exit.
+  -i, --identify
+	        Ensure there is only a single board match for our
+		parameter.  Return failure status if not.
   -l, --list    List the available boards, filtered by board-specifier
   -n, -no_options
 	        Do not warn about unused board options with --type
   -o, --options Print options (menu options) for boards.  This only
                 makes sense in combination with --list
+  -b, --boardpath    
+      		Provide the full path to the boards.txt file.
   -p, --parse   Parse the appropriate boards.txt and platforms.txt
       		files for a single specified board with output to
 		stdout.  The output may be saved in a BOARD_INFO file.
+  -q, --quiet   Do not print notices and error messages.
+  -s, --short, --partial
+      	        Print only the board and not options part of a board
+                specification.  Implies -t.
   -t, --type    Print a board type string.  This can be saved in a 
       		BOARD_TYPE file, or used as the directory name for a 
 		board directory.
   -x            Run as a helper to identify a path.
-  --version, -v	Print version information and exit.
+  --verify      As identify
+  -v, --version	Print version information and exit.
 "
 }
 
@@ -161,6 +174,9 @@ all_boards()
 	while read line; do
             IFS=':' read -a field <<< "${line}"
 	    filepath=`echo "${line}" | cut -d: -f3-`
+	    if [ ! -f "${filepath}" ]; then
+		error "Cannot find \"${filepath}\""
+	    fi
 	    sed -n "/^[^\.]*\.name=/s/^\([^\.]*\).*/${field[0]}.${field[1]}.\1/p" <"${filepath}"
         done
 }
@@ -417,15 +433,17 @@ option_specifier()
 # qualify_matches
 #
 # This takes the various matches identified by get_board_candidates()
-# for each part of out board-specifier and validates them against the
-# complete board-specifier.  This is harder than you might think as
-# the board specifier may contain the vendor, and architecture, in
-# addition to the board identfier, and may also have menu options
-# provided.  This means that we cannot tell for sure, except in
-# trivial cases, which parts of a board-specifier represent which
-# part.  This function simply tries things out to remove matches that
-# do not work.  If a board-specifier is sufficiently complete, there
-# will only be a single output line from this function.
+# for each part of our, possibly abbreviated, board-specifier and
+# validates them against the complete board-specifier.  This is harder
+# than you might think as the board specifier may contain the vendor,
+# and architecture, in addition to the board identfier, and may also
+# have menu options provided.  This means that we cannot tell for
+# sure, except in trivial cases, which parts of our board-specifier
+# parameter represent which part of the full specification.
+#
+# This function simply tries things out to remove matches that do not
+# work.  If a board-specifier is sufficiently complete, there will
+# only be a single output line from this function.
 #
 # $@ contains the board-specifier in the form of an array of its
 # component parts.
@@ -468,8 +486,10 @@ qualify_matches()
 		    qual=`option_specifier "${last_param}" "${subqual}"`
 		    if [ "x${qual}" != "x" ]; then
 			echo "${subqual}.${qual}"
-			continue # This match is qualified.  Try the next
 		    fi
+		    # We either already matched (the echo in the if
+		    # above) or failed to.  So go on to the next attempt.
+		    continue 
 		fi
 	    fi
 	    qualify_one "${match}" "$@"
@@ -604,13 +624,14 @@ ensure_single_match()
 # Print an unambiguous board_type identifier.
 # If board has options show warnings unless --nooptions has been
 # specified.  If --full option is provided, provide the fully
-# qualified version of the type.
+# qualified version of the type.  If --short is provided do not show
+# any options.
 #
 # Requires qualified_matches, board_paths
 #
 board_type()
 {
-    local path options parts i 
+    local path options parts i
     local board_id=`ensure_single_match "$1"`
     if [ "x${board_id}" = "x" ]; then
 	exit 2
@@ -624,7 +645,7 @@ board_type()
 	    			       "${parts[2]}" "${path}" |
 		                    menu_names_from_options`
 	    if [ "${#options[@]}" != "0" ]; then
-		for i in "${!options[@]}"; do
+		for i in "${options[@]}"; do
 		    if [[ "${parts[3]}" =~ ${options[${i}]} ]]; then
 			# This option is specified in our
 			# board-specifier
@@ -632,15 +653,22 @@ board_type()
 		    fi
 		done
 		if [[ "${options[@]}" =~ [a-zA-Z] ]]; then
-		    echo -e "\nNotice: this board can be further specified" \
-			 "with the following -" 1>&2
-		    echo -e "        options: " ${options[@]}"\n" 1>&2
+		    if [ "x${quiet}" != "xyes" ]; then
+		        echo -e "\nNotice: this board can be further" \
+			    "specified with the following -" 1>&2
+		        echo -e "        options: " ${options[@]}"\n" 1>&2
+
+		    fi
 		fi
 	    fi
 	fi
     fi
     if [ "${report_full_name}" = "yes" ]; then
-	echo ${board_id}
+	if [ "x${short}" = "xyes" ]; then
+	    echo ${board_id} | sed -e 's/^\([^\.]*\.[^\.]*\.[^\.]*\).*/\1/'
+        else
+	    echo ${board_id}
+	fi
     else
 	# We want to print an abbreviated version of ${board_id}
 	local options=""
@@ -658,6 +686,9 @@ board_type()
 		# prepend a dot
 		options=".${options}"
 	    fi
+	fi
+	if [ "x${short}" = "xyes" ]; then
+	    options=""
 	fi
 	# Now we'll see whether we can lose the vendor/architecture
 	# parts.
@@ -696,72 +727,6 @@ projname () {
     else 
 	( cd ..; projname )
     fi
-}
-
-##
-# parse_board_file
-#
-# Parses boards.txt files, printing only those details that match our
-# board and selected menu options.  This results in a pretty small set
-# of definitions that will later be fully parsed by parse_all_files().
-#
-parse_board_file()
-{
-    local parts
-    IFS=. read -a parts <<<"$2"
-    IFS=, read -a selections <<<"${parts[3]}"
-    {
-	xargs -n 1 <<<"${selections}"
-	[ -f ./BOARD_INFO ] && cat BOARD_INFO
-	echo "##END_SELECTIONS##"
-    } | \
-    gawk '
-    BEGIN {
-        reading_menu = 1
-    }
-    /^##END_SELECTIONS##/ {
-        reading_menu = 0
-    }
-    (reading_menu) {
-        # This is a menu selection entry.  We will record it
-	menu_name = gensub(/^([^=]*)=.*/, "\\1", 1)
-	selection = gensub(/^[^=]*=/, "", 1)
-	menu_selections[menu_name] = selection
-	print "menuselection." menu_name "=" menu_selections[menu_name]
-    }
-    /./ {
-        if ($0 ~ "^" BOARD "\\.") {
-	    # This line is for our selected board.
-	    # Remove the board prefix
-	    sub("^" BOARD "\\.", "")
-	    if ($0 ~ "menu\\.") {
-	        # This is a menu entry line
-		print
-		menu_name = gensub("^menu\\.([^\\.]*)\\..*", "\\1", 1)
-		menu_option = gensub("^menu\\.[^\\.]*\\.([^\\.=]*).*", 
-			    	   "\\1", 1)
-		if ($0 ~ "^menu\\.[^\\.]*\\.[^\\.]*=") {
-		    # This is a menu selection title
-		    if (!(menu_name in menu_selections)) {
-		        # This is the first option for an unchosen 
-			# menu option.  This is the menu default
-			menu_selections[menu_name] = menu_option  
-			print "menuselection." menu_name "=" \
-			          menu_selections[menu_name]
-		    }
-		    next # No more to do for this line
-		}
-		if (menu_option == menu_selections[menu_name]) {
-		    print gensub("^menu." menu_name "." \
-		   	         menu_selections[menu_name] ".", "", 1)
-		}
-	    }
-	    else {
-	        print gensub("^" BOARD "\\.", "", 1)
-	    }
-	}
-    }
-    ' VENDOR="${parts[0]}" ARCH="${parts[1]}" BOARD="${parts[2]}" - "$1"
 }
 
 ##
@@ -1162,12 +1127,13 @@ parse_all_files()
 	    print_recorded_lines()
 	    print_undefined("runtime.platform.path", PLATFORM_PATH)
 	    print_undefined("runtime.hardware.path", HARDWARE_PATH)
+	    print_undefined("runtime.os", OS)
 	    print_undefined("build.arch", toupper(ARCH_NAME))
 	    print_undefined("build.source.path", ".")
 	    print_undefined("build.variant.path", build_variant_path())
 	    print_undefined("runtime.ide.version", DNO_IDE_VERSION+0)
 	    print_undefined("build.fqbn", "$(build.variant):$(build.core):"\
-	    	  "$(build.target)$(build.menu_selections)")
+	    	  "$(build.target):$(build.menu_selections)")
 	    base_search_path = gensub(/^"(.*)"$/, "\\1", "1",
 	    		              definitions["runtime.hardware.path"])
 	    base_search_path = gensub(/\/[^\/]*\/?$/, "", "1", base_search_path)
@@ -1189,7 +1155,7 @@ parse_all_files()
 # parse_config_files
 #
 # Identify the set of boards.txt and platforms.txt files that we need
-# to parse and then parse them, with output to stydout.
+# to parse and then parse them, with output to stdout.
 #
 # $1 our board-specifier.
 #
@@ -1197,36 +1163,28 @@ parse_config_files()
 {
     local parts board_defns platform_files file
     local board_id=`ensure_single_match "$1"`
+    if [ "x${board_id}" = "x" ]; then
+	exit 2
+    fi
     IFS=. read -a parts <<<"${board_id}"
     local board_file=`bfile_for_board "${parts[@]}"`
-    board_defns=`parse_board_file "${board_file}" "${board_id}"`
+    board_details=`dno_menu -l "${board_id}"`
 
-    # Find any referenced platforms in board_defns
+    # Find our platforms.txt files.  This will include any platforms
+    # referenced in ${board_details}.
+    #
     platform_files=()
     while IFS='' read -r file; do
 	platform_files+=("${file}")
-    done <<<`identify_platform_files "${board_file}" \
-    					    "${parts[1]}" <<<"${board_defns}"`
-
-
-    # General header
-    cat - <<EOF
-# Parsed board info for ${board_id}
-# generated `date "+%Y%m%d %H%M%S"`
-#
-
-BOARD_TYPE = ${board_id}
-BOARD_FILE = ${board_file}
-
-runtime.os = ${HOST_OS}
-build.project_name = `projname`
-EOF
+    done <<<`identify_platform_files \
+    	         "${board_file}" "${parts[1]}" <<<"${board_details}"`
 
     # Remove any referenced alternate core/variant/tool before passing
     # our filtered board definitions into our parser.
     #
-    sed -e 's/=.*:/=/' <<<"${board_defns}" | \
-        parse_all_files "${board_file}" "${platform_files}"
+    { sed -e 's/=.*:/=/' <<<"${board_details}";
+      echo build.project_name = `projname`
+    } | parse_all_files "${board_file}" "${platform_files}"
 
     return $?
 }
@@ -1272,17 +1230,26 @@ options=""
 report_full_name=no
 warn_of_options=yes
 findpaths=no
+quiet=no
+short=no
 
-while getopts "fhlnoptvx-:" opt; do
+while getopts "bfhilnopqstvx-:" opt; do
     case "${opt}" in
 	-)
 	    case "${OPTARG}" in
+		board*)
+		    action=path
+		    ;;
 		full)
 		    report_full_name=yes
 		    ;;
 		help)
 		    usage
 		    exit 0
+		    ;;
+		identify) ;&
+		verify)
+		    action=identify
 		    ;;
 		list)
 		    action=list
@@ -1295,6 +1262,15 @@ while getopts "fhlnoptvx-:" opt; do
 		    ;;
 		parse)
 		    action=parse
+		    ;;
+		partial)
+		    short=yes
+		    ;;
+		quiet)
+		    quiet=yes
+		    ;;
+		short)
+		    short=yes
 		    ;;
 		type)
 		    action=type
@@ -1312,12 +1288,18 @@ while getopts "fhlnoptvx-:" opt; do
 		    ;;
 	    esac
 	    ;;
+	b)
+	    action=path
+	    ;;
 	f)
 	    report_full_name=yes
 	    ;;
 	h)
 	    usage
 	    exit 0
+	    ;;
+	i)
+	    action=identify
 	    ;;
 	l)
 	    action=list
@@ -1330,6 +1312,13 @@ while getopts "fhlnoptvx-:" opt; do
 	    ;;
 	p)
 	    action=parse
+	    ;;
+	q)
+	    quiet=yes
+	    ;;
+	s)
+	    short=yes
+	    action=type
 	    ;;
 	t)
 	    action=type
@@ -1365,6 +1354,10 @@ fi
 # Get our board information
 #
 board_paths=`all_board_paths`
+if [ "x${board_paths}" = "x" ]; then
+    error "Cannot identify any boards.txt files."
+fi
+
 all_boards=`all_boards`
 
 # Read board-specifier, $1, into the board_parts array. 
@@ -1384,7 +1377,6 @@ all_matches=`(get_board_candidates "${board_parts[0]}"
 # Filter out those candidates that do not match the board-specifier
 #
 qualified_matches=`echo "${all_matches}" | qualify_matches "${board_parts[@]}"`
-
 #echo "QUALIFIED MATCHES:" "${qualified_matches}"
 
 case "${action}" in
@@ -1398,7 +1390,20 @@ case "${action}" in
 	parse_config_files "$1"
 	;;
     "type")
-	board_type "$1"
+	board_type "$1" 
+	;;
+    "path")
+	if [ "x$2" = "x" ]; then
+	    # Handle single parameter by converting it into a fqbn
+	    fqbn=`ensure_single_match "$1"` &&
+	        {
+		    IFS=. read -a board_parts <<<"${fqbn}"
+		    bfile_for_board "${board_parts[0]}" "${board_parts[1]}" \
+				    "${board_parts[2]}"
+	        }
+	else
+	    bfile_for_board "$@"
+	fi
 	;;
 esac
 

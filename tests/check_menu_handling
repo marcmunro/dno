@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+# Check usage of dno_menu
+#
+
+check_menu_handling_cleanup()
+{
+    >/dev/null
+}
+
+check_pro_and_cpu()
+{
+    run; dno_menu -m avr.pro 2>&1 | grep -q "title cpu" ||
+        fail "Menu not created for arduino pro cpu options"
+    run; dno_menu -m avr.pro.8MHzatmega168 2>&1 | grep -q "title cpu" &&
+        fail "Menu incorrectly created for arduino pro cpu options"
+}
+
+check_menu_handling()
+{
+    echo -n "Checking dno_menu usage"
+    export DIALOG="${SCRIPTDIR}/`basename $0` -D"
+    check_pro_and_cpu
+}

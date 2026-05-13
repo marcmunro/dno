@@ -11,9 +11,10 @@
 #
 
 # TODOs:
-# Update dno_menu to deal with changed to dno_bpp
-# handle filenames with spaces and other stupid characters
-# Add programmers.txt into BOARD_INFO
+# Test cleanup
+#  - esp32 tests should be conditional
+#  - can we make conditional upload, etc tests?
+# Check indentation in conditional sections
 # deb package build
 
 # Version and configuration stuff
@@ -26,9 +27,14 @@ EXTRA_BOARDS_FILE=@DNO_EXTRA_BOARDS_FILE@
 #
 MAKEFLAGS += -r
 
-# We need bash for the pipefail option.
+# We need bash rather than sh so we can use the pipefail option.
 #
 SHELL = bash
+
+# Define dno helper commands.
+#
+BPP = $(BINDIR)/dno_bpp
+MENU = $(BINDIR)/dno_menu
 
 
 ###########
@@ -64,53 +70,63 @@ BUILD_DIR = build
 # cause it to become undefined.  This allows us to explicitly unset
 # VERBOSITY for certain recursive calls.
 #
-
+# FEEDBACK_ECHO may be used in multi-line shell commands where part of the
+# command can usefully provide feedback.
+#
 ifdef VERBOSE
-    ifeq "$(VERBOSE)" "N"
-        override undefine VERBOSE
-        override undefine DEBUG
-        override undefine REPORT
-    endif
+  ifeq "$(VERBOSE)" "N"
+    override undefine VERBOSE
+    override undefine DEBUG
+    override undefine REPORT
+  endif
 endif
 
 ifdef VERBOSE
-    FEEDBACK = @true
-    FEEDBACK_RAW = true
-    AT =
-    REPORT = true
+  FEEDBACK = @true
+  FEEDBACK_ECHO = echo " "
+  AT =
+  REPORT = true
 else
-    FEEDBACK = @echo " "
-    FEEDBACK_RAW = echo " "
-    AT = @
+  FEEDBACK = @echo " "
+  FEEDBACK_ECHO = true
+  AT = @
 endif
 
+# Define a hash character.  This can be used to comment out parts of
+# an action in a recipe.
+#
+override undefine HASH
 define HASH
 #
 endef
 
 ifdef QUIET
-    # This prevents anything following $(IFNOTQUIET) from being executed
-    IFNOTQUIET = $(HASH)
+  # This prevents anything following $(IFNOTQUIET) from being executed
+  IFNOTQUIET = $(HASH)
 endif
 
-# TARGET echoes the current target when REPORT is defined.  
+# TARGET echoes the current target when REPORT is defined.
+# depending on whethere $(COMMANDS) contains anything.
 #
+override undefine TARGET COND_TARGET
 ifdef REPORT
-    TARGET = @echo BUILDING TARGET[$(MAKE_RESTARTS)] $@
+  TARGET_STR = BUILDING TARGET[$(MAKE_RESTARTS)]
+  TARGET = @echo $(TARGET_STR) $@
 else
-    TARGET = @true
+  TARGET = @$(HASH)
 endif
 
 # If SHOW_RULES is defined feedback will be provided from the recursive rule
 # building macros.  This is intended for debugging dno.
 #
 ifdef SHOW_RULES
-    feedback = $(info $1)
+  override undefine feedback
+  feedback = $(info $1)
 endif
 
 # If DEBUG is defined, we can show the values of certain defined variables:
 # those that are followed by calls to $(call debug) within this file.  DEBUG
-# may be given the value Y, yes or all to show all such instrumented variables,
+# may be given the value Y, YES or ALL to show all such instrumented variables,
 # or may be a (grep) regexp that matches the names of only those variables we 
 # are interested in.
 #
@@ -134,7 +150,7 @@ export DEBUG VERBOSE FEEDBACK
 # General definitions
 #
 
-# Figure out the path to this makefile.
+# Figure out the path to this makefile, and ensure recursive makes use it.
 #
 MAKEFILEPATH := $(realpath $(call lastword,$(MAKEFILE_LIST)))
 THIS_MAKEFILE := $(firstword $(MAKEFILE_LIST))
@@ -179,21 +195,25 @@ is_special_lib = $(and $(wildcard $(1)/src/$(notdir $(1)).h), $(1)/src)
 # is_lib
 # Check each dir in $1 to see if it is either a std lib or special
 # lib.  Result will be each entry from $1 that is either a standard
-# or special lib.
+# or special lib.  Note that bootloader (boot) directories are a
+# special case as they may look like lib dirs but are not. 
 #
 override undefine is_lib
 is_lib = $(foreach lib,$(1), \
-	     $(or $(call is_std_lib,$(lib)), \
-		  $(call is_special_lib,$(lib))))
+	     $(if $(call eq,$(notdir $(lib)),boot),, \
+	       $(or $(call is_std_lib,$(lib)), \
+		    $(call is_special_lib,$(lib)))))
 
 ##
 # is_board_dir
-# Check each dir in $1 to see if it looks like a board directory.  It
-# does if it contains a BOARD_INFO file.
+# Check each dir in $1 to see if it is a board directory.  
 #
 override undefine is_board_dir
 is_board_dir = $(foreach dir,$(1), \
-	         $(and $(wildcard $(dir)/BOARD_INFO), $(dir)))
+		 $(and $(or $(wildcard $(dir)/BOARD_INFO), \
+			    $(wildcard $(dir)/BOARD_TYPE), \
+			    $(shell $(BPP) -q -t $(notdir $(dir)))), \
+		       $(dir)))
 
 ##
 # deplibs
@@ -339,7 +359,7 @@ matching_files = $(foreach pattern, $(1),\
 # to_objects
 #   $1 Target directory
 #   $2 Set of source file names.
-# Translate source file names into object file paths.  The objects
+# Translate source file names into object file paths.  The object
 # files will all be placed in the given target directory.
 #
 override undefine to_objects
@@ -360,7 +380,8 @@ define RECURSE_FOR_SUBDIRS
 	  while read dir; do \
 	    if [ "`basename $${dir}`" != ".git" ]; then \
 	      ( cd $${dir}; \
-	        $(MAKE) --no-print-directory -j1 STARTDIR=$(STARTDIR) $@); \
+	        $(MAKE) --no-print-directory -j1 \
+		    DNO_STARTDIR=$(DNO_STARTDIR) $@); \
 	    fi; \
 	  done
 endef
@@ -418,7 +439,7 @@ core_files = $(strip \
 # requote
 # Helper macro to requote lines coming from BOARD_INFO (and friends).
 # Any quotes that appear to be within words get escaped.  Others are
-# leaved as they are.  This makes most recipes coming from BOARD_INFO
+# left as they are.  This makes most recipes coming from BOARD_INFO
 # work.  How they work in the Arduino ide is a mystery as the quoting
 # in platform.txt seems very eccentric in places.
 #
@@ -432,12 +453,28 @@ requote = $(shell echo '$1' | dno_requote)
 override undefine indent
 indent = set -o pipefail; ($1) | sed -e 's/^/    /'
 
+##
+# proj_ino
+# Expands to <dir>/<projname>.ino for the directory for files in $1 and
+# <projname> in $2.
+#
+proj_ino = $(if $1, $(dir $(firstword $1))$2.ino)
 
-# STARTDIR is set when we are recursing for one of the clean targets.
+##
+# dup_wts
+#   $1 - list of targets
+# Duplicate each entry, adding a trailing slash to the dupe.  This
+# allows directory names to be provided as targets with or without the
+# trailing slash. 
+#
+override undefine dup_wts
+dup_wts = $(foreach dir,$1,$(dir) $(dir)/) 
+
+# DNO_STARTDIR is set when we are recursing for one of the clean targets.
 # In these cases we just want to get started as quickly as possible,
 # so we avoid much of the slow startup bahaviour.
 #
-ifdef STARTDIR
+ifdef DNO_STARTDIR
   QUICKSTART = true
 endif
 
@@ -457,38 +494,29 @@ ifndef QUICKSTART
 
 # A local dno.mk file can be used to override or redefine certain
 # variables.  In particular DIR_TYPE can be defined rather than
-# allowing it to be dynamically discovered.
+# allowing it to be dynamically discovered.  Bootloader builds require
+# an external build command to be run.  By default this will be make,
+# but dno.mk can redefine BOOT_BUILDER to be something else.
+# BOOT_TARGET may also be redefined.
 #
+# BOOT_BUILDER runs make with MAKEFLAGS removed from env
+#
+BOOT_BUILDER := env -u MAKEFLAGS $(REAL_MAKE) --no-print-directory
+BOOT_TARGET := default_boot_target
 -include dno.mk
 
 ifndef DIR_TYPE
-  DIR_TYPE = $(shell $(BINDIR)/dno_dirinfo)
+  DIR_TYPE := $(shell $(BINDIR)/dno_dirinfo)
 endif
 
-BUILD_TYPE = unknown
+DEFAULT_BUILD_TYPE = unknown
 BOARD_DIR = .
-
-# Certain targets do not need the dependency files.  In fact those files can
-# get in the way (eg for the clean targets).  This definition allows those
-# targets to work without attempting to refresh the dependency files.
-#
-NO_DEP_TARGETS = clean tidy pristine \
-		 do_clean do_tidy do_pristine \
-		 list info help show_boards \
-		 BOARD_TYPE BOARD_INFO dno_board_type
-
-# ONLY_NODEP_TARGETS is true (has a value) if all of the command line
-# targets appear in NO_DEP_TARGETS
-#
-ONLY_NODEP_TARGETS = $(and $(MAKECMDGOALS),\
-	   $(call not,$(call minus,$(MAKECMDGOALS),$(NO_DEP_TARGETS))))
 
 # Define some fundamental variables based on the type of our directory tree
 # and whether targets have been explicitly specified.
 #
 ifeq "$(findstring _board, $(DIR_TYPE))" "_board"
-  BUILD_TYPE = build
-  CROSS_BUILD = yes
+  DEFAULT_BUILD_TYPE = build
   BOARD_DIR = .
   ifeq "$(DIR_TYPE)" "sub_board"
     PROJDIR = ..
@@ -500,17 +528,17 @@ ifeq "$(findstring _board, $(DIR_TYPE))" "_board"
     USER_LIB_ROOTS = .
   endif
 else ifeq "$(DIR_TYPE)" "root_code"
-  BUILD_TYPE = root_code_info
+  DEFAULT_BUILD_TYPE = root_code_info
   BOARD_DIR = .
   PROJDIR = .
   USER_LIB_ROOTS = .
 else ifeq "$(DIR_TYPE)" "root"
-  BUILD_TYPE = root_build_info
+  DEFAULT_BUILD_TYPE = root_build_info
   PROJDIR = .
   BOARD_DIR = .
   USER_LIB_ROOTS = .
 else ifeq "$(DIR_TYPE)" "test"
-  BUILD_TYPE = unit_test
+  DEFAULT_BUILD_TYPE = unit_test
   PARENT = $(shell $(BINDIR)/dno_dirinfo ..)
   ifeq "$(PARENT)" "lib"
     TEST_LIB = $(notdir $(realpath ..))
@@ -527,337 +555,520 @@ else ifeq "$(DIR_TYPE)" "test"
   else
     $(error NOT IMPLEMENTED: HANDLING FOR TEST PARENT $(PARENT))
   endif
-  NATIVE_BUILD = yes
 else ifeq "$(DIR_TYPE)" "lib"
-  BUILD_TYPE = lib
+  DEFAULT_BUILD_TYPE = lib
   ifeq "$(shell $(BINDIR)/dno_dirinfo .. |  sed -e 's/root.*/root/')" "root"
     PROJDIR = ..
   else
-    ifeq "$(shell $(BINDIR)/dno_dirinfo ../..  | sed -e 's/root.*/root/')" "root"
+    ifeq "$(shell $(BINDIR)/dno_dirinfo ../.. | sed -e 's/root.*/root/')" "root"
+      PROJDIR = ../..
+    else
+      $(error CANNOT DETERMINE TYPE OF DIRECTORY)
+    endif
+  endif
+else ifeq "$(DIR_TYPE)" "boot"
+  DEFAULT_BUILD_TYPE = boot
+  ifeq "$(shell $(BINDIR)/dno_dirinfo .. | sed -e 's/root.*/root/')" "root"
+    PROJDIR = ..
+  else
+    ifeq "$(shell $(BINDIR)/dno_dirinfo ../.. | sed -e 's/root.*/root/')" "root"
       PROJDIR = ../..
     else
       $(error CANNOT DETERMINE TYPE OF DIRECTORY)
     endif
   endif
 else ifeq "$(DIR_TYPE)" "docs"
-  BUILD_TYPE = docs
-  DIR_TYPE = $(shell $(BINDIR)/dno_dirinfo ..)
+  DEFAULT_BUILD_TYPE = docs
 else
   BOARD_DIR = .
 endif
 
-# If all of our targets are NODEP_TARGETS, then we don't want to do a
-# build which might attempt to refresh our dep files.
-#
-ifeq '$(ONLY_NODEP_TARGETS)' 't'
-    CROSS_BUILD =
-    NATIVE_BUILD =
-endif
+DOING_DOCS_BUILD = $(and $(filter $(MAKECMDGOALS),docs/html),t)
+$(call debug,DOING_DOCS_BUILD)
 
 PROJDIR := $(abspath $(PROJDIR))
 
-$(call debug,NATIVE_BUILD)
-$(call debug,PROJDIR)
-$(call debug,BUILD_TYPE)
-$(call debug,DIR_TYPE)
 $(call debug,BOARD_DIR)
+$(call debug,DEFAULT_BUILD_TYPE)
+$(call debug,PROJDIR)
+$(call debug,DIR_TYPE)
 $(call debug,BUILD_DIR)
 $(call debug,SRC_DIRS)
 
-ifndef STARTDIR
-  STARTDIR = $(CURDIR)
+ifndef DNO_STARTDIR
+  DNO_STARTDIR = $(CURDIR)
 endif
-$(call debug,STARTDIR)
+
+$(call debug,DNO_STARTDIR)
+
+# Classify our targets.
+# This enables us to avoid unnecessary overhead.  In particular, if we
+# are only building one of the NO_BUILD_TARGETS, we do not want to
+# include any deps files as that will potentially require
+# recompilations.
+#
+NO_BUILD_TARGETS = clean tidy pristine extraclean \
+		   do_clean do_tidy do_pristine \
+		   list info help show_boards check_extra_boards \
+		   BOARD_TYPE BOARD_INFO dno_board_type \
+		   list_programmers list-programmers listp \
+		   ../BOARD_INFO docs docs/html boot \
+		   devices check_device_path reset \
+		   monitor cat no_screen no-screen noscreen \
+		   upload do_upload \
+		   list_programmers list-programmers listp \
+		   PROGRAMMER unknown
+
+UNIT_TEST_TARGETS = unit_test test tests unit
+
+# Determine whether we are doing any cross-builds or any local builds.
+# A cross-build is the normal operation of dno.  It creates objects
+# and executables for a specific board.  A local build is done when we
+# are compiling and running unit tests directly on the host machine.
+# If we are doing neither, we can cut out a lot of work.
+
+ifneq "$(DIR_TYPE)" "unknown"
+  ROOT_DIRS := $(shell find $(PROJDIR) -maxdepth 1 -type d)
+  LIB_DIRS := $(call dup_wts,$(notdir $(call is_lib, $(ROOT_DIRS))))
+  BOARD_DIRS := $(call dup_wts,$(notdir $(call is_board_dir, $(ROOT_DIRS))))
+  $(call debug,ROOT_DIRS)
+  $(call debug,LIB_DIRS)
+  $(call debug,BOARD_DIRS)
+
+  IN_BOARD_DIR := $(and $(filter root_board sub_board,$(DIR_TYPE)),t)
+  ifeq "$(DIR_TYPE)" "boot"
+    # The only thing we can do in this dir is a boot (or docs) build, so don't
+    # check for anything else.
+  else
+    ifeq "$(MAKECMDGOALS)" ""
+      HAVE_CROSS_BUILD_TARGETS := $(IN_BOARD_DIR)
+      HAVE_TEST_TARGETS := \
+	$(and $(filter test test_container,$(DIR_TYPE)),t)
+    else
+      # We have explicit targets.  Determine whether any of them require
+      # us to do cross-builds or local builds.
+
+      HAVE_CROSS_BUILD_TARGETS := \
+	   $(and $(strip \
+		   $(call minus,$(MAKECMDGOALS),\
+	                        $(NO_BUILD_TARGETS) $(UNIT_TEST_TARGETS) \
+				$(LIB_DIRS) $(BOARD_DIRS))),t)
+      HAVE_TEST_TARGETS := \
+	   $(call not,$(call minus,$(MAKECMDGOALS),$(UNIT_TEST_TARGETS)))
+    endif
+  endif
+endif
+
+HAVE_BUILD_TARGETS := $(and $(or $(HAVE_TEST_TARGETS),\
+			        $(HAVE_CROSS_BUILD_TARGETS)),t)
+
+$(call debug,HAVE_CROSS_BUILD_TARGETS)
+$(call debug,HAVE_TEST_TARGETS)
+$(call debug,HAVE_BUILD_TARGETS)
+$(call debug,PROJDIR)
 
 
 ################################################################
 # Default target
-# This must appear before any other targets.  The value of BUILD_TYPE
+# This must appear before any other targets.  The value of DEFAULT_BUILD_TYPE
 # is determined by the type of directory in which we are called.
 #
-$(BUILD_TYPE):
+.PHONY: unknown
+$(DEFAULT_BUILD_TYPE):
 
 
-################################################################
-# build hook targets
-# Note that some hooks are implemented directly within other targets
-#
-#
-.PHONY: prebuild presketch postsketch precore
+ifeq "$(HAVE_TEST_TARGETS)" "t"
+  ################################################################
+  # Callable build rule generators for native builds
+  # These are only used if are building unit tests.
 
-# Note that $(object_files) is actually a proxy for "the files that
-# need to be built.  Make believes it has built these files, but
-# actually they will be built when the equivalent .d files are built.
-# By doing this, we can ensure that prebuild is always run when we
-# have sketch or library files to be compiled.  
-#
-prebuild: $(object_files) BOARD_INFO
-	$(TARGET)
-	@# $(eval COMMANDS = \
-	     $(and $(WILL_COMPILE),$(shell dno_commands_for prebuild)))
-	@$(and $(COMMANDS),$(FEEDBACK_RAW) Performing pre-build...)
-	$(AT) $(and $(COMMANDS), $(call indent,$(COMMANDS)))
-	@rm -f $(BUILD_DIR)/.prelib \
-		$(BUILD_DIR)/.presketch 2>/dev/null || true
-
-presketch: prebuild BOARD_INFO 
-	$(TARGET)
-	@#echo presketch[$(MAKE_RESTARTS)] deps: $?
-	@#echo WC: $(WILL_COMPILE)
-	@#echo "SF(WC):" $(call sketch_files,$(WILL_COMPILE))
-	@# $(eval COMMANDS = \
-	     $(and $(call sketch_files,$(WILL_COMPILE)),\
-		   $(shell dno_commands_for sketch.prebuild)))
-	@$(and $(COMMANDS), $(FEEDBACK_RAW) Performing sketch pre-build...)
-	$(AT) $(and $(COMMANDS), $(call indent,$(COMMANDS)))
-	@$(and $(COMMANDS), touch $(BUILD_DIR)/.presketch)
-
-postsketch: presketch
-	$(TARGET)
-	@#echo postketch[$(MAKE_RESTARTS)] deps: $?
-	@# $(eval COMMANDS = \
-	     $(and $(wildcard $(BUILD_DIR)/.presketch),\
-		   $(shell dno_commands_for sketch.postbuild)))
-	@$(and $(COMMANDS), $(FEEDBACK_RAW) Performing sketch post-build...)
-	$(AT) $(and $(COMMANDS), $(call indent,$(COMMANDS)))
-	@rm -f $(BUILD_DIR)/.presketch
-
-prelib: postsketch 
-	$(TARGET)
-	@#echo prelib[$(MAKE_RESTARTS)] deps: $?
-	@##echo WC: $(WILL_COMPILE)
-	@# $(eval COMMANDS = \
-	     $(and $(call not,$(wildcard $(BUILD_DIR)/.prelib)),\
-		   $(call lib_files,$(WILL_COMPILE)),\
-		   $(shell dno_commands_for libraries.prebuild)))
-	@$(and $(COMMANDS), $(FEEDBACK_RAW) Performing lib pre-build...)
-	$(AT) $(and $(COMMANDS), $(call indent,$(COMMANDS)))
-	@$(and $(COMMANDS), touch $(BUILD_DIR)/.prelib)
-
-postlib: prelib
-	$(TARGET) 
-	@#echo postlib[$(MAKE_RESTARTS)] deps: $?
-	@# $(eval COMMANDS = \
-	     $(and $(wildcard $(BUILD_DIR)/.prelib),\
-		   $(shell dno_commands_for libraries.postbuild)))
-	@$(and $(COMMANDS), $(FEEDBACK_RAW) Performing lib post-build...)
-	$(AT) $(and $(COMMANDS), $(call indent,$(COMMANDS)))
-	@rm -f $(BUILD_DIR)/.prelib
-
-precore: postsketch postlib
-	$(TARGET)
-	@#echo precore[$(MAKE_RESTARTS)] deps: $?
-	@# $(eval COMMANDS = \
-	     $(and $(call not,$(wildcard $(BUILD_DIR)/.precore)),\
-		   $(call core_files,$(WILL_COMPILE)),\
-		   $(shell dno_commands_for core.prebuild)))
-	@$(and $(COMMANDS), $(FEEDBACK_RAW) Performing core pre-build...)
-	$(AT) $(and $(COMMANDS), $(call indent,$(COMMANDS)))
-	@$(and $(COMMANDS), touch $(BUILD_DIR)/.precore)
-
-
-################################################################
-# Callable build rule generators
-#
-
-##
-# Compilation rules for unit test compilations.  This creates the rules for
-# compiling cpp, c and S files.
-#
-# $1 is the target directory for objects
-# $2 is the source directory
-# $3 is the optional lib name
-#
-define NATIVE_COMPILE_RULE
-$(1)/%.o $(1)/%.d &: $(2)/%.cpp
+  ##
+  # Compilation rules for unit test compilations.  This creates the rules for
+  # compiling cpp, c and S files.
+  #
+  # $1 is the target directory for objects
+  # $2 is the source directory
+  # $3 is the optional lib name
+  #
+  define NATIVE_COMPILE_RULE
+  $(1)/%.o $(1)/%.d &: $(2)/%.cpp
 	$$(TARGET)
 	@mkdir -p $$(dir $$@)
 	$(FEEDBACK)  C++ $(if $3,[$3]) $$(notdir $$<)
 	$(AT) $$(CXX) $$(CXXFLAGS) -c -MMD $$< -o $$(@:.d=.o)
-$(1)/%.o $(1)/%.d &: $(2)/%.c
+  $(1)/%.o $(1)/%.d &: $(2)/%.c
 	$$(TARGET)
 	@mkdir -p $$(dir $$@)
 	$(AT) $$(CC) $$(CFLAGS) -c -MMD $$< -o $$(@:.d=.o)
 	false
-$(1)/%.S.o $(1)/%.S.d &: $(2)/%.S
+  $(1)/%.S.o $(1)/%.S.d &: $(2)/%.S
 	$$(TARGET)
 	@mkdir -p $$(dir $$@)
 	$(FEEDBACK)  NOT IMPLEMENTED: AS $$<
 	false
 
-endef
+  endef
+endif
 
-# Eval'able rule definition for compiling C++, C, INO and ASM sources
-# for different arduino-like boards.
-# $1 is the path to the object file.
-# $2 is the path to the source file.
-# $3 is a short printable version  of $2, for feedback.
-# $4 is a dependency provider function
-# Note that the actual compilation commands are performed by attempts
-# to rebuild the dependency files rather than the objects.  See the
-# prebuild target comments for the rationale for this.
-# Note also that the ino rule creates a strangely named file.  This is
-# for compatibility with the standard ide even though it's dumb.
-#
-define CROSS_COMPILE_RULE
-$(1)/$(PROJNAME).ino.d: $(2)/$(PROJNAME).ino BOARD_INFO $4
+ifeq "$(HAVE_CROSS_BUILD_TARGETS)" "t"
+  ################################################################
+  # Deal with recipe hooks.  SeeL
+  #     https://docs.arduino.cc/arduino-cli/platform-specification/
+  #
+  # NOTE: sketch_prebuild must precede libraries discovery!  We should
+  # be able to handle this by making it an included makefile which
+  # can be included before library discovery.
+
+  ##
+  # Generate a target name from a recipe hook name.
+  # If the recipe hook name has 2 parts, an abbreviated form of the
+  # name will be returned consisting of pre or post (derived from the
+  # second part) followed by the, possibly abbreviated, fist part.
+  # So, sketch.prebuild becomes presketch.
+  #
+  define RECIPE_HOOK_NAME
+    $(if $(call eq,$(firstword $(subst ., ,$1)),\
+		   $(lastword $(subst ., ,$1))),\
+	$1,\
+	$(patsubst post%,post,$(patsubst pre%,pre,\
+		   $(lastword
+		     $(subst ., ,$1))))$(patsubst lib%,lib,
+						  $(patsubst link%,link,
+				$(firstword $(subst ., ,$1)))))
+
+  endef
+
+  ##
+  # Create a target for a recipe hook.
+  #   $1 Name of recipe hook in BOARD_INFO, eg sketch.prebuild
+  #   $2 Name of hook for dno
+  #
+  define RECIPE_HOOK_TARGET
+    RH_$(strip $2)_COMMANDS = $(shell dno_commands_for $1)
+    RH_$(strip $2)_TARGET = build/.$(strip $2)
+    build/.$(strip $2):
 	$$(TARGET)
-	$(FEEDBACK)  "C++  $(if $3,[$3],[$$(dir $$<)]) $$(notdir $$<)"
-	$(AT) $$(call requote,$$(recipe.ino.o.pattern))
-	$(AT) sed 's/\([^:]*\).o\s*:/\1.d \1.o:/' <$$@ >$$@d
-	$(AT) mv $$@d $$@
-$(1)/%.d: $(2)/%.cpp BOARD_INFO $4
+	$$(FEEDBACK) Performing $(strip $2)...
+	$$(AT) $$(RH_$(strip $2)_COMMANDS)
+	$$(AT) touch $$@
+
+  endef
+
+  $(foreach targ,$(shell dno_commands_for -l),\
+     $(eval $(call RECIPE_HOOK_TARGET,$(targ),\
+	$(call RECIPE_HOOK_NAME,$(targ)))))
+
+  ifneq "" "$(RH_prebuild_TARGET)"
+    $(RH_prebuild_TARGET): BOARD_INFO
+  endif
+
+  ifneq "" "$(RH_presketch_TARGET)"
+    $(RH_presketch_TARGET): BOARD_INFO $(RH_prebuild_TARGET)
+  endif
+
+  ifneq "" "$(RH_postlib_TARGET)"
+    $(RH_postlib_TARGET): $(lib_objects)
+  endif
+
+  ifneq "" "$(RH_postcore_TARGET)"
+    $(RH_postcore_TARGET): $(archive_file)
+  endif
+
+  $(call debug,RH_prebuild_TARGET)
+  $(call debug,RH_prebuild_COMMANDS)
+  $(call debug,RH_presketch_TARGET)
+  $(call debug,RH_presketch_COMMANDS)
+  $(call debug,RH_postsketch_TARGET)
+  $(call debug,RH_postsketch_COMMANDS)
+  $(call debug,RH_precore_TARGET)
+  $(call debug,RH_precore_COMMANDS)
+  $(call debug,RH_postcore_TARGET)
+  $(call debug,RH_postcore_COMMANDS)
+  $(call debug,RH_preobjcopy_TARGET)
+  $(call debug,RH_preobjcopy_COMMANDS)
+  $(call debug,RH_postobjcopy_TARGET)
+  $(call debug,RH_postobjcopy_COMMANDS)
+
+
+  # Eval'able rule definition for compiling C++, C, INO and ASM sources
+  # for different arduino-like boards.
+  # $1 is the path to the object file.
+  # $2 is the path to the source file.
+  # $3 is a short printable version  of $2, for feedback.
+  # $4 is a dependency provider function
+  # Note that the actual compilation commands are performed by
+  # attempts to rebuild the dependency files rather than the objects.
+  # Note also that the ino rule creates a strangely named file.  This
+  # is for compatibility with the standard ide even though it's dumb.
+  #
+  # Note that x.ino.d and x.ino.o do not depend on x.ino.  Instead
+  # they depend on all .ino files, as the .d and .o files are created
+  # by compiling a concatenation of all of the .ino files.  We use
+  # $(wildcard) in the feedback to only show files that really exist,
+  # for the case where the .ino file is not named the same as the
+  # project.
+  #
+  # Note: CROSS_COMPILE_RULE adds the project ino build rule to the
+  # more general set of rules in CROSS_LIBCOMPILE_RULE.
+  #
+  define CROSS_LIBCOMPILE_RULE
+  $(1)/%.d $(1)/%.o: $(2)/%.cpp BOARD_INFO $4
 	$$(TARGET)
 	$(FEEDBACK)  "C++  $(if $3,[$3],[$$(dir $$<)]) $$(notdir $$<)"
 	$(AT) $$(call requote,$$(recipe.cpp.o.pattern))
 	$(AT) sed 's/\([^:]*\).o\s*:/\1.d \1.o:/' <$$@ >$$@d
 	$(AT) mv $$@d $$@
-$(1)/%.d: $(2)/%.c BOARD_INFO $4
+  $(1)/%.d $(1)/%.o: $(2)/%.c BOARD_INFO $4
 	$$(TARGET)
 	$(FEEDBACK)  "C  $(if $3,[$3],[$$(dir $$<)]) $$(notdir $$<)"
 	$(AT) $$(call requote,$$(recipe.c.o.pattern))
 	$(AT) sed 's/\([^:]*\).o\s*:/\1.d \1.o:/' <$$@ >$$@d
 	$(AT) mv $$@d $$@
-$(1)/%.S.d: $(2)/%.S BOARD_INFO $4
+  $(1)/%.S.d $(1)/%.S.o: $(2)/%.S BOARD_INFO $4
 	$$(TARGET)
 	$(FEEDBACK)  "AS  $(if $3,[$3],[$$(dir $$<)]) $$(notdir $$<)"
 	$(AT) $$(call requote,$$(recipe.S.o.pattern))
 	$(AT) sed 's/\([^:]*\).o\s*:/\1.d \1.o:/' <$$@ >$$@d
 	$(AT) mv $$@d $$@
-$(1)/$(PROJNAME).ino.o: $(2)/$(PROJNAME).ino BOARD_INFO 
-	$$(TARGET)
-	@# $$(eval WILL_COMPILE += $$@)
-$(1)/%.o: $(2)/%.cpp BOARD_INFO
-	$$(TARGET)
-	@# $$(eval WILL_COMPILE += $$@)
-$(1)/%.o: $(2)/%.c BOARD_INFO
-	$$(TARGET)
-	@# $$(eval WILL_COMPILE += $$@)
-$(1)/%.S.o: $(2)/%.S BOARD_INFO
-	$$(TARGET)
-	@# $$(eval WILL_COMPILE += $$@)
 
-endef
+  endef
 
-# Rule for building arduino .a files.
-# $1 is the full pathname of the archive
-# $2 is the set of objects to go in to the archive
-#
-define CROSS_ARCHIVE_RULE
-$1: $2
+  define CROSS_COMPILE_RULE
+  $(1)/$(PROJNAME).ino.d $(1)/$(PROJNAME).ino.o: BOARD_INFO $4
+	$$(TARGET)
+	$(FEEDBACK)  "C++  $$(wildcard $$(INO_MAIN)) $$(INO_INCLUSIONS)"
+	$(AT) $$(call requote,$$(recipe.ino.o.pattern))
+	$(AT) sed 's/\([^:]*\).o\s*:/\1.d \1.o:/' <$$@ >$$@d
+	$(AT) mv $$@d $$@
+  $(CROSS_LIBCOMPILE_RULE)
+  endef
+
+  # Rule for building arduino .a files.
+  # $1 is the full pathname of the archive
+  # $2 is the set of objects to go in to the archive
+  #
+  define CROSS_ARCHIVE_RULE
+  $1: $2
 	$$(TARGET)
 	$$(FEEDBACK) AR [$$(basename $$(notdir $$@))] $$(notdir $$<)...
 	$$(AT) $$(compiler.path)$$(compiler.ar.cmd) rcs $$@ $$^
 	@# $(eval COMMANDS = $(shell dno_commands_for core.postbuild))
-	@$(and $(COMMANDS),$(FEEDBACK_RAW) Performing post-core...)
+	@$(and $(COMMANDS),$(FEEDBACK_ECHO) Performing post-core...)
 	$(AT) $(and $(COMMANDS),$(call indent,$(COMMANDS)))
 
-endef
+  endef
+endif
 
-# Macro for declaring dependencies.  This is called and then eval'd in
-# order to dynamically create dependencies.
-# 
-define DEPENDENCY_RULE
-$1: $2
-
-endef
-
-# Macro for defining executable lines within recipes.
-#
-define RECIPE_LINE
+ifeq "$(HAVE_BUILD_TARGETS)" "t"
+  # Macro for defining executable lines within recipes.
+  #
+  define RECIPE_LINE
 
 	$$(AT) $$($1)
-endef
+  endef
 
-# Define build rules for given source directories updating DEPS, our list of
-# generated dependency files, as we go.  Note that this is a recursive macro
-# which needs to be evaluated in order to actually create the rules.
-#
-# The feedback macro calls below provide feedback when SHOW_RULES is defined.
-#   $1 - the name of the compile rule macro
-#   $2 - the target directory for objects
-#   $3 - the prioritised list of source directories
-#   $4 - lib paths (where to search for libraries)
-#   $5 - optional lib shortname to pass to our compile_rules
-#   $6 - optional dependencies to pass into our initial compile_rule
-#   $7 - optional dependents function to call after our initial compile_rule
-#   $8 - optional dependencies to pass into our subsequent compile_rules
-#   $9 - optional dependents function to call after our subsequent compile_rules
-#
-define ALL_BUILD_RULES
-  $(shell mkdir -p $2)
-  RULE_INO_SOURCES := $$(call uniqify,\
-		          $$(call matching_files,*.ino,$3),\
-	                  filepart)
-  RULE_SOURCES := $$(call uniqify,\
-		          $$(call matching_files,*.cpp *.c *.S,$3),\
-	                  filepart)
-  SECONDARY_INOS := $$(filter-out %/$$(PROJNAME).ino,$$(RULE_INO_SOURCES))
-  RULE_PROJ_INO := $$(filter %/$$(PROJNAME).ino,$$(RULE_INO_SOURCES))
-  RULE_SOURCES += $$(filter %/$$(PROJNAME).ino,$$(RULE_INO_SOURCES))
-  RULE_INO_SOURCES := $$(filter-out %/$$(PROJNAME).ino,$$(RULE_INO_SOURCES))
-  RULE_DEPS := $$(patsubst %.o,%.d,$$(call to_objects,$2,$$(RULE_SOURCES)))
-  RULE_DIRS := $$(sort $$(dir $$(RULE_SOURCES)))
-  $$(call feedback,$(space) RULE_DIRS: $$(RULE_DIRS))
-  $$(call feedback,$(space) RULE_SOURCES: $$(RULE_SOURCES))
-  $$(call feedback,$(space) RULE_INO_SOURCES: $$(RULE_INO_SOURCES))
-  $$(foreach dir,$$(RULE_DIRS),\
-    $$(call feedback,$$(call $1,$2,$$(dir),\
-	    $$(or $5,$$(call libname,$$(dir))),$6))\
-    $$(eval $$(call $1,$2,$$(dir),$$(or $5,$$(call libname,$$(dir))),$6)))
+  # Define build rules for given source directories updating DEPS, our
+  # list of generated dependency files, as we go.  Note that this is a
+  # recursive macro which needs to be evaluated in order to actually
+  # create the rules.
+  #
+  # Note that .ino files are handled differently from all other source
+  # files.  To compile them we determine their function prototypes and
+  # then concatenate these with the contents of those .ino files and
+  # compile the result.
+  #
+  # For debugging this, use SHOW_RULES=y in your invocation
+  #
+  # The feedback macro calls below provide feedback when SHOW_RULES is defined.
+  #   $1 - the name of the compile rule macro
+  #   $2 - the target directory for objects
+  #   $3 - the prioritised list of source directories
+  #   $4 - lib paths (where to search for libraries)
+  #   $5 - optional lib shortname to pass to compile_rules
+  #   $6 - optional dependencies to pass into initial compile_rule
+  #   $7 - optional variable into which to store deps discovered in
+  #        initial invocation
+  #   $8 - optional dependencies to pass into subsequent compile_rules
+  #   $9 - optional variable into which to store deps discovered in
+  #        subsequent (recursive) invocations
+  #
+  define ALL_BUILD_RULES
+    $(shell mkdir -p $2)
+    RULE_INO_SOURCES := $$(call uniqify,\
+		            $$(call matching_files,*.ino,$3),\
+	                    filepart)
+    RULE_SOURCES := $$(call uniqify,\
+		            $$(call matching_files,*.cpp *.c *.S,$3),\
+	                    filepart)
+    RULE_PROJ_INO := $$(call proj_ino,$$(RULE_INO_SOURCES),$$(PROJNAME))
+    RULE_INO_SOURCES := $$(filter-out %/$$(PROJNAME).ino,$$(RULE_INO_SOURCES))
+    RULE_DEPS := $$(patsubst %.o,%.d,$$(call to_objects,$2,\
+			                $$(RULE_SOURCES) $$(RULE_PROJ_INO)))
+    RULE_DIRS := $$(sort $$(dir $$(RULE_SOURCES) $$(RULE_PROJ_INO)))
+    $$(call feedback,$(space) RULE_PROJ_INO: $$(RULE_PROJ_INO))
+    $$(call feedback,$(space) RULE_SOURCES: $$(RULE_SOURCES))
+    $$(call feedback,$(space) RULE_INO_SOURCES: $$(RULE_INO_SOURCES))
+    $$(call feedback,$(space) RULE_DEPS: $$(RULE_DEPS))
+    $$(call feedback,$(space) RULE_DIRS: $$(RULE_DIRS))
+    $$(foreach dir,$$(RULE_DIRS),\
+      $$(call feedback,$$(call $1,$2,$$(dir),\
+	      $$(or $5,$$(call libname,$$(dir))),$6))\
+      $$(eval $$(call $1,$2,$$(dir),$$(or $5,$$(call libname,$$(dir))),$6)))
 
-  $$(call $7,$$(RULE_DEPS))
-  $$(eval ALL_DEPS += $$(RULE_DEPS))
-  $$(eval ALL_SOURCES += $$(RULE_SOURCES))
-  $$(eval INO_MAIN += $$(RULE_PROJ_INO))
-  $$(eval INO_INCLUSIONS += $$(RULE_INO_SOURCES))
-  $$(call feedback,$(space) INCLUDING: $$(RULE_DEPS))
-  include $$(RULE_DEPS)
+    $$(and $7,$$(eval $7 += $$(RULE_DEPS)))
+    $$(eval ALL_DEPS += $$(RULE_DEPS))
+    $$(eval ALL_SOURCES += $$(RULE_SOURCES))
+    $$(eval INO_MAIN += $$(RULE_PROJ_INO))
+    $$(call feedback,$(space) INO_MAIN: $$(INO_MAIN))
+    $$(eval INO_INCLUSIONS += $$(RULE_INO_SOURCES))
+    $$(call feedback,$(space) INO_INCLUSIONS: $$(INO_INCLUSIONS))
+    $$(call feedback,$(space) INCLUDING: $$(RULE_DEPS))
+    # The inclusion of $$(RH_prebuild_TARGET) is intended to cause
+    # library rediscovery if it is needed.
+    include $$(RULE_DEPS) $$(RH_prebuild_TARGET)
 
-  $$(foreach libdir,$$(foreach dir,$4,$$(call deplibs,$$(dir),$$(RULE_DEPS))),\
-    $$(foreach lib,$$(call libname,$$(libdir)),\
-      $$(if $$(filter-out $$(REQUIRED_LIBS), $$(lib)),\
-        $$(eval REQUIRED_LIBS += $$(lib))\
+    $$(foreach libdir,\
+	       $$(foreach dir,$4,$$(call deplibs,$$(dir),$$(RULE_DEPS))),\
+      $$(foreach lib,$$(call libname,$$(libdir)),\
+        $$(if $$(filter-out $$(REQUIRED_LIBS), $$(lib)),\
+          $$(eval REQUIRED_LIBS += $$(lib))\
           $$(eval $$(call ALL_BUILD_RULES,$1,$2/$$(lib),\
 			  $$(libdir),$$4,$5,$8,$9,$8,$9)))))
-endef
-
-sketch_deps = $(call feedback,$(call DEPENDENCY_RULE,prebuild presketch,$(1:.d=.o)))\
-	      $(eval $(call DEPENDENCY_RULE,prebuild presketch,$(1:.d=.o)))\
-              $(call feedback,$(call DEPENDENCY_RULE,postsketch,$1))\
-              $(eval $(call DEPENDENCY_RULE,postsketch,$1))
-
-lib_deps = $(call feedback,$(call DEPENDENCY_RULE,prelib,$(1:.d=.o)))\
-	   $(eval $(call DEPENDENCY_RULE,prelib,$(1:.d=.o)))\
-           $(call feedback,$(call DEPENDENCY_RULE,postlib,$1))\
-           $(eval $(call DEPENDENCY_RULE,postlib,$1))
-
-core_deps = $(call feedback,$(call DEPENDENCY_RULE,precore,$(1:.d=.o)))\
-	    $(eval $(call DEPENDENCY_RULE,precore,$(1:.d=.o)))
-
+  endef
+endif
 
 ################################################################
 # Discovery of source files and dynamic creation of build rules.
 #
 
-$(call debug,CROSS_BUILD)
-ifeq "$(CROSS_BUILD)" "yes"
-  # We are doing a cross-build, ie compiling for a different
-  # architecture than the host.  This is the normal type of arduino
-  # build.
-  CONFIG_FILES = BOARD_INFO $(wildcard BOARD_OPTIONS)
-  include $(CONFIG_FILES)
+FQN2PQN = $(shell echo "$1" | sed -e 's/^\([^.]*.[^.]*.[^.]*\).*/\1/')
+
+ifeq "$(IN_BOARD_DIR)" "t"
+  PROJNAME = $(notdir $(realpath $(PROJDIR)))
+  DIRNAME = $(notdir $(realpath $(BOARD_DIR)))
+
+  ifeq "$(MAKE_RESTARTS)" ""
+    # Check whether BOARD_INFO needs to be rebuilt due to changed
+    # project name, board type, or selected board options.  We
+    # physically remove the current BOARD_INFO file if so.
+
+    # For safety we only run this code in our outer level of recursion
+    # (see the ifeq above): the following code is very tightly coupled
+    # with dno_bpp and dno_menu making it kinda brittle.  If things go
+    # wrong we can get trapped into continual restarts: the above
+    # conditional should prevent that from happening.  The worst case
+    # behaviour then becomes that BOARD_INFO does not get rebuilt in
+    # the cases described above, or that it always gets built
+    # resulting in a full build every time.  Either way, dno remains
+    # mostly functional.  If this happens please report a bug.
+
+    # Before we include the BOARD_INFO file, we will check that it does
+    # not need to be rebuilt.
+    ifeq "BOARD_INFO" "$(wildcard BOARD_INFO)"
+      # We have a BOARD_INFO file.  We must check that it is valid for
+      # what we are trying to build...
+      BI_PROJECT != sed -n -e '/^build.project.name *=/{s/.*= *\s//p}' \
+          BOARD_INFO
+      ifneq "$(PROJNAME)" "$(BI_PROJECT)"
+        # Project name appears to have changed.  This BOARD_INFO file
+        # has no remaining value and must be rebuilt.
+        $(shell rm -f BOARD_INFO)
+      else
+        BI_BOARD != sed -n -e '/^BOARD_TYPE/{s/.*=\s//p}' BOARD_INFO
+        ifneq "$(BOARD)" ""
+          # BOARD parameter has been provided.
+          BOARD_PQN != $(BPP) -t -f -s -n $(BOARD)
+        else
+          ifeq "BOARD_TYPE" "$(wildcard BOARD_TYPE)"
+            # BOARD_TYPE file exists.
+            BOARD_FQN != $(BPP) -t -f -n `cat BOARD_TYPE`
+          else
+            # Try to get board type from dirname
+            BOARD_FQN != $(BPP) -t -f -n $(DIRNAME)
+          endif
+        endif
+        BOARD_PQN := $(call FQN2PQN,$(BOARD_FQN))
+        BI_BOARD_PQN := $(call FQN2PQN,$(BI_BOARD))
+        $(call debug,BOARD_FQN)
+        $(call debug,BOARD_PQN)
+        $(call debug,BI_BOARD_PQN)
+
+        ifneq "$(BOARD_PQN)" "$(BI_BOARD_PQN)"
+          # Looks like board type has changed.  The current BOARD_INFO
+          # file will need to be rebuilt: we force that by removing
+	  # it.
+          $(shell rm -f BOARD_INFO)
+        else
+          # Basic board type has not changed.  Let's check the selected
+          # options: if they have changed, a full rebuild will be
+          # needed.
+          ifeq "BOARD_OPTIONS" "$(wildcard BOARD_OPTIONS)"
+            # We have a BOARD_OPTIONS file.  Get BOARD_SELECTIONS from
+            # it
+            BOARD_SELECTIONS != \
+              grep '^build.menu.selection' BOARD_OPTIONS | \
+                    sed -e 's/^[^=]*=//'
+          else
+            # get BOARD_SELECTIONS from BOARD_PQN
+            BOARD_SELECTIONS != $(MENU) -f $(BOARD_FQN)
+          endif
+
+          # Now see if BOARD_SELECTIONS matches what our BOARD_INFO
+          # file says.
+          BI_BOARD_SELECTIONS != \
+              grep '^build.menu.selection' BOARD_INFO | \
+                  sed -e 's/^[^=]*=//'
+          ifneq "$(BOARD_SELECTIONS)" "$(BI_BOARD_SELECTIONS)"
+            # BOARD_SELECTIONS have changed.  Force a rebuild of
+            # BOARD_INFO
+            $(info CHANGED: $(BI_BOARD_SELECTIONS) -> $(BOARD_SELECTIONS))
+            $(info REMOVING BOARD_INFO)
+            $(shell rm -f BOARD_INFO)
+          endif
+        endif
+
+        ifeq "$(BOARD_PQN)" ""
+          # Something went wrong with figuring out the board type.  Our
+          # build cannot survive this.  Ensure dno fails with an error
+          # message.
+          $(error "$(MAKEFILE): Cannot identify board type")
+        endif
+      endif
+    endif
+
+    # Record any given board parameter.
+    BOARD_PARAM=$(BOARD)
+    # Ensure BOARD is defined.
+    ifeq "$(BOARD)" ""
+      ifeq "BOARD_TYPE" "$(wildcard BOARD_TYPE)"
+        # BOARD_TYPE file exists.
+        BI_DEPS += BOARD_TYPE
+        BOARD := $(file < BOARD_TYPE)
+        BOARD != $(BPP) -t -n -q $(BOARD)
+      else
+        BOARD != $(BPP) -t -n -q $(DIRNAME)
+      endif
+    endif
+
+    ifeq "$(BOARD)" ""
+      $(error "$(MAKEFILE): Cannot identify board type")
+    endif
+
+    ifneq "BOARD_INFO" "$(wildcard BOARD_INFO)"
+      # No BOARD_INFO file.  We'd better clear out any existing build
+      # directory as a full rebuild will be needed.
+      $(shell rm -rf build)
+    endif
+  endif
+endif
+
+ifeq "$(HAVE_CROSS_BUILD_TARGETS)" "t"
+  include BOARD_INFO $(wildcard BOARD_OPTIONS)
+
   ifdef  recipe.cpp.o.pattern
     # We only do the following if BOARD_INFO was successfully read.
     # This prevents a load of half-baked things happening in the event
     # that we are going to have to restart dno after building BOARD_INFO
-    PROJNAME = $(notdir $(realpath $(PROJDIR)))
-    ifneq "$(PROJNAME)" "$(build.project_name)"
-      # Project dirname has changed.  Force a rebuild of BOARD_INFO
-      BI_DEPS := FORCE
-    else
-      BI_DEPS :=
-    endif
 
     # Identify possible libraries.
     USER_LIB_DIRS = $(foreach root,$(USER_LIB_ROOTS),\
@@ -865,12 +1076,10 @@ ifeq "$(CROSS_BUILD)" "yes"
     STD_LIB_DIRS = $(call is_lib,\
 	$(wildcard $(runtime.platform.path)/libraries/*))
 
-    ALL_LIB_DIRS = $(call uniqify,$(USER_LIB_DIRS) $(STD_LIB_DIRS),libname)
-    ALL_LIB_FLAGS = $(foreach dir,$(ALL_LIB_DIRS) $(SRC_DIRS),-I $(dir))
-    CXXFLAGS += $(ALL_LIB_FLAGS)
+    ALL_LIB_DIRS := $(call uniqify,$(USER_LIB_DIRS) $(STD_LIB_DIRS),libname)
     CXXFLAGS += -Os -Wall
 
-    build.menu_selections = :$(shell dno_menu -l)
+    # TODO: REMOVE THIS build.menu_selections = :$(shell dno_menu -f)
 
     $(call debug,STD_LIB_DIRS)
     $(call debug,ALL_LIB_DIRS)
@@ -899,18 +1108,22 @@ ifeq "$(CROSS_BUILD)" "yes"
 
     # Command to extract function prototypes from .ino files.  These
     # are needed for .ino files to work without the developer being
-    # burdened with needing to understand programming.
+    # burdened with needing to understand programming.  Note the
+    # nasty coupling between the arduino-ctags output format and
+    # the sed script to translate it into something usable.  It's
+    # horrible but it works, for now at least.
     #
     INO_PROTOTYPES = (arduino-ctags -u --language-force=c++ -f - \
 		        --c++-kinds=spf --fields=STt \
-		        /dev/null $(INO_MAIN) $(INO_INCLUSIONS) | \
-		          sed -e "s/.*\^//; s/\$$.*/;/; s/[{}]//g") 
+		        /dev/null $(wildcard $(INO_MAIN)) $(INO_INCLUSIONS) | \
+	sed -e "s/^\([^[:space:]]*\).*ture:\(([^)]*)\).*type:\(.*\)/\3 \1\2;/")
 
     # Command to create a compilable version of our .ino files as
     # stdout.  This can be piped in to our compilation command.
     #
     $(eval JOIN_INO = $(value INO_PROTOTYPES) | \
-	         cat - $$(INO_MAIN) $$(INO_INCLUSIONS) $(value INO_SRC_COPY))
+	         cat - $$(wildcard $$(INO_MAIN)) \
+		       $$(INO_INCLUSIONS) $(value INO_SRC_COPY))
 
     # Define the recipe for compiling .ino files as described above.
     #
@@ -940,26 +1153,40 @@ ifeq "$(CROSS_BUILD)" "yes"
     object_file = $(@:.d=.o)
     build.path = $(BUILD_DIR)
     build.core.path = $(realpath $(runtime.platform.path)/cores/$(build.core))
-    includes = -I $(build.core.path) -I $(build.variant.path) \
-	       $(ALL_LIB_FLAGS)
     archive_file = libcore.a
     archive_file_path = $(build.path)/$(archive_file)
 
     WILL_COMPILE :=
     REQUIRED_LIBS :=
     ALL_DEPS :=
+    sketch_deps :=
+    lib_deps :=
     $(eval $(call ALL_BUILD_RULES,CROSS_COMPILE_RULE,\
 		$(BUILD_DIR),$(SRC_DIRS),$(ALL_LIB_DIRS),,\
-		| presketch,sketch_deps,\
-		| prelib,lib_deps))
+		$(RH_prebuild_TARGET) $(RH_presketch_TARGET),sketch_deps,\
+		$(RH_prelib_TARGET),lib_deps))
 
+    # Ideally, we would recalculate ALL_LIB_DIRS once we have
+    # discovered what libararies are actually needed.  It is not
+    # currently clear how we could do this (TODO).
+    #
+    ALL_LIB_FLAGS = $(foreach dir,$(ALL_LIB_DIRS) $(SRC_DIRS),-I $(dir))
+    includes = -I $(build.core.path) -I $(build.variant.path) \
+	       $(ALL_LIB_FLAGS)
+
+    $(call debug,sketch_deps)
+    $(call debug,lib_deps)
     $(call debug,REQUIRED_LIBS)
+    $(call debug,REQUIRED_LIB_DIRS)
     $(call debug,ALL_DEPS)
+    $(call debug,ALL_LIB_FLAGS)
     object_files := $(ALL_DEPS:.d=.o)
+    sketch_objects := $(sketch_deps:.d=.o)
+    lib_objects := $(lib_deps:.d=.o)
 
     # As a final step we make our main object depend on any other .ino
     # files that may exist.
-$(BUILD_DIR)/$(PROJNAME).ino.d: $(INO_INCLUSIONS)
+    $(BUILD_DIR)/$(PROJNAME).ino.d: $(wildcard $(INO_MAIN)) $(INO_INCLUSIONS)
 
     ifeq "$(strip $(call unbuilt_deps,$(ALL_DEPS)))" ""
       # All Dependency files have been created.  We can now
@@ -968,12 +1195,18 @@ $(BUILD_DIR)/$(PROJNAME).ino.d: $(INO_INCLUSIONS)
       # dependencies are resolved, and we don't want to create the rules
       # for the core objects until last.
 
-      $(eval $(call ALL_BUILD_RULES,CROSS_COMPILE_RULE,\
-		$(BUILD_DIR)/libcore,$(build.core.path),,core,\
-		| precore,core_deps))
+      CORE_LIB_DIRS := $(shell find $(build.core.path) -type d)
+      $(call debug,CORE_LIB_DIRS)
+      core_deps :=
+      $(eval $(call ALL_BUILD_RULES,CROSS_LIBCOMPILE_RULE,\
+		$(BUILD_DIR)/libcore,$(CORE_LIB_DIRS),,core,\
+		$(RH_precore_TARGET),core_deps))
+      $(call debug,build.core.path)
+      $(call debug,core_deps)
       CORE_OBJECTS = $(foreach obj,\
 			     $(notdir $(call core_files,$(ALL_DEPS:.d=.o))),\
 	             build/libcore/$(obj))
+      $(call debug,CORE_OBJECTS)
       $(call feedback,$(call CROSS_ARCHIVE_RULE,$(archive_file_path),\
 		      $(CORE_OBJECTS)))
       $(eval $(call CROSS_ARCHIVE_RULE,$(archive_file_path),$(CORE_OBJECTS)))
@@ -994,24 +1227,26 @@ $(BUILD_DIR)/$(PROJNAME).ino.d: $(INO_INCLUSIONS)
     TARGET_ELF = $(BUILD_DIR)/$(TARGET_NAME).elf
     TARGET_EEP = $(BUILD_DIR)/$(TARGET_NAME).eep
     $(call debug,TARGET_ELF)
+    $(call debug,TARGET_EEP)
     $(call debug,TARGET_BIN)
     $(call debug,TARGET_HEX)
-      OBJCOPY_PATTERNS := $(call uniqify,\
+    OBJCOPY_PATTERNS := $(call uniqify,\
         $(shell grep "^recipe.objcopy\..*\.pattern=" BOARD_INFO | cut -d= -f1))
 
+    $(call debug,OBJCOPY_PATTERNS)
     ifneq ($(strip $(upload.maximum_size)),)
       CHECK_SIZE = $(recipe.size.pattern) | $(BINDIR)/dno_checksize \
-          MAX_DATA=$(upload.maximum_data_size) \
-          MAX_UPLOAD=$(upload.maximum_size)
+	  "$(recipe.size.regex)" "$(recipe.size.regex.data)" \
+          "$(upload.maximum_size)" "$(upload.maximum_data_size)"
     else
       CHECK_SIZE = echo "Cannot determine flash memory of $(BOARD_TYPE).";\
                    echo "Make sure the size of $(TARGET_ELF) is" \
                         "less than $(BOARD_TYPE)'s flash memory"
     endif
-
   endif
-  DOC_SOURCES = $(ALL_SOURCES)
-else ifeq "$(NATIVE_BUILD)" "yes"
+endif
+
+ifeq "$(HAVE_TEST_TARGETS)" "t"
   # This is for compiling and building unit tests.  We are using the host's
   # native compiler rather than a special cross-compiler.
 
@@ -1045,87 +1280,55 @@ else ifeq "$(NATIVE_BUILD)" "yes"
   TEST_OBJECTS := $(patsubst %.d, %.o, $(ALL_DEPS))
   MAIN_TEST_OBJECT = $(TEST_EXECUTABLE).o
   SECONDARY_TEST_OBJECTS = $(call minus,$(TEST_OBJECTS),$(MAIN_TEST_OBJECT))
-  DOC_SOURCES = ALL_SOURCES
-else ifeq "$(BUILD_TYPE)" "lib"
+endif
+
+ifeq "$(DEFAULT_BUILD_TYPE)" "lib"
   TESTDIR = $(firstword \
 	      $(foreach dir,$(shell find . -maxdepth 1 -mindepth 1 -type d),\
 	        $(or $(filter %/test,${dir}),\
 		     $(filter %/tests,${dir}),\
 		     $(filter %/unit,${dir}))))
-  DOC_SOURCES = $(call matching_files,\
-		  *.h *.cpp *.c *.S,\
-		  $(shell find . -maxdepth 1 -type d \
-                               -a \! -name 'unit' -a \! -name 'tests' \
-			       -a \! -name 'test'))
+  ifneq "$(DOING_DOCS_BUILD)" ""
+    DOC_SOURCES = $(call matching_files,\
+		    *.h *.cpp *.c *.S,\
+		    $(shell find . -maxdepth 1 -type d \
+                                 -a \! -name 'unit' -a \! -name 'tests' \
+			         -a \! -name 'test' -a \! -name 'boot'))
+  endif
+  PROJNAME = $(notdir $(realpath $(shell pwd)))
+else ifeq "$(DEFAULT_BUILD_TYPE)" "boot"
+  # This is our best guess at the project name for a bootloader.  This
+  # is for documentation purposes.  If this is wrong, put the project
+  # name explicitly in Doxyfile. 
+  #
+  PROJNAME = $(basename \
+	       $(notdir $(firstword $(call matching_files,*.c *.S,.))))
+  ifneq "$(DOING_DOCS_BUILD)" ""
+    DOC_SOURCES = $(call matching_files,\
+		    *.h *.cpp *.c *.S,.)
+  endif
 else
   PROJNAME = $(notdir $(realpath $(PROJDIR)))
+  ifneq "$(DOING_DOCS_BUILD)" ""
+    DOC_SOURCES = $(call matching_files,\
+		    *.h *.cpp *.c *.S,\
+		    $(shell find $(PROJDIR) -maxdepth 2 -type d \
+                                 -a \! -name 'unit' -a \! -name 'tests' \
+			         -a \! -name 'test' -a \! -name 'boot'))
+  endif
 endif
 
 $(call debug,PROJNAME)
 $(call debug,PROJDIR)
+$(call debug,DOC_SOURCES)
 
 
 ################################################################
 # BOARD_INFO and related targets
 #
 
-.PHONY: show_boards install_extra_boards show_extra_boards FORCE
-
-# Define the BPP, board and platforms parser, command.
-#
-BPP = $(BINDIR)/dno_bpp
-
-DIRNAME = $(notdir $(realpath $(BOARD_DIR)))
-
-
-# Figure out the dependencies to allow BOARD_INFO to be built based on
-# dirname, BOARD_TYPE, or the value of our BOARD variable.
-#
-ifneq "$(BOARD)" ""
-  # BOARD has been provided as a parameter
-  BI_DEPS += BOARD_TYPE
-  BT_DEPS += FORCE
-  BOARD_PARAM=$(BOARD)
-
-  # Parameters for board type can be derived from a BOARD definitions
-  # provided on the command line.  Provide this to the BOARD_TYPE
-  # target, to create a BOARD_TYPE file.
-  #
-else
-  BOARD_TYPE := $(wildcard BOARD_TYPE)
-  ifeq "$(BOARD_TYPE)" ""
-    # We have no BOARD_TYPE file.  Let's see if our directory name
-    # specifies a valid board type.
-    BOARD != $(BPP) -t -n $(DIRNAME)
-    ifeq "$(.SHELLSTATUS)" "0"
-      # Directory name looks valid.  Check that it matches our BOARD_INFO
-      BOARD_INFO := $(wildcard BOARD_INFO)
-      ifneq "$(BOARD_INFO)" ""
-        # BOARD_INFO file exists.  Check if it matches our BOARD
-	BOARD_FROM_INFO != sed -n -e '/^BOARD_TYPE/{s/.*=\s//p}' BOARD_INFO
-	FULLBOARD_SPEC != dno_bpp -t -f -n "$(BOARD)"
-	ifneq "$(FULLBOARD_SPEC)" "$(BOARD_FROM_INFO)"	
-	  # We need to rebuild BOARD_INFO (else nothing to do)
-	  BI_DEPS += FORCE
-	endif
-      endif
-    else
-      # Dirname is not valid.  BOARD_INFO build needs to fail, so make
-      # it depend on BOARD_TYPE
-      BI_DEPS += BOARD_TYPE
-      BOARD := unknown
-    endif
-  else
-   # We have a BOARD_TYPE_FILE
-   BI_DEPS += BOARD_TYPE
-   BOARD := $(file < BOARD_TYPE)
-  endif
-endif
-
-#
-ifneq "$(OPTIONS)" ""
-    OPTIONS_PARAM=-o
-endif
+.PHONY: show_boards install_extra_boards \
+	show_extra_boards check_extra_boards
 
 # Identify any platform.local.txt file: this will be a dependency for
 # BOARD_INFO iff it exists.  Note that dno allows platform.local.txt
@@ -1145,21 +1348,18 @@ BOARDS_LOCAL := $(firstword \
 		           $(wildcard $(dir)/boards.local.txt))\
 		 $(wildcard ./boards.local.txt))
 $(call debug,BOARDS_LOCAL)
-
 $(call debug,ALL_SOURCES)
-
-# Special target to be added as a dependency to force dependent
-# targets to be rebuilt.
-#
-FORCE:
+$(call debug,BOARD)
 
 # BOARD_INFO contains definitions needed by make to perform the
 # various compilations, links, uploads, etc.  These definitions are
 # specific to the chosen board-type which may be determined from a
 # BOARD_TYPE file or the name of the current directory.
 #
+
 BOARD_INFO: $(BI_DEPS) $(PLATFORM_LOCAL) $(BOARDS_LOCAL) \
-	    $(BOARD_FILE) $(PLATFORM_FILE)
+	    $(BOARD_FILE) $(PLATFORM_FILE) $(wildcard BOARD_OPTIONS) \
+	    | check_extra_boards
 	$(TARGET)
 	$(FEEDBACK) Creating $@...
 	$(AT)if $(BPP) -p $(BOARD) >$@2; then \
@@ -1178,6 +1378,25 @@ BOARD_TYPE: $(BT_DEPS)
 	    (rm $@; \
 	     echo "Unable to create $@.  Try dno help" 1>&2; \
 	     false)
+
+# This tests whether the contents of .dno_boards_paths looks ok.  If
+# we have updated our Arduino tools, these entries could have been
+# superceded.  Since this would not be an obvious thing to diagnose,
+# this target is used to check the contents.  If any directories are
+# invalid, we fail.  Note that this should only be used as an
+# "order-only" dependency.
+#
+check_extra_boards:
+	$(TARGET)
+	@if [ -f  "$${HOME}/.dno_boards_paths" ]; then \
+	    grep '^[[:space:]]*[^#]' $${HOME}/.dno_boards_paths | \
+	      sed -e 's|^~|$(HOME)|' | \
+	      while read dir; do \
+	        [ -d "$${dir}" ] || \
+		  { echo -e "\n  Invalid dir in $${HOME}/.dno_boards_paths:"\
+		        "\n    \"$${dir}\"\n" 1>&2; exit 2; }\
+	    done; fi
+
 
 # Install another boards.txt to your user environment.  You need to
 # define BOARDS_PATH on the command line, which must be the full path
@@ -1208,12 +1427,16 @@ show_extra_boards:
 # List all supported boards.  You can narrow down the shown options by
 # specifying BOARD on the command line.
 #
+ifneq "$(OPTIONS)" ""
+    OPTIONS_PARAM=-o
+  endif
+
 show_boards:
 	$(TARGET)
 	$(AT) echo
 	$(AT) echo "    Supported Arduino Board Types"
 	$(AT) echo ============================================================
-	$(AT) $(BPP) -l $(OPTIONS_PARAM) $(BOARD_PARAM) || true
+	$(AT) $(BPP) $(OPTIONS_PARAM) -l $(BOARD_TYPE) || true
 
 
 ################################################################
@@ -1221,79 +1444,98 @@ show_boards:
 #
 
 .PHONY: build root_code_info root_build_info lib unit_test \
-	test tests unit size verify_size
+	test tests unit size verify_size uknown
 
-build: BOARD_INFO $(TARGET_HEX) $(TARGET_BIN) $(TARGET_ELF)
+build: BOARD_INFO $(TARGET_HEX) $(TARGET_BIN) \
+       $(TARGET_ELF) | check_extra_boards
+	$(QUIET)
 
-ifeq "$(CROSS_BUILD)" "yes"
-$(TARGET_EEP): $(TARGET_ELF) BOARD_INFO 
+unknown: | check_extra_boards
+	@echo "make: Nothing to be done for 'unknown'."
+
+
+ifeq "$(HAVE_CROSS_BUILD_TARGETS)" "t"
+
+  $(TARGET_EEP): $(TARGET_ELF) $(RH_preobjcopy_TARGET)
 	$(TARGET)
 	$(FEEDBACK) OBJCOPY "(eep)" $(notdir $<)
 	$(AT) ${recipe.objcopy.eep.pattern}
-
-$(TARGET_HEX): $(TARGET_ELF) 
-	$(TARGET)
-	@# $(eval COMMANDS = $(shell dno_commands_for savehex.presavehex))
-	@$(and $(COMMANDS),$(FEEDBACK_RAW) Performing pre-savehex...)
+	@# $(eval COMMANDS := $(shell dno_commands_for objcopy.postobjcopy))
+	@$(and $(COMMANDS),$(REPORT),echo $(TARGET_STR) build/.postobjcopy)
 	$(AT) $(and $(COMMANDS),$(call indent,$(COMMANDS)))
+
+  $(TARGET_HEX): $(TARGET_ELF) \
+	       $(RH_presavehex_TARGET) $(RH_preobjcopy_TARGET)
+	$(TARGET)
 	$(FEEDBACK) OBJCOPY "(hex)" $(notdir $<)
 	$(AT) ${recipe.objcopy.hex.pattern}
-	@# $(eval COMMANDS2 = $(shell dno_commands_for savehex.postsavehex))
-	@$(and $(COMMANDS2),$(FEEDBACK_RAW) Performing post-savehex...)
-	$(AT) $(and $(COMMANDS2),$(call indent,$(COMMANDS2)))
+	@# $(eval COMMANDS := $(shell dno_commands_for savehex.postsavehex))
+	@$(and $(COMMANDS),$(REPORT),echo $(TARGET_STR) build/.postsavehex)
+	$(AT) $(and $(COMMANDS),$(call indent,$(COMMANDS)))
 	$(AT)$(IFNOTQUIET) $(CHECK_SIZE)
 
-# BIN_TARGET_RECIPE is eval'd to define the $(TARGET_BIN) recipe.
-# Note that a RECIPE_LINE entry in the form:
-#   <tab>$$(AT) $$(<objcopy recipe name>)
-# is created for each entry in OBJCOPY_PATTERNS.  The need to do this
-# is why we eval this definition rather than simply placing it
-# verbatim below.
-#
-define BIN_TARGET_RECIPE
-$(TARGET_BIN): $(TARGET_ELF) 
+
+  # BIN_TARGET_RECIPE is eval'd to define the $(TARGET_BIN) recipe.
+  # Note that a RECIPE_LINE entry in the form:
+  #   <tab>$$(AT) $$(<objcopy recipe name>)
+  # is created for each entry in OBJCOPY_PATTERNS.  The need to do this
+  # is why we eval this definition rather than simply placing it
+  # verbatim below.
+  #
+  define BIN_TARGET_RECIPE
+  $(TARGET_BIN): $(TARGET_ELF) 
 	$$(TARGET)
 	@# $$(eval COMMANDS = $$(shell dno_commands_for objcopy.preobjcopy))
-	@$$(and $$(COMMANDS),$$(FEEDBACK_RAW) Performing pre-objcopy...)
+	@$$(and $$(COMMANDS),$$(FEEDBACK_ECHO) Performing pre-objcopy...)
 	$$(AT) $$(and $$(COMMANDS),$$(call indent,$$(COMMANDS)))
 	$$(FEEDBACK) OBJCOPY "(bin)" $(notdir $$<)
 	$$(AT) $$(recipe.objcopy.bin.pattern)
 	@#$(foreach pattern,$(OBJCOPY_PATTERNS),$(call RECIPE_LINE,$(pattern)))
 	@# $$(eval COMMANDS2 = $$(shell dno_commands_for objcopy.postobjcopy))
-	@$$(and $$(COMMANDS2),$$(FEEDBACK_RAW) Performing post-objcopy...)
+	@$$(and $$(COMMANDS2),$$(FEEDBACK_ECHO) Performing post-objcopy...)
 	$$(AT) $$(and $$(COMMANDS2),$$(call indent,$$(COMMANDS2)))
 	$$(AT)$$(IFNOTQUIET) $$(CHECK_SIZE)
 
-endef
-$(call feedback, BIN_TARGET_RECIPE $(call BIN_TARGET_RECIPE))
-$(eval $(call BIN_TARGET_RECIPE))
+  endef
+  $(call feedback, BIN_TARGET_RECIPE $(call BIN_TARGET_RECIPE))
+  $(eval $(call BIN_TARGET_RECIPE))
 
-# If files for ctags or etags are found, they become a dependency of
-# our elf target, so that they get automatically updated as needed.
-#
-TAGFILES = $(wildcard TAGS) $(wildcard tags)
+  # If files for ctags or etags are found, they become a dependency of
+  # our elf target, so that they get automatically updated as needed. 
+  #
+  TAGFILES := $(wildcard TAGS) $(wildcard tags)
 
-$(TARGET_ELF): $(object_files) $(archive_file_path) $(TAGFILES) BOARD_INFO
+  $(TARGET_ELF): $(object_files) $(archive_file_path) \
+	       $(TAGFILES) $(RH_postsketch_TARGET) \
+	       $(RH_postlib_TARGET) $(RH_postcore_TARGET) \
+	       $(RH_prelink_TARGET)
 	$(TARGET)
-	@# $(eval COMMANDS = $(shell dno_commands_for linking.prelink))
-	@$(and $(COMMANDS),$(FEEDBACK_RAW) Performing pre-link...)
-	$(AT) $(and $(COMMANDS),$(call indent,$(COMMANDS)))
 	$(FEEDBACK) LD $(notdir $(object_files))
 	$(AT) $(recipe.c.combine.pattern)
-	@# $(eval COMMANDS2 = $(shell dno_commands_for linking.postlink))
-	@$(and $(COMMANDS2),$(FEEDBACK_RAW) Performing post-link...)
-	$(AT) $(and $(COMMANDS2),$(call indent,$(COMMANDS2)))
+	@# $(eval COMMANDS := $(shell dno_commands_for linking.postlink))
+	@$(and $(COMMANDS),$(REPORT),echo $(TARGET_STR) build/.postlink)
+	$(AT) $(and $(COMMANDS),$(call indent,$(COMMANDS)))
 
+  # We do not want the size verification targets to depend on
+  # $(TARGET_ELF) as this will lead to prebuild, postbuild, etc
+  # targets being built.  Instead we just check for the file existing.
+  # Although this leaves open the possibility that the target is out
+  # of date, it is probably better to check the size of the file that
+  # exists, rather than building a new version and then checking it.
+  #
+  ENSURE_TARGET_ELF := $(AT) [ -f "$(TARGET_ELF)" ] || \
+			( echo "$(TARGET_ELF) has not been built" 1>&2; \
+			  exit 2 )
 
-size:   $(TARGET_ELF)
+  size:   
 	$(TARGET)
-	@echo size
+	$(ENSURE_TARGET_ELF)
 	$(AT) $(CHECK_SIZE)
 
-verify_size:   $(TARGET_ELF)
+  verify_size:
 	$(TARGET)
+	$(ENSURE_TARGET_ELF)
 	$(AT) $(CHECK_SIZE) >/dev/null
-
 endif
 
 root_code_info root_build_info:
@@ -1301,7 +1543,6 @@ root_code_info root_build_info:
 	@echo "Nothing to be done here (in `pwd`)."
 	@echo "Try dno ./BOARD_TYPE or dno tests"
 
-$(call debug,TESTDIR)
 lib:
 	$(TARGET)
 	$(AT)if [ "x$(strip $(TESTDIR))" = "x" ]; then\
@@ -1312,39 +1553,100 @@ lib:
 	        $(MAKE); \
 	 fi
 
-ifeq "$(NATIVE_BUILD)" "yes"
-# There is no point in defining these rules unless we are in a
-# position to run unit tests.
-
-unit_test test tests unit: $(TEST_EXECUTABLE)
+ifeq "$(DIR_TYPE)" "test"
+  unit_test test tests unit: $(TEST_EXECUTABLE)
 	$(TARGET)
 	$(FEEDBACK) RUN $(notdir $<)...
 	$(AT) $(call indent,$(TEST_EXECUTABLE))
 	$(FEEDBACK) "...DONE ($(notdir $<))"
 	@echo
 
-$(TEST_EXECUTABLE): $(TEST_OBJECTS) $(TAGFILES) 
+  $(TEST_EXECUTABLE): $(TEST_OBJECTS) $(TAGFILES) 
 	$(TARGET) $(TEST_OBJECTS)
 	$(FEEDBACK)  LD [$(notdir $@)]
 	$(AT) g++ $(LDFLAGS) -o $@ $(MAIN_TEST_OBJECT) \
 		$(SECONDARY_TEST_OBJECTS)
+else 
+  # Identify possible unit test directories
+  #
+  TEST_DIRS = $(shell find . -maxdepth 2 -type d -a \
+	          \( -name tests -o -name test -o -name unit \))
+
+  # Identify commands to be run for each unit test directory
+  #
+  test_cmds = $(foreach dir,$(TEST_DIRS),\
+                  (cd $(dir); $(MAKE) test); )
+
+  # Run unit tests for all libs
+  unit_test test tests unit:
+	@$(test_cmds)
+endif
+
+ifeq "$(DIR_TYPE)" "boot"
+
+  # Targets for the boot directory.
+  .PHONY: boot burn default_boot_target FORCE
+
+  # A boot build relies on external build commands.  By default, this
+  # will be make, but other commands are possible and will be defined
+  # in a dno.mk file.  In order that
+  #
+
+  $(BOOT_TARGET): ../BOARD_INFO
+	$(TARGET)
+	$(FEEDBACK) Creating bootloader
+	$(AT) $(BOOT_BUILDER)
+
+
+  # This target is used from a boot directory in order to rebuild
+  # BOARD_INFO in the parent directory.  We use force to ensure that
+  # this target is always run - this ensures that BOARD_INFO gets
+  # updated if necessary.
+  #
+  ../BOARD_INFO: FORCE
+	$(TARGET)
+	$(AT) cd ..; dno BOARD_INFO --no-print-directory -s
+
+  PROGRAMMER:
+	$(TARGET)
+	$(FEEDBACK) Creating $@...
+	$(AT) if [ "x$(PROGRAMMER)" != "x" ]; then \
+	    if dno_prog -c $(PROGRAMMER); then \
+		dno_prog -e $(PROGRAMMER) >PROGRAMMER; \
+	    else \
+	        echo -e "\n  ERROR: $(PROGRAMMER) is not a valid" \
+		     "programmer name.\n" 1>&2; \
+	        exit 1; \
+	    fi; \
+	else \
+	    echo -e "\n  ERROR: PROGRAMMER not defined" 1>&2; \
+	    echo "    add PROGRAMMER=<programmer name> to command line" 1>&2; \
+	    echo -e "    (use dno list_programmers for values)\n" 1>&2; \
+	    exit 1; \
+	fi
+
+  default_boot_target boot: $(BOOT_TARGET)
+
+  burn: PROGRAMMER $(BOOT_TARGET)
+	$(TARGET)
+	@# $(eval include PROGRAMMER)
+	echo $(tools.avrdude.bootloader.pattern)
 
 else
-# Identify possible unit test directories
-#
-TEST_DIRS = $(shell find . -maxdepth 2 -type d -a \
-	\( -name tests -o -name test -o -name unit \))
+  $(BOOT_TARGET) boot:
+	@echo -e "\n  Error: Must be in a boot directory to build $@.\n" 1>&2
+	@exit 2
 
-# Identify commands to be run for each unit test directory
-#
-test_cmds = $(foreach dir,$(TEST_DIRS),\
-                (cd $(dir); $(MAKE) test); )
-
-# Run unit tests for all libs
-unit_test test tests unit:
-	@$(test_cmds)
-
+  burn:
+	@echo -e "\n  Error: Must be in a boot directory to do $@.\n" 1>&2
+	@exit 2
 endif
+
+.PHONY: list_programmers list-programmers listp
+
+list_programmers list-programmers listp:
+	$(AT) dno_prog -l
+
 
 
 ################################################################
@@ -1353,7 +1655,14 @@ endif
 #
 .PHONY: docs
 
-docs/html: $(DOC_SOURCES) docs/Doxyfile
+# Note that DOC_SOURCES is determined in a pretty primitive way and
+# will not necessarily be 100% correct.  It may contain files from
+# unused libraries for example.  However this should be fine as the
+# only downside is that docs may be determined to be out of date when
+# the sources for those unused libraries have been updated.  This
+# could, rarely, lead to an unnecessary docs rebuild.
+#
+docs/html: $(or $(USER_SOURCES),$(DOC_SOURCES)) docs/Doxyfile
 	$(TARGET)
 	@rm -rf html/*
 	@$(FEEDBACK) "DOXYGEN $(PROJNAME)"
@@ -1382,7 +1691,7 @@ endif #QUICKSTART
 # The do_xxx targets do the job without feedback.  The other targets go
 # recursively into subdirectories and provide feedback.
 #
-.PHONY: tidy clean pristine do_clean do_tidy do_pristine
+.PHONY: tidy clean pristine extraclean do_clean do_tidy do_pristine
 
 garbage += \\\#*  .\\\#*  *~ 
 GENERATED_FILES=doxy.tag *.dbg
@@ -1395,10 +1704,17 @@ do_tidy:
 tidy:
 	$(TARGET)
 	$(AT) if [ x`dno_dirinfo` != 'xunknown' ]; then \
-	    echo Tidying `pwd` | sed -e 's!$(STARTDIR)!.!'; \
-	    $(MAKE) --no-print-directory STARTDIR=$(STARTDIR) do_$@; \
+	    echo Tidying `pwd` | sed -e 's!$(DNO_STARTDIR)!.!'; \
+	    $(MAKE) --no-print-directory DNO_STARTDIR=$(DNO_STARTDIR) do_$@; \
 	    $(RECURSE_FOR_SUBDIRS); \
 	fi
+
+ifeq "$(notdir $(CURDIR))" "boot"
+  # If there is a Makefile in the boot directory, try running make clean.
+  BOOTCLEAN = if [ -f Makefile -o -f GNUmakefile ]; then \
+		$(REAL_MAKE) --no-print-directory clean >/dev/null 2>&1; \
+              fi;
+endif
 
 do_clean:
 	$(TARGET)
@@ -1406,13 +1722,14 @@ do_clean:
 	    (rm -rf build 2>/dev/null || true); \
 	    (rm -rf html 2>/dev/null || true); \
 	    rm -f $(GENERATED_FILES); \
+	    $(BOOTCLEAN) \
 	fi
 
 clean: do_clean do_tidy
 	$(TARGET)
 	$(AT) if [ x`dno_dirinfo` != 'xunknown' ]; then \
-	    echo Cleaning `pwd` | sed -e 's!$(STARTDIR)!.!'; \
-	    $(MAKE) --no-print-directory STARTDIR=$(STARTDIR) do_$@; \
+	    echo Cleaning `pwd` | sed -e 's!$(DNO_STARTDIR)!.!'; \
+	    $(MAKE) --no-print-directory DNO_STARTDIR=$(DNO_STARTDIR) do_$@; \
 	    $(RECURSE_FOR_SUBDIRS); \
 	fi
 
@@ -1422,11 +1739,12 @@ do_pristine:
 	    (rm BOARD_INFO TAGS tags 2>/dev/null || true); \
 	fi
 
-pristine: do_clean do_tidy
+extraclean pristine: do_clean do_tidy
 	$(TARGET)
 	$(AT) if [ x`dno_dirinfo` != 'xunknown' ]; then \
-	    echo Super-cleaning `pwd` | sed -e 's!$(STARTDIR)!.!'; \
-	    $(MAKE) --no-print-directory STARTDIR=$(STARTDIR) do_$@; \
+	    echo Super-cleaning `pwd` | sed -e 's!$(DNO_STARTDIR)!.!'; \
+	    $(MAKE) --no-print-directory \
+		DNO_STARTDIR=$(DNO_STARTDIR) do_pristine; \
 	    $(RECURSE_FOR_SUBDIRS); \
 	fi
 
@@ -1477,7 +1795,7 @@ devices:
 check_device_path:
 	$(TARGET)
 	$(AT) if [ "x$(DEVICE_PATH)" = "x<undefined>" ]; then \
-	    echo "\n  ERROR: No DEVICE_PATH provided\n" 1>&2; \
+	    echo -e "\n  ERROR: No DEVICE_PATH provided\n" 1>&2; \
 	    exit 2; fi
 
 # Attempt to reset the Arduino on $(DEVICE_PATH).  This assumes that
@@ -1523,10 +1841,16 @@ monitor: check_device_path
 
 cat: check_device_path
 	$(TARGET)
+	@# $(or $(MONITOR_BAUD),\
+	     $(eval MONITOR_BAUD = \
+	         $(or $(shell grep --no-filename --only-matching \
+			      "$(SPEED_REGEXP)" $(USER_SOURCES) /dev/null | \
+			 sed -e 's/[^0-9]*\([0-9][0-9]*\).*/\1/' | \
+			 sort | head -1), \
+		      9600)))
 	@$(FEEDBACK) "Reading from $(DEVICE_PATH) at $(MONITOR_BAUD) baud."
-	$(AT) stty -F $(DEVICE_PATH) cs8 $(MONITOR_BAUD) ignbrk	-brkint \
-	    -icrnl -imaxbel -opost -onlcr -isig -icanon -iexten -echo \
-	    -echoe -echok -echoctl -echoke noflsh -ixon -crtscts
+	$(AT) stty -F $(DEVICE_PATH) speed $(MONITOR_BAUD) cs8 \
+	    -cstopb -parenb >/dev/null
 	$(AT) cat <$(DEVICE_PATH)
 
 # Ensure there is no screen connected to the DEVICE.  Kill the screen if
@@ -1534,7 +1858,7 @@ cat: check_device_path
 #
 no_screen no-screen noscreen:
 	$(TARGET)
-	@procs=`screen -ls | grep Attached | \
+	$(AT) procs=`screen -ls | grep Attached | \
 		sed -e 's/^[ \t]*\([0-9]*\).*/\1/'`; \
 	screenproc=`for p in $${procs}; do \
 	  ps -fp $$p | grep $(DEVICE_PATH); done | awk '{print $$2}'`;	\
@@ -1564,7 +1888,6 @@ upload:	$(TARGET_HEX) verify_size reset
 #
 do_upload: no_screen
 	$(TARGET)
-	$(FEEDBACK)
 	$(FEEDBACK) "  Uploading $(notdir $(TARGET_HEX)) to $(DEVICE_PATH)"
 	$(AT) $(tools.$(upload.tool).upload.pattern)
 
@@ -1620,15 +1943,11 @@ tags: $(ALL_SOURCES)
 #
 .PHONY: ALWAYS
 
-
-ROOT_DIRS = $(shell find $(PROJDIR) -maxdepth 1 -type d)
-LIB_DIRS = $(notdir $(call is_lib, $(ROOT_DIRS)))
-BOARD_DIRS = $(notdir $(call is_board_dir, $(ROOT_DIRS)))
-
 # If our target is a board dir or lib dir, cd to that directory and
 # call dno recursively, with no explicit target.
 #
 $(BOARD_DIRS) $(LIB_DIRS): ALWAYS
+	$(TARGET)
 	@if [ `pwd` != "$(PROJDIR)/$@" ]; then \
 	    cd $(PROJDIR)/$@; \
 	 fi; \
@@ -1692,13 +2011,16 @@ help:
 	@echo -e "Usage:\n\
   dno [[target] [VARIABLE=value]]...\n\n\
 Major dno commands/targets:\n\
+  boot           - Build a bootloader image.  You need to be in a\n\
+		   boot directory.\n\
   build          - Build the local arduino code (default target)\n\
-  cat            - Cat the output from the baord's serial port to\n\
-	           stdout.  You may neet to set DEVICE_PATH and/or\n\
-		   MONITOR_BAUD as for monitor (see below).\n\
+  burn           - Burn a bootloader to an arduino using a programmer.\n\
+  cat            - Cat the output from the board's serial port to\n\
+                   stdout.  You may neet to set DEVICE_PATH and/or\n\
+                   MONITOR_BAUD as for monitor (see below).\n\
   ctags          - Build a tags file from all sources.  Once created\n\
-		   this will automatically be kept up to date by\n\
-		   default builds (ditto etags)\n\
+                   this will automatically be kept up to date by\n\
+                   subsequent builds (ditto etags)\n\
   devices        - list the devices which may have an Arduino attached\n\
   eeprom         - upload an eeprom image to an attached Arduino.  You\n\
                    may need to define  DEVICE_PATH=<path to serial device>.\n\
@@ -1751,7 +2073,6 @@ list:
 	    awk '/^[^#]*:/ {if (($$0 !~ /\t/) && ($$0 !~ /=/)) \
 		     {sub(/:.*/, ""); print}}' | uniq | \
 	    grep -v '[%\\$$]' | grep '^[^/]' | sort -u | sed -e 's/^/  /'
-
 
 
 # Local Variables:

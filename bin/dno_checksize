@@ -1,43 +1,42 @@
-#! /usr/bin/awk -f
+#! /usr/bin/env -S perl -nw
 #
 #       dno_checksize - check Arduino images sizes for dno
 # 
-#       Copyright (c) 2024 Marc Munro
+#       Copyright (c) 2026 Marc Munro
 #       Author:  Marc Munro
 # 	License: GPL-3.0
-#  
+#
+# Usage:
+# dno_checksize <program size regexp> <data size regexp> \
+#               <max program size> <max data size> 
+#
+# Reads from stdin, calculating the program and data sizes based on
+# the provided regexp parameters.  Prints informational result and
+# returns failure if either size is too large.
 #
 
-# Pipe the result of avr-size into this, with MAX_PROGRAM and MAX_DATA
-# defined as variables.
-
-/.data/	  {
-    data += $2
-    program += $2
+BEGIN {
+    $program_regexp = shift;
+    $data_regexp = shift;
+    $pmax = shift;
+    $dmax = shift;
+    $dsum = 0;
+    $psum = 0;
 }
-/.text/	  {
-    program += $2
-}
-/.bootloader/	  {
-    program += $2
-}
-/.bss/	  {
-    data += $2
-}
-/.noinit/  {
-    data += $2
-}
+/$program_regexp/ and $psum += $1;
+/$data_regexp/ and $dsum += $1;
 END {
-    printf("Program size: %6d out of %-6d (%d remaining)\n",
-	   program, MAX_UPLOAD, MAX_UPLOAD - program)
-    printf("   data size: %6d out of %-6d (%d remaining)\n",
-	   data, MAX_DATA, MAX_DATA - data)
-    if ((program > MAX_UPLOAD) || (data > MAX_DATA)) {
-	print "EXECUTABLE TOO LARGE" >>"/dev/stderr"
-	exit(2)
+    printf("Program size: %6d out of %-6d (%d%%: %d remaining)\n",
+	   $psum, $pmax, (100*$psum)/$pmax, $pmax - $psum);
+    printf("   Data size: %6d out of %-6d (%d%%: %d remaining)\n",
+	   $dsum, $dmax, (100*$dsum)/$dmax, $dmax - $dsum);
+    if (($psum > $pmax) || ($dsum > $dmax)) {
+    	print STDERR "EXECUTABLE TOO LARGE\n";
+	exit 2
     }
 }
 
+
 # Local Variables:
-# mode: awk
+# mode: perl
 # End:
