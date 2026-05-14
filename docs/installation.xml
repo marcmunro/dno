@@ -87,16 +87,23 @@
 dno$ ./configure
 checking for sed... yes
 checking for gawk... yes
+checking for perl... yes
+checking for gcc... gcc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ISO C89... none needed
 checking for dialog... no
 checking for whiptail... /usr/bin/whiptail
 checking Checking terminal-based menu command... /usr/bin/whiptail
-checking for pandoc... no
-configure: WARNING: pandoc not found.  Man pages cannot be created
-checking for xsltproc... no
-configure: WARNING: xsltproc not found.  User guide cannot be created
-checking for xmllint... no
-configure: WARNING: xmllint not found.  User guide cannot be created
-checking for DocBook stylesheet... no
+checking for pandoc... /usr/bin/pandoc
+checking for xsltproc... /usr/bin/xsltproc
+checking for xmllint... /usr/bin/xmllint
+checking for DocBook stylesheet... /usr/share/xml/docbook/stylesheet/docbook-xsl-ns
 checking build system type... x86_64-unknown-linux-gnu
 checking host system type... x86_64-unknown-linux-gnu
 checking Checking arduino installation dir... /usr/share/arduino
@@ -106,6 +113,7 @@ config.status: creating Makefile.global
 config.status: creating bin/dno_commands_for
 config.status: creating bin/dno_bpp
 config.status: creating bin/dno_dirinfo
+config.status: creating bin/dno_prog
 config.status: creating bin/dno_menu
 config.status: creating bin/dno
 config.status: creating man/BOARD_INFO.md
@@ -117,7 +125,10 @@ config.status: creating man/dno_checksize.md
 config.status: creating man/dno_commands_for.md
 config.status: creating man/dno_dirinfo.md
 config.status: creating man/dno_menu.md
+config.status: creating man/dno_prog.md
 config.status: creating man/dno_requote.md
+config.status: creating README.md
+config.status: creating docs/dno_vars.ent
 dno$ 
 	</programlisting>
       </para>
@@ -139,25 +150,150 @@ dno$
       <programlisting>
 dno$ make
   CC, LD [dno_requote]
-    Using distributed version of man/dno_bpp.1
-    Using distributed version of man/dno_checksize.1
-    Using distributed version of man/dno_commands_for.1
-    Using distributed version of man/dno_dirinfo.1
-    Using distributed version of man/dno.1
-    Using distributed version of man/dno_menu.1
-    Using distributed version of man/dno_requote.1
-    Using distributed version of man/BOARD_INFO.5
-    Using distributed version of man/BOARD_OPTIONS.5
-    Using distributed version of man/BOARD_TYPE.5
-    Using distributed version of docs
+  PANDOC man/dno_bpp.1
+  PANDOC man/dno_checksize.1
+  PANDOC man/dno_commands_for.1
+  PANDOC man/dno_dirinfo.1
+  PANDOC man/dno.1
+  PANDOC man/dno_menu.1
+  PANDOC man/dno_prog.1
+  PANDOC man/dno_requote.1
+  PANDOC man/BOARD_INFO.5
+  PANDOC man/BOARD_OPTIONS.5
+  PANDOC man/BOARD_TYPE.5
+  PANDOC docs/parts/BOARD_INFO.xml
+  PANDOC docs/parts/BOARD_OPTIONS.xml
+  PANDOC docs/parts/BOARD_TYPE.xml
+  PANDOC docs/parts/dno_bpp.xml
+  PANDOC docs/parts/dno_checksize.xml
+  PANDOC docs/parts/dno_commands_for.xml
+  PANDOC docs/parts/dno_dirinfo.xml
+  PANDOC docs/parts/dno.xml
+  PANDOC docs/parts/dno_menu.xml
+  PANDOC docs/parts/dno_prog.xml
+  PANDOC docs/parts/dno_requote.xml
+  XMLLINT docs/full_doc.xml
+Creating importer for system base stylesheet for docs...
+  /usr/bin/xsltproc &lt;docbook sources>.xml --> html/index.html
+Computing chunks...
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing pr01.html for preface(introduction)
+Writing ch01.html for chapter
+Writing ch02.html for chapter
+Writing ch03.html for chapter
+Writing ch04.html for chapter
+Error: no ID for constraint linkend: "complete-board-specifier".
+Writing ch05.html for chapter(directory-system)
+Writing ch06.html for chapter
+Writing ch07.html for chapter(docs)
+Writing ch08.html for chapter
+Writing ch09.html for chapter(benchmarks)
+Writing ch10.html for chapter
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing ch11.html for chapter
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apa.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apb.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apc.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apd.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing ape.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apf.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apg.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing aph.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing api.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apj.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apk.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apl.html for appendix(gpl)
+Writing index.html for book
+Writing dno.css for book
 dno$ 
       </programlisting>
       <para>
 	If you happen to already have the tools installed that are
 	needed for creating dno documentation, this step will build
-	the documentation from source rather than using the
-	distributed versions.  Either way, you will now be ready to
-	install.
+	the documentation from source (as shown above) rather than
+	using the distributed versions.  Either way, you will now be
+	ready to install.
       </para>
     </section>
     <section>
@@ -283,128 +419,7 @@ Resolving deltas: 100% (157/157), done.
       <title>Make</title>
       <para>
 	Run <literal>make</literal>.  This should build everything,
-	including documentation and man pages from scratch:
-	<programlisting>
-dno$ make
-  PANDOC man/dno_bpp.1
-  PANDOC man/dno_checksize.1
-  PANDOC man/dno_commands_for.1
-  PANDOC man/dno_dirinfo.1
-  PANDOC man/dno.1
-  PANDOC man/dno_menu.1
-  PANDOC man/dno_requote.1
-  PANDOC man/BOARD_INFO.5
-  PANDOC man/BOARD_OPTIONS.5
-  PANDOC man/BOARD_TYPE.5
-  PANDOC docs/parts/BOARD_INFO.xml
-  PANDOC docs/parts/BOARD_OPTIONS.xml
-  PANDOC docs/parts/BOARD_TYPE.xml
-  PANDOC docs/parts/dno_bpp.xml
-  PANDOC docs/parts/dno_checksize.xml
-  PANDOC docs/parts/dno_commands_for.xml
-  PANDOC docs/parts/dno_dirinfo.xml
-  PANDOC docs/parts/dno.xml
-  PANDOC docs/parts/dno_menu.xml
-  PANDOC docs/parts/dno_requote.xml
-  XMLLINT docs/full_doc.xml
-Creating importer for system base stylesheet for docs...
-  /usr/bin/xsltproc &lt;docbook sources&gt;.xml --> html/index.html
-Computing chunks...
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Writing pr01.html for preface(introduction)
-Writing ch01.html for chapter
-Writing ch02.html for chapter
-Writing ch03.html for chapter
-Writing ch04.html for chapter
-Writing ch05.html for chapter
-Writing ch06.html for chapter
-Writing ch07.html for chapter
-Writing ch08.html for chapter
-Writing ch09.html for chapter
-Writing ch10.html for chapter
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Writing ch11.html for chapter
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Writing apa.html for appendix
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Writing apb.html for appendix
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Writing apc.html for appendix
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Writing apd.html for appendix
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Writing ape.html for appendix
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Writing apf.html for appendix
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Writing apg.html for appendix
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Writing aph.html for appendix
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Writing api.html for appendix
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Unexpected appendix.autolabel value: ; using default.
-Writing apj.html for appendix(gpl)
-Writing index.html for book
-Writing dno.css for book
-dno$ 
-	</programlisting>
+	including documentation and man pages from scratch.
       </para>
     </section>
     <section>
@@ -416,6 +431,3 @@ dno$
     </section>
   </section>
 </chapter>
-
-
-    

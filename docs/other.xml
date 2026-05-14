@@ -128,7 +128,7 @@
       </section>
     </section>
     <section>
-      <title>Output to termainl (using the <literal>cat</literal> target)</title>
+      <title>Output to terminal (using the <literal>cat</literal> target)</title>
       <para>
 	If you just to watch the output from your Arduino's serial
 	connection and do not need to provide input, you can use the

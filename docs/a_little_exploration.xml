@@ -9,7 +9,7 @@
     explaining or delving into them.  So, let's look a little closer.
   </para>
   <section xml:id="board-specifiers">
-    <title>On Board Specifiers</title>
+    <title>Board Specifiers</title>
     <para>
       We saw in <link linkend='create_board_type'>the previous
       section</link> that our <literal>BOARD_TYPE</literal> file is
@@ -23,7 +23,7 @@
       <title>Components of Board-Specifiers</title>
       <para>
 	A fully-specified Arduino board definition consists of 3
-	parts, separated by dots.  These are:
+	parts separated by dots.  These are:
 	<itemizedlist>
 	  <listitem>
 	    <para>
@@ -79,7 +79,7 @@
       </para>
     </section>
     <section>
-      <title>Specifying Options</title>
+      <title>Specifying Board Options</title>
       <para>
 	Board options can be appended to board-specifiers to provide
 	some or all of the board's options.  In <link
@@ -112,38 +112,35 @@
     </section>
   </section>
   <section xml:id="dno_is_make">
-    <title>On Being Based On <literal>make</literal></title>
-    <section>
-      <title>Dno Rebuilds Only What It Needs To</title>
-      <para>
-	We saw in the previous section that after everything had been
-	compiled and linked, running <literal>dno</literal> again didn't
-	do anything.
-      </para>
-      <para>
-	This is because <literal>dno</literal> is based on
-	<literal>make</literal> (specifically <literal>GNU
-	make</literal>) and understands the dependencies between
-	<emphasis>everything</emphasis> that it builds.  If you update
-	a source file, <literal>dno</literal> knows that the object
-	for that source file has to be recreated because the object
-	<emphasis>depends</emphasis> on that source file.  Similarly,
-	if that object file is part of a library, then the library
-	<emphasis>depends</emphasis> on the object and must also be
-	rebuilt.  And if the library or object is part of an image
-	file, then the image <emphasis>depends</emphasis> on the
-	library or object, and dno will re-link it.
-      </para>
-      <para>
-	All of these dependencies are discovered automatically by
-	<literal>dno</literal>.
-      </para>
-      <para>
-	What all of this means, is that <literal>dno</literal> will
-	only do as much work as it has to in order to achieve
-	anything.
-      </para>
-    </section>
+    <title>Dno is Based on <literal>make</literal></title>
+    <para>
+      We saw in the previous section that after everything had been
+      compiled and linked, running <literal>dno</literal> again didn't
+      do anything.
+    </para>
+    <para>
+      This is because <literal>dno</literal> is based on
+      <literal>make</literal> (specifically <literal>GNU
+      make</literal>) and understands the dependencies between
+      <emphasis>everything</emphasis> that it builds.  If you update a
+      source file, <literal>dno</literal> knows that the object for
+      that source file has to be recreated because the object
+      <emphasis>depends</emphasis> on that source file.  Similarly, if
+      that object file is part of a library, then the library
+      <emphasis>depends</emphasis> on the object and must also be
+      rebuilt.  And if the library or object is part of an image file,
+      then the image <emphasis>depends</emphasis> on the library or
+      object, and dno will re-link it.
+    </para>
+    <para>
+      All of these dependencies are discovered automatically by
+      <literal>dno</literal> whenever it needs to know them.
+    </para>
+    <para>
+      What all of this means is that <literal>dno</literal> will
+      only do as much work as it has to in order to achieve
+      anything.
+    </para>
     <section xml:id="targets">
       <title>Dno "Commands" Are <literal>make</literal> "Targets"</title>
       <para>
@@ -195,6 +192,11 @@
 	directory, it will rebuild the executable; if you are in a lib
 	directory, it will compile the lib and run unit tests; if you
 	are in a docs directory, it will rebuild your documentation.
+      </para>
+      <para>
+	This means that for many, or even most, things that you want
+	<literal>dno</literal> to do, you don't even need to provide a
+	target: the command will simply be <literal>dno</literal>.
       </para>
     </section>
     <section>
@@ -280,7 +282,10 @@ blink$
 		  <literal>eeprom</literal>;
 		</listitem>
 		<listitem>
-		  <literal>monitor</literal>.
+		  <literal>monitor</literal>;
+		</listitem>
+		<listitem>
+		  <literal>cat</literal>.
 		</listitem>
 	      </itemizedlist>
 	    </para>
@@ -357,7 +362,9 @@ blink$
 	    </para>
 	    <para>
 	      This can be useful if you want to run a compilation
-	      manually, to debug some unexpected behaviour etc.
+	      manually, to debug some unexpected behaviour etc: you
+	      can simply cut and paste the commands shown into a
+	      command line.
 	    </para>
 	  </listitem>
 	</itemizedlist>
@@ -489,9 +496,10 @@ pro.8MHzatmega328$
   <section xml:id="clean">
     <title>Cleaning</title>
     <para>
-      The section above introduced the "clean" and "pristine"
-      targets.  These, along with "tidy" are used for carefully
-      cleaning up unwanted files.
+      The section above introduced the "<literal>clean</literal>" and
+      "<literal>pristine</literal>" targets.  These, along with
+      "<literal>tidy</literal>" are used for carefully cleaning up
+      unwanted files.
     </para>
     <para>
       Although it is easy enough to use the <literal>rm</literal>

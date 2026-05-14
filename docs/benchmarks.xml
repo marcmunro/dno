@@ -8,8 +8,9 @@
   <para>
     This section describes some relatively simple benchmarks performed
     to compare the execution time of simple builds under the Arduino
-    IDE with those done by dno.  In each case builds were of the
-    standard and venerable <literal>blink.ino</literal> file.
+    IDE with those done by dno.  In each case builds were of a
+    slightly modified <literal>blink.ino</literal> file as shown
+    below.
   </para>
   <para>
     The tests were run on a relatively old x86_64 GNU/Linux desktop
@@ -262,24 +263,17 @@ pro.8MHzatmega328$
     </section>
   </section>
   <section>
-    <title>non-core build for Arduino Pro</title>
+    <title>Minimal build for Arduino Pro</title>
     <para>
       In this scenario, we do a more typical compilation operation,
       where the core library does not need to be rebuilt.
     </para>
     <section>
-      <title>non-core IDE build for Arduino Pro</title>
+      <title>Minimal IDE build for Arduino Pro</title>
       <para>
-	For this scenario, we re-used our original script but set 
-	<literal>compiler.cache_core</literal> to <literal>true</literal>
-	in the preferences file, 
-	<literal>$HOME/.arduino15/preferences.txt</literal>.
-      </para>
-      <para>
-	This caches our core library between builds meaning that less
-	work had to be done.  Our <literal>cli.sh</literal> script is
-	modified to comment out the initial <literal>rm</literal>
-	statements.
+	For this scenario, we re-used our
+	<literal>cli.sh</literal>original script with the
+	<literal>rm</literal> commands commented out.
 	<programlisting>
 blink$ ./cli.sh >/dev/null
 
@@ -348,7 +342,7 @@ pro.8MHzatmega328$
       <para>
 	Note that the output above shows the first, ignored, dno run
 	where we have not discarded <literal>stdout</literal>.  This
-	is shown simply to show that the dno build did indded do
+	is shown simply to show that the dno build did indeed do
 	something.  Otherwise, given the speed of the build, you could
 	be forgiven for thinking that this test was somehow a cheat.
       </para>

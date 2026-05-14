@@ -77,9 +77,9 @@
     </para>
     <para>
       The various helper tools (see the man page appendices) are all
-      shell and awk scripts, and again should be either well-enough
-      documented, or simple enough that they are relatively easy to
-      work on.
+      shell, awk and perl scripts, and again should be either
+      well-enough documented, or simple enough that they are
+      relatively easy to work on.
     </para>
     <para>
       To get started with hacking on <literal>dno</literal> you should
