@@ -25,10 +25,10 @@ the Arduino IDE, or who find its limitations frustrating.
 All code is built in sub-directories called build.  This is to keep the
 source-trees as clean as possible.
 
-This is part of the dno Arduino software builder package.
-
 Most of the time dno is invoked without any parameters and it just
 does the right thing.
+
+This is part of the dno Arduino software builder package.
 
 # DIRECTORY STRUCTURE
 
@@ -95,7 +95,7 @@ options will do the right thing.  Specifically, running **dno** in:
       will result in **doxygen** being run to create documentation
       for the entire codebase including locally installed libraries.
 
-    - a board directory;
+  - a board directory;
 
       will result in the Arduino code in that directory or its parent
       being compiled and linked to whatever standard and included
@@ -104,6 +104,13 @@ options will do the right thing.  Specifically, running **dno** in:
       for a specific board.  Board directories may contain
       board-specific code which will take precedence over code in
       files of the same name in the parent directory.
+
+  - a boot directory;
+
+      will result in **make** being run in that directory.  Boot
+      directories are for building bootloaders and are expected to
+      contain a Makefile.
+
 
 # OPTIONS
 
@@ -148,6 +155,11 @@ functionality will have to be stubbed or otherwise simulated.
 The default target for a docs directory.  This may be within a library
 or directly under the project directory.  The docs target may also be
 used explicitly in a library directory.
+    
+**boot**
+
+The default target for a boot directory.  This is for building
+bootloaders.
     
 # TARGETS
 

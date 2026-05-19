@@ -194,17 +194,9 @@ case "${operation}" in
         list_programmers "${pfile}" ${show_source}
 	;;
     check)
-	if [ "x${progname}" = "x" ]; then
-	    echo "`basename $0`: no programmer provided to check" 1>&2
-	    usage
-	fi
 	list_programmers "${pfile}" n | grep --silent "^${progname}:"
 	;;
     extract)
-	if [ "x$1" = "x" ]; then
-	    echo "`basename $0`: parameter required" 1>&2
-	    usage
-	fi
-	extract_programmer_entries "${pfile}" "$1"
+	extract_programmer_entries "${pfile}" "${progname}"
 	;;
 esac	

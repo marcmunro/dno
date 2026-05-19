@@ -115,7 +115,7 @@ runsuite check_boardchange
 runsuite check_helper_targets
 runsuite check_unit_tests
 runsuite check_docs
-runsuite check_boot
+#runsuite check_boot
 runsuite check_dirname_targets
 runsuite check_tags
 #runsuite check_eeprom

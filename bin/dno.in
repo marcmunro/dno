@@ -73,6 +73,7 @@ BUILD_DIR = build
 # FEEDBACK_ECHO may be used in multi-line shell commands where part of the
 # command can usefully provide feedback.
 #
+override undefine verbose
 ifdef VERBOSE
   ifeq "$(VERBOSE)" "N"
     override undefine VERBOSE
@@ -86,10 +87,12 @@ ifdef VERBOSE
   FEEDBACK_ECHO = echo " "
   AT =
   REPORT = true
+  verbose=y
 else
   FEEDBACK = @echo " "
   FEEDBACK_ECHO = true
   AT = @
+  verbose=n
 endif
 
 # Define a hash character.  This can be used to comment out parts of
@@ -470,6 +473,21 @@ proj_ino = $(if $1, $(dir $(firstword $1))$2.ino)
 override undefine dup_wts
 dup_wts = $(foreach dir,$1,$(dir) $(dir)/) 
 
+##
+# SETVERBOSE
+# $1 is action (purpose)
+# Set the verbosity for action $1, based on the verbose, which is a
+# proxy for the the VERBOSE variable.  The result of this call should
+# be evaled.
+#
+define SETVERBOSE
+$(if $(call eq,$(verbose),y), \
+  $1.verbose=$(tools.$($1.tool).$1.params.verbose), \
+  $1.verbose=$(tools.$($1.tool).$1.params.quiet)) \
+
+endef
+
+
 # DNO_STARTDIR is set when we are recursing for one of the clean targets.
 # In these cases we just want to get started as quickly as possible,
 # so we avoid much of the slow startup bahaviour.
@@ -615,7 +633,6 @@ NO_BUILD_TARGETS = clean tidy pristine extraclean \
 		   ../BOARD_INFO docs docs/html boot \
 		   devices check_device_path reset \
 		   monitor cat no_screen no-screen noscreen \
-		   upload do_upload \
 		   list_programmers list-programmers listp \
 		   PROGRAMMER unknown
 
@@ -1133,8 +1150,9 @@ ifeq "$(HAVE_CROSS_BUILD_TARGETS)" "t"
 	        $(value recipe.cpp.o.pattern)))
 
     # define a pattern for uploading eeprom files.  Don't know why
-    # this is not already defined.  This is unlikely to work for
-    # anything but avr boards.
+    # this is not already defined: there is nothing about it in the
+    # platform specification.  This is unlikely to work for anything
+    # but avr boards.
     #
     recipe.eep.upload.pattern = \
 	        $(subst flash:w,eeprom:w,\
@@ -1367,6 +1385,27 @@ BOARD_INFO: $(BI_DEPS) $(PLATFORM_LOCAL) $(BOARDS_LOCAL) \
 	else \
 	    rm -f $@2; false; fi
 
+# PROGRAMMER contains definitions relating to Arduino programmers.
+# These provide an alternate way of uploading programs, and are the
+# only way, AFAK, to burn a bootoader.
+#
+PROGRAMMER:
+	$(TARGET)
+	$(FEEDBACK) Creating $@...
+	$(AT) if [ "x$(PROGRAMMER)" != "x" ]; then \
+	    if dno_prog -c $(PROGRAMMER); then \
+		dno_prog -e $(PROGRAMMER) >PROGRAMMER; \
+	    else \
+	        echo -e "\n  ERROR: $(PROGRAMMER) is not a valid" \
+		     "programmer name.\n" 1>&2; \
+	        exit 1; \
+	    fi; \
+	else \
+	    echo -e "\n  ERROR: PROGRAMMER not defined" 1>&2; \
+	    echo "    add PROGRAMMER=<programmer name> to command line" 1>&2; \
+	    echo -e "    (use dno list_programmers for values)\n" 1>&2; \
+	    exit 1; \
+	fi
 # BOARD_TYPE identifies the type of board that we will be creating
 # images for.  In its absence the name of the current directory may
 # provide the board type.
@@ -1582,6 +1621,11 @@ else
 	@$(test_cmds)
 endif
 
+##
+# BOOT STUFF FOLLOWS
+
+
+ifeq "x" "y"
 ifeq "$(DIR_TYPE)" "boot"
 
   # Targets for the boot directory.
@@ -1607,30 +1651,30 @@ ifeq "$(DIR_TYPE)" "boot"
 	$(TARGET)
 	$(AT) cd ..; dno BOARD_INFO --no-print-directory -s
 
-  PROGRAMMER:
+  # This target is used from a boot directory in order to rebuild
+  # BOARD_INFO in the parent directory.  We use force to ensure that
+  # this target is always run - this ensures that BOARD_INFO gets
+  # updated if necessary.
+  #
+  ../PROGRAMMER: FORCE
 	$(TARGET)
-	$(FEEDBACK) Creating $@...
-	$(AT) if [ "x$(PROGRAMMER)" != "x" ]; then \
-	    if dno_prog -c $(PROGRAMMER); then \
-		dno_prog -e $(PROGRAMMER) >PROGRAMMER; \
-	    else \
-	        echo -e "\n  ERROR: $(PROGRAMMER) is not a valid" \
-		     "programmer name.\n" 1>&2; \
-	        exit 1; \
-	    fi; \
-	else \
-	    echo -e "\n  ERROR: PROGRAMMER not defined" 1>&2; \
-	    echo "    add PROGRAMMER=<programmer name> to command line" 1>&2; \
-	    echo -e "    (use dno list_programmers for values)\n" 1>&2; \
-	    exit 1; \
-	fi
+	$(AT) cd ..; dno PROGRAMMER --no-print-directory -s
+
 
   default_boot_target boot: $(BOOT_TARGET)
 
-  burn: PROGRAMMER $(BOOT_TARGET)
+# Temporary whil trying to get burn target to work.
+include ../BOARD_INFO
+include ../PROGRAMMER
+
+
+  burn: ../PROGRAMMER ../BOARD_INFO \
+	check_device_path ## $(BOOT_TARGET)
 	$(TARGET)
-	@# $(eval include PROGRAMMER)
-	echo $(tools.avrdude.bootloader.pattern)
+	@# $(eval $(call SETVERBOSE,$(bootloader.tool),bootloader))
+	@echo ZZZZ $(bootloader.verbose)
+	@echo QQQ $(BOOT_TARGET)
+	@echo '$(tools.avrdude.bootloader.pattern)'
 
 else
   $(BOOT_TARGET) boot:
@@ -1641,6 +1685,9 @@ else
 	@echo -e "\n  Error: Must be in a boot directory to do $@.\n" 1>&2
 	@exit 2
 endif
+endif
+
+
 
 .PHONY: list_programmers list-programmers listp
 
@@ -1880,6 +1927,18 @@ upload:	$(TARGET_HEX) verify_size reset
 	$(TARGET)
 	$(MAKE) do_upload
 
+# If we are going to build the uploadp target, we need to include
+# PROGRAMMER.
+#
+ifneq "" "$(filter uploadp,$(MAKECMDGOALS))"
+  include PROGRAMMER
+endif
+
+uploadp: $(TARGET_HEX) verify_size PROGRAMMER
+	$(TARGET)
+	echo YY: $(program.tool)
+	echo XX: $(tools.$(program.tool).program.pattern)
+
 # This is used recursively from the upload target in order to separate any
 # dependencies for this target from the main dependency graph.  This allows us
 # to effectively on-upload actions such as ensuring there is no monitor
@@ -1889,6 +1948,7 @@ upload:	$(TARGET_HEX) verify_size reset
 do_upload: no_screen
 	$(TARGET)
 	$(FEEDBACK) "  Uploading $(notdir $(TARGET_HEX)) to $(DEVICE_PATH)"
+	@# $(eval $(call SETVERBOSE,upload))
 	$(AT) $(tools.$(upload.tool).upload.pattern)
 
 eeprom_read read_eeprom: no_screen
@@ -1904,11 +1964,16 @@ eeprom:	$(TARGET_EEP) verify_size reset
 	$(TARGET)
 	$(MAKE) do_eeprom
 
+# Note that the verbosity thing below is a hack on top of the hack
+# that is the definition of $(recipe.eep.upload.pattern).  It works
+# for avr but will probably not for anything else.
+#
 do_eeprom: no_screen
 	$(TARGET)
 	$(FEEDBACK)
 	$(FEEDBACK) "  writing eeprom from $(notdir $(TARGET_EEP))" \
 		"using $(DEVICE_PATH)"
+	@# $(eval $(call SETVERBOSE,upload))
 	$(AT) $(recipe.eep.upload.pattern)
 
 

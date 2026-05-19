@@ -51,12 +51,14 @@
       libraries and the creation of <link
       xlink:href="https://www.doxygen.nl/index.html">Doxygen</link>-based
       documentation of code.  In short, it aims to support the
-      creation of professional-quality software for Arduino platforms.
+      creation of professional-quality software for Arduino-like
+      platforms.
     </para>
     <para>
       Finally, it aims to be as simple to use as possible.  It
-      provides the simplest possible commands and requires
-      minimal configuration while providing maximal flexibility.
+      provides the simplest possible commands for getting things done
+      and requires minimal configuration while providing maximal
+      flexibility.
     </para>
   </preface>
   <xi:include href="installation.xml"/>
@@ -141,6 +143,11 @@
 	    The IDE is slow everywhere.  It's slow to start, slow to
 	    compile, slow to do anything.
 	  </para>
+	  <para>
+	    Also some operations block the IDE completely.  For
+	    instance, while you are installing new boards the editor
+	    is unusable.  
+	  </para>
 	</listitem>
 	<listitem>
 	  <para>
@@ -166,8 +173,8 @@
 	    you can but the commands are insane.
 	  </para>
 	  <para>
-	    <quote>But this is the right way to do it.  In fact it's
-	    the only way.</quote>
+	    <quote>But this is the right way to do it.  Obviously.
+	    Why would you not want to do it this way?</quote>
 	  </para>
 	  <para>
 	    That's the attitude I'm talking about.  And it sucks.
@@ -231,7 +238,7 @@
       <para>
 	I looked at hacking it, and discovered a lot about
 	<literal>make</literal> that I didn't know.  It was a very
-	good piece of work, but still not quite right.
+	cool piece of work, but still not quite right.
       </para>
       <para>
 	I developed my own version of <literal>Arduino.mk</literal>
