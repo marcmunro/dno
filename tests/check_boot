@@ -8,32 +8,82 @@ check_boot_cleanup()
     rm -rf ${test_startdir}/tests/proj
 }
 
-# Check boot targets
-check_boot_targets()
+# Check boot targets from root directory
+check_boot_targets_from_root()
 {
-    cd boot
-    run; dno >make.log 2>&1 || fail "Simple boot build fails"
-    grep -q avr-objdump make.log || fail "Boot build: no avr-objdump performed"
-    [ -f optiboot_atmega328.hex ] || fail "Boot build: no hex file created"
-    run; dno clean >make.log 2>&1 || fail "dno clean fails in boot dir"
-    [ -f optiboot_atmega328.hex ] && fail "Boot clean: hex file not removed"
-    run; dno >make.log 2>&1 || fail "Explicit boot build fails"
-    grep -q avr-objdump make.log ||
-	fail "Boot build: no avr-objdump performed (2)"
-    [ -f optiboot_atmega328.hex ] ||
-	fail "Boot build: no hex file created (2)"
-
-    mkdir docs
-    cp ${SCRIPTDIR}/assets/docs/Doxyfile docs
-    run; dno docs >make.log 2>&1 || fail "boot docs build fails"
-    grep -q "<title>optiboot" docs/html/index.html ||
-	fail "boot docs build: no \"optiboot\" title"
-    run; dno clean >make.log 2>&1 || fail "dno clean fails in boot dir (2)"
-    cd docs
-    run; dno >make.log 2>&1 || fail "Implicit boot docs build fails"
-    grep -q "<title>optiboot" html/index.html ||
-	fail "boot docs build: no \"optiboot\" title"
+    run; dno boot >make.log 2>&1 && fail "boot target in root dir should fail"
+    grep -q "Must be in a boot directory" make.log ||
+	fail "Incorrect directory error for boot target"
+    run; dno burn >make.log 2>&1 && fail "burn target in root dir should fail"
+    grep -q "Cannot burn.*root.*directories" make.log ||
+	fail "Incorrect directory error for burn target in root"
 }
+
+check_boot_targets_from_build()
+{
+    run; dno >make.log 2>&1 || fail "initial dno in build dir fails"
+    run; dno boot >make.log 2>&1 && fail "boot target in build dir should fail"
+    grep -q "Must be in a boot directory" make.log ||
+	fail "Incorrect directory error for boot target in build dir"
+    # We can perform a burn target here
+
+    run; dno burn >make.log 2>&1 && fail "burn in build dir should fail"
+    grep -q "PROGRAMMER not defined" make.log ||
+	fail "Should fail due to missing PROGRAMMER file"
+
+    run; dno PROGRAMMER PROGRAMMER=arduinoasisp >make.log 2>&1 ||
+	fail "PROGRAMMER build failed."
+
+    # No confirmation provided for burn
+    run; echo n | dno burn >make.log 2>&1 &&
+	fail "burn in build dir should fail (2)"
+
+    # We cannot actually perform the burn, so we'll do a dry run.
+    run; dno burn --dry-run >make.log 2>&1 ||
+	fail "dno dry-run for burn in build dir fails (1)"
+
+    grep -q "avrdude.*-C/etc/avrdude.conf.*" make.log ||
+	fail "Incorrect avrdude command for burn"
+    
+    grep -q "Uflash:w:.*arduino/avr/bootloaders.*hex:i" make.log ||
+	fail "Incorrect bootloader file for burn"
+}
+
+check_boot_targets_from_boot()
+{
+    run; dno >make.log 2>&1 || fail "initial dno in boot fails"
+    grep -q avr-objdump make.log ||
+	fail "objcopy not done in initial build in boot"
+    [ -f optiboot_atmega328.hex ] ||
+	fail "hex file not created by initial build in boot"
+    # This will fail because the device in invalid but we should get
+    # some good stuff in make.log
+    run; dno burn DEVICE_PATH=/dev/wibble VERBOSE=y >make.log 2>&1 &&
+	fail "dno burn in boot should fail"
+    grep -q "Executing:.*avrdude.*-Uflash:w:optiboot_atmega328.hex:i" make.log ||
+	fail "No avrdude command for <bootloader>.hex"
+	
+    # Check that the clean target works too!
+    run; dno clean >make.log 2>&1 || fail "dno clean in boot fails"
+    [ -f optiboot_atmega328.hex ] &&
+	fail "hex file not cleaned by dno clean in boot"
+}
+
+# Add a dno.mk file to perform the optiboot build directly
+#
+check_dno_boot_build()
+{
+    run; dno boot >make.log 2>&1 || fail "dno boot with dno.mk fails"
+    grep -q "LOADING DNO.MK" make.log ||
+	fail "dno.mk was not loaded"
+
+    grep -q "Imagine optiboot_atmega328_atmega328p.hex" make.log ||
+	fail "The image build target from dno.mk did not work"
+
+    grep -q "Bootloader successfully built" make.log ||
+	fail "boot target's executable was not overridden"
+}
+
 
 check_boot()
 {
@@ -41,8 +91,14 @@ check_boot()
     cd ${test_startdir}
     mkdir -p tests/proj/blink
     cd tests/proj/blink
-    echo avr.pro >BOARD_TYPE
     cp ${SCRIPTDIR}/assets/src/blink.cpp .
-    cp -r ${SCRIPTDIR}/assets/boot .
-    check_boot_targets
+    mkdir -p avr.pro/boot
+    cp -r ${SCRIPTDIR}/assets/boot avr.pro
+    check_boot_targets_from_root
+    cd avr.pro
+    check_boot_targets_from_build
+    cd boot
+    check_boot_targets_from_boot
+    cp ${SCRIPTDIR}/assets/boot_dno.mk dno.mk
+    check_dno_boot_build
 }

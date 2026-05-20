@@ -487,6 +487,21 @@ $(if $(call eq,$(verbose),y), \
 
 endef
 
+##
+# CONFIRM
+# $1 Prompt
+# $2 Bailout message (optional)
+# Shell commands requiring the user to respond with a confirmation in
+# order to continue.
+#
+define CONFIRM
+    read -p "$1? " -n 1 -r; \
+    echo; \
+    if [[ $${REPLY} =~ ^[Yy]$$ ]]; then true; \
+    else $(and $2,echo "$2";) false; fi
+
+endef
+
 
 # DNO_STARTDIR is set when we are recursing for one of the clean targets.
 # In these cases we just want to get started as quickly as possible,
@@ -521,6 +536,7 @@ ifndef QUICKSTART
 #
 BOOT_BUILDER := env -u MAKEFLAGS $(REAL_MAKE) --no-print-directory
 BOOT_TARGET := default_boot_target
+BURN_DEPS := $(BOOT_TARGET)
 -include dno.mk
 
 ifndef DIR_TYPE
@@ -630,7 +646,7 @@ NO_BUILD_TARGETS = clean tidy pristine extraclean \
 		   list info help show_boards check_extra_boards \
 		   BOARD_TYPE BOARD_INFO dno_board_type \
 		   list_programmers list-programmers listp \
-		   ../BOARD_INFO docs docs/html boot \
+		   ../BOARD_INFO docs docs/html boot burn \
 		   devices check_device_path reset \
 		   monitor cat no_screen no-screen noscreen \
 		   list_programmers list-programmers listp \
@@ -1623,7 +1639,80 @@ endif
 
 ##
 # BOOT STUFF FOLLOWS
+# If burn is invoked explicitly in a board directory, it will attempt
+# to reinstall the standard bootloader from the arduino installation.
+# If it is run from a boot directory it will attempt to install the
+# custom bootloader from that directory.  In either case because the
+# consequences are serious, the user is asked to confirm.
 
+.PHONY: boot burn default_boot_target
+
+ifeq "$(DIR_TYPE)" "boot"
+  # The boot image in the boot directory  has to be biult by tools
+  # outside of dno.  The tool to perform the build is defined in
+  # BOOT_BUILDER and defaults to make.
+  #
+  # If you want to change this, a dno.mk file can be placed in the
+  # boot directory which can redefine BOOT_BUILDER, BOOT_DEPS and
+  # BURN_DEPS to make this target do more or less whatever you want.
+  # For example:
+  #  # dno.mk
+  #  # Makefile inclusion for dno to enable dno to build the
+  #  # bootloader directly.
+  #
+  #   BURN_DEPS = optiboot_atmega328_$(build.mcu).hex
+  #   optiboot_atmega328_$(build.mcu).hex: boot.h optiboot.c pin_defs.h stk500.h
+  # 	[Commands to compile and link optibbot]
+  #
+
+  $(BOOT_TARGET) boot: ../BOARD_INFO ../PROGRAMMER $(BOOT_DEPS)
+	$(TARGET)
+	$(BOOT_BUILDER)
+
+  # If we are going to do a burn we must include the following files.
+  # This will cause them to be rebuilt if necessary.
+  ifneq "" "$(filter burn,$(MAKECMDGOALS))"
+    include ../BOARD_INFO
+    include ../PROGRAMMER
+  endif
+
+  burn: $(BURN_DEPS) check_device_path
+	$(TARGET)
+	@# $(eval $(call SETVERBOSE,bootloader))
+	$(AT) bloader=`ls -1t *hex *bin 2>/dev/null | head`; \
+	      burn_cmd=`echo $(tools.$(bootloader.tool).bootloader.pattern) |\
+			sed -e "s!$(runtime.platform.path)/bootloaders/$(bootloader.file)!$${bloader}!"`; \
+	       $(FEEDBACK_ECHO) Executing: $${burn_cmd}; \
+	       $${burn_cmd}
+
+else ifeq "$(findstring _board, $(DIR_TYPE))" "_board"
+  $(BOOT_TARGET) boot:
+	@echo -e "\n  Error: Must be in a boot directory to build $@.\n" 1>&2
+	@exit 2
+
+  ifneq "" "$(filter burn,$(MAKECMDGOALS))"
+    include BOARD_INFO
+    include PROGRAMMER
+  endif
+
+  burn: BOARD_INFO PROGRAMMER check_device_path
+	$(TARGET)
+	@echo "About to burn bootloader: $(runtime.platform.path)/bootloaders/$(bootloader.file)"
+	@$(call CONFIRM,Press Y to continue,Bailing out on user request)
+	$(FEEDBACK) "Burning bootloader: $(runtime.platform.path)/bootloaders/$(bootloader.file)"
+	@# $(eval $(call SETVERBOSE,bootloader))
+	$(AT) $(tools.$(bootloader.tool).bootloader.pattern)
+
+else
+  $(BOOT_TARGET) boot:
+	@echo -e "\n  Error: Must be in a boot directory to build $@.\n" 1>&2
+	@exit 2
+
+  burn:
+	@echo -e "\n  Error: Cannot burn images in"\
+		  "$(DIR_TYPE) directories.\n" 1>&2
+	@exit 2
+endif
 
 ifeq "x" "y"
 ifeq "$(DIR_TYPE)" "boot"
@@ -1668,6 +1757,7 @@ include ../BOARD_INFO
 include ../PROGRAMMER
 
 
+  $(info QQQQQQQQQQQQQQQQQQQQQQQQ)
   burn: ../PROGRAMMER ../BOARD_INFO \
 	check_device_path ## $(BOOT_TARGET)
 	$(TARGET)
@@ -1809,7 +1899,7 @@ menu options:
 # Device-handling targets
 #
 .PHONY: devices check_device_path reset monitor no-screen noscreen \
-	cat upload eeprom_image eeprom do_upload do_eeprom \
+	cat upload eeprom_image eeprom do_upload do_uploadp do_eeprom \
 	read_eeprom eeprom_read
 
 # Attempt to determine the serial device to use for uploads and monitoring for
@@ -1927,18 +2017,6 @@ upload:	$(TARGET_HEX) verify_size reset
 	$(TARGET)
 	$(MAKE) do_upload
 
-# If we are going to build the uploadp target, we need to include
-# PROGRAMMER.
-#
-ifneq "" "$(filter uploadp,$(MAKECMDGOALS))"
-  include PROGRAMMER
-endif
-
-uploadp: $(TARGET_HEX) verify_size PROGRAMMER
-	$(TARGET)
-	echo YY: $(program.tool)
-	echo XX: $(tools.$(program.tool).program.pattern)
-
 # This is used recursively from the upload target in order to separate any
 # dependencies for this target from the main dependency graph.  This allows us
 # to effectively on-upload actions such as ensuring there is no monitor
@@ -1950,6 +2028,28 @@ do_upload: no_screen
 	$(FEEDBACK) "  Uploading $(notdir $(TARGET_HEX)) to $(DEVICE_PATH)"
 	@# $(eval $(call SETVERBOSE,upload))
 	$(AT) $(tools.$(upload.tool).upload.pattern)
+
+# If we are going to build the uploadp target, we need to include
+# PROGRAMMER.
+#
+ifneq "" "$(filter uploadp,$(MAKECMDGOALS))"
+  include PROGRAMMER
+endif
+
+# Upload using programmer, rather than directly.
+#
+uploadp: $(TARGET_HEX) verify_size PROGRAMMER
+	$(TARGET)
+	$(MAKE) do_uploadp
+
+# Like do_upload, but for the uploadp target.  See the comments for
+# do_upload.
+#
+do_uploadp: no_screen
+	$(TARGET)
+	$(FEEDBACK) "  Uploading $(notdir $(TARGET_HEX)) to $(DEVICE_PATH)"
+	@# $(eval $(call SETVERBOSE,program))
+	$(AT) $(tools.$(program.tool).program.pattern)
 
 eeprom_read read_eeprom: no_screen
 	$(TARGET)
