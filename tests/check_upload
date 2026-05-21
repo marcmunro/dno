@@ -13,12 +13,12 @@ check_upload_targets()
 {
     run; dno >make.log 2>&1 || fail "upload target prep fails"
     grep -q OBJCOPY make.log || fail "upload target does not create image"
-    dno upload DEVICE_PATH=/dev/wibble --dry-run >make.log 2>&1 ||
+    run; dno upload DEVICE_PATH=/dev/wibble --dry-run >make.log 2>&1 ||
 	fail "upload target dryrun fails"
     grep -q "avrdude.*-patmega328p.*-Uflash:w:build/blink.hex:i" make.log ||
 	fail "upload command not found in make output."
     # Now upload using programmer
-    dno uploadp DEVICE_PATH=/dev/wibble \
+    run; dno uploadp DEVICE_PATH=/dev/wibble \
 	PROGRAMMER=arduinoasisp --dry-run >make.log 2>&1 ||
 	fail "uploadp target dryrun fails"
     grep -q "avrdude.*-cstk500v1.*-Uflash:w:build/blink.hex:i" make.log ||

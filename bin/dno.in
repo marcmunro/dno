@@ -587,7 +587,7 @@ else ifeq "$(DIR_TYPE)" "test"
       USER_LIB_ROOTS = ../.. ../../.. 
     endif
   else
-    $(error NOT IMPLEMENTED: HANDLING FOR TEST PARENT $(PARENT))
+    $(error Not in a suitable dno directory.)
   endif
 else ifeq "$(DIR_TYPE)" "lib"
   DEFAULT_BUILD_TYPE = lib
@@ -1982,6 +1982,12 @@ endif
 #
 monitor: check_device_path
 	$(TARGET)
+	echo BAUD:$(or $(MONITOR_BAUD), \
+	         $(shell grep --no-filename --only-matching \
+			      "$(SPEED_REGEXP)" $(USER_SOURCES) /dev/null | \
+			 sed -e 's/[^0-9]*\([0-9][0-9]*\).*/\1/' | \
+			 sort | head -1), \
+		 9600)
 	@$(FEEDBACK) "Running screenfrom $(DEVICE_PATH) at" \
 		     "$(MONITOR_BAUD): C-a k to exit"
 	$(AT)screen $(DEVICE_PATH) \

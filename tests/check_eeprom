@@ -16,11 +16,12 @@ check_eeprom_targets()
 {
     run; dno -j 4 eeprom_image >make.log 2>&1 || fail "eeprom target prep fails"
     [ -f build/blink.eep ] || fail "eep image not created"
-    dno eeprom --dry-run >make.log 2>&1 || fail "eprom upload dryrun fails"
+    run; dno eeprom --dry-run >make.log 2>&1 || fail "eprom upload dryrun fails"
     grep -q "avrdude.*-patmega328p.*-Ueeprom:w:build/blink.eep:i" make.log ||
         fail "avrdude command for eeprom upload not found"
     # Now eeprom read
-    dno eeprom_read --dry-run >make.log 2>&1|| fail "eprom read dryrun fails"
+    run; dno eeprom_read --dry-run >make.log 2>&1 ||
+	fail "eprom read dryrun fails"
     grep -q "avrdude.*-patmega328p.*-Ueeprom:r:.*\.hex:i" make.log ||
         fail "avrdude command for eeprom read not found"
 }

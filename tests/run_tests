@@ -120,7 +120,6 @@ runsuite check_dirname_targets
 runsuite check_tags
 runsuite check_upload
 runsuite check_eeprom
-# monitor, etc
-# 
+runsuite check_monitor
 
 
