@@ -1656,13 +1656,29 @@ ifeq "$(DIR_TYPE)" "boot"
   # boot directory which can redefine BOOT_BUILDER, BOOT_DEPS and
   # BURN_DEPS to make this target do more or less whatever you want.
   # For example:
-  #  # dno.mk
-  #  # Makefile inclusion for dno to enable dno to build the
-  #  # bootloader directly.
-  #
-  #   BURN_DEPS = optiboot_atmega328_$(build.mcu).hex
-  #   optiboot_atmega328_$(build.mcu).hex: boot.h optiboot.c pin_defs.h stk500.h
-  # 	[Commands to compile and link optibbot]
+  # # dno.mk
+  # # Makefile inclusion for dno to enable dno to build the
+  # # bootloader directly.
+  # 
+  # # Need the board.mcu definition for the next definitions to work.
+  # #
+  # include ../BOARD_INFO
+  # 
+  # # This makes the boot target run our explicit build target below.
+  # #
+  # BOOT_DEPS := optiboot_atmega328_$(build.mcu).hex
+  # 
+  # # Burn is also dependent on the same target.
+  # #
+  # BURN_DEPS := optiboot_atmega328_$(build.mcu).hex
+  # 
+  # # Make the boot target do nothing useful itself.  Its dependencies
+  # # will cause the actual build to be done.
+  # #
+  # BOOT_BUILDER := @echo "Bootloader successfully built."
+  # 
+  # optiboot_atmega328_$(build.mcu).hex: boot.h optiboot.c pin_defs.h stk500.h
+  # 	$(AT) echo Imagine $@ being built here!
   #
 
   $(BOOT_TARGET) boot: ../BOARD_INFO ../PROGRAMMER $(BOOT_DEPS)
@@ -2023,7 +2039,7 @@ upload:	$(TARGET_HEX) verify_size reset
 # attached to the DEVICE, without that preventing the build of the eeprom
 # file.
 #
-do_upload: no_screen
+do_upload: no_screen check_device_path
 	$(TARGET)
 	$(FEEDBACK) "  Uploading $(notdir $(TARGET_HEX)) to $(DEVICE_PATH)"
 	@# $(eval $(call SETVERBOSE,upload))
@@ -2032,7 +2048,7 @@ do_upload: no_screen
 # If we are going to build the uploadp target, we need to include
 # PROGRAMMER.
 #
-ifneq "" "$(filter uploadp,$(MAKECMDGOALS))"
+ifneq "" "$(filter do_uploadp,$(MAKECMDGOALS))"
   include PROGRAMMER
 endif
 
@@ -2045,13 +2061,13 @@ uploadp: $(TARGET_HEX) verify_size PROGRAMMER
 # Like do_upload, but for the uploadp target.  See the comments for
 # do_upload.
 #
-do_uploadp: no_screen
+do_uploadp: no_screen check_device_path
 	$(TARGET)
 	$(FEEDBACK) "  Uploading $(notdir $(TARGET_HEX)) to $(DEVICE_PATH)"
 	@# $(eval $(call SETVERBOSE,program))
 	$(AT) $(tools.$(program.tool).program.pattern)
 
-eeprom_read read_eeprom: no_screen
+eeprom_read read_eeprom: no_screen check_device_path
 	$(TARGET)
 	$(FEEDBACK) "  reading eeprom to $(timestamp).hex" \
 		"using $(DEVICE_PATH)"
@@ -2060,7 +2076,7 @@ eeprom_read read_eeprom: no_screen
 eeprom_image: $(TARGET_EEP) 
 	$(TARGET)
 
-eeprom:	$(TARGET_EEP) verify_size reset
+eeprom:	$(TARGET_EEP) verify_size reset check_device_path
 	$(TARGET)
 	$(MAKE) do_eeprom
 
