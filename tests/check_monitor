@@ -1,0 +1,52 @@
+#! /usr/bin/env bash
+# Check that upload targets work as expected
+#
+
+
+check_monitor_cleanup()
+{
+    rm -rf ${test_startdir}/*
+}
+
+# Check monitoring_targets
+check_monitoring_targets()
+{
+    run; dno check_device_path \
+	DEVICE_PATH="<undefined>" >make.log 2>&1 &&
+	fail "dno should fail with Undefined path"
+    grep -q "No DEVICE_PATH" make.log ||
+	fail "No DEVICE_PATH error message not given"
+
+    run; echo | dno monitor DEVICE_PATH=/dev/wibble >make.log 2>&1 &&
+	fail "dno monitor with invalid device should fail"
+
+    run; dno monitor \
+	    DEVICE_PATH=/dev/wibble --dry-run >make.log 2>&1 ||
+	    fail "dno monitor dryrun failed"
+    grep -q "screen /dev/wibble 9600" make.log ||
+	fail "Incorrect screen command for dno monitor"
+
+    # It does not seem possible to test noscreen.  Suggestions
+    # welcomed.
+
+    run; dno cat DEVICE_PATH=/dev/wibble >make.log 2>&1 &&
+	fail "dno cat with invalid device should fail"
+
+    run; dno cat DEVICE_PATH=/dev/wibble --dry-run >make.log 2>&1 ||
+	fail "dno cat dry run failed"
+
+    grep -q "stty -F /dev/wibble speed 9600 cs8" make.log ||
+	fail "expected stty command for dno cat not found"
+
+    grep -q "cat </dev/wibble" make.log ||
+	fail "expected cat command for dno cat not found"
+}
+
+check_monitor()
+{
+    echo -n "Checking monitoring targets"
+    cd ${test_startdir}
+    mkdir -p proj/blink
+    cd proj/blink
+    check_monitoring_targets
+}
