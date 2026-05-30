@@ -71,11 +71,15 @@
 	  </listitem>
 	</itemizedlist>
       </para>
-      <para>
+      <para xml:id="incomplete-specifiers">
 	If a board name is unique across all vendors and architectures
 	it need not be completely specified: it is enough in such
 	cases to simply use the board name: ie <literal>uno</literal>
 	rather than <literal>arduino.avr.uno</literal>.
+      </para>
+      <para>
+	As a final option, you can provide just the vendor or
+	architecture in addition to the board name.
       </para>
     </section>
     <section>
@@ -345,10 +349,10 @@ blink$
 	      </programlisting>
 	    </para>
 	    <para>
-	      Setting VERBOSE on the command line changes that, and
-	      causes the actual commands to be shown instead of the
-	      summary.  Additionally, it identifies each target that is
-	      actually run:
+	      Setting <literal>VERBOSE</literal> on the command line
+	      changes that, and causes the actual commands to be shown
+	      instead of the summary.  Additionally, it identifies
+	      each target that is actually run:
 	      <programlisting>
 blink$ touch blink.ino 
 blink$  dno build/blink.ino.o VERBOSE=y
@@ -365,6 +369,17 @@ blink$
 	      manually, to debug some unexpected behaviour etc: you
 	      can simply cut and paste the commands shown into a
 	      command line.
+	    </para>
+	  </listitem>
+	  <listitem id="QUIET">
+	    <para>
+	      <literal>QUIET</literal>
+	    </para>
+	    <para>
+	      Setting <literal>QUIET</literal> on the command line
+	      causes upload and related actions to be less verbose,
+	      and program size information to not be displayed after
+	      linking. 
 	    </para>
 	  </listitem>
 	</itemizedlist>
@@ -642,18 +657,25 @@ pro.8MHzatmega328$
     <section>
       <title>Writing EEPROM data</title>
       <para>
-	Writing to an Arduino's EEPROM from outside of a program is a
-	bit hit and miss.  Dno kind-of, mostly, sort-of supports writing
-	eeproms for AVR-architecture boards.  More <link
+	Dno kind-of, mostly, supports writing to a devices eeprom.
+	This works for AVR-architecture boards and may work for others
+	but has not been tested.  More <link
 	linkend="eeprom">here</link>.
       </para>
     </section>
     <section>
       <title>Building and burning bootloaders</title>
       <para>
-	Bootloaders can be built in a <literal>boot</literal>
-	subdirectory of a board directory.  To build a bootloader, dno
-	will simply run any makefile that it finds.  MORE MORE MORE
+	If your board is connected to a programmer, you can burn a
+	board's standard bootloader by simply running <literal>dno
+	burn</literal> in a board directory.
+      </para>
+      <para>
+	To create a custom bootloader, you should create a
+	<literal>boot</literal> directory below your board directory.
+	Here you can build and burn a custom bootloader image.
+      </para>
+      <para>
 	MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE
 	MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE
 	MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE
@@ -789,7 +811,7 @@ pro.8MHzatmega328$
 	  <para>
 	    The Arduino IDE has a very primitive view of what should
 	    be updated when a compilation is actioned.  It will always
-	    recompile the sketch, regardless of whether it needs to,
+	    recompile the sketch regardless of whether it needs to,
 	    and will always try to re-use compiled and archived parts
 	    of the core library, presumably regardless of whether the
 	    sources for these have been updated.  While this is very

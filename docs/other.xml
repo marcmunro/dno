@@ -490,11 +490,101 @@ Node 554 says Here, put this fish in your ear
       </section>
     </section>
   </section>
-  <section>
-    <title>Using Programmers</title>
-    <para>
-      Coming soon.  MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE
-      MORE MORE MORE MORE MORE MORE MORE  MORE MORE MORE.
-    </para>
+  <section xml:id="using-programmers">
+    <title>Using External Programmers</title>
+    <section>
+      <title>Limitations of Serial Uploading</title>
+      <para>
+	Most Arduino programming can be done by simply uploading
+	sketches using the board's serial interface.  In this case,
+	the uploader (eg <literal>avrdude</literal>) negotiates with
+	the board's built-in bootloader, which loads the incoming
+	sketch into the board.
+      </para>
+      <para>
+	In some cases though serial uploading may be inadequate for your
+	needs:
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      You may be using a board which doesn't provide a serial
+	      interface.
+	    </para>
+	    <para>
+	      Many inexpensive minimalist boards are available with no
+	      serial interfaces.  Or you may have built your own
+	      board, with custom hardware and no serial interface.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Your board's serial interface pins may be being used for
+	      something else.
+	    </para>
+	    <para>
+	      The Rx/Tx pins can be used as digital I/O pins.  Maybe
+	      your project needs extra I/O pins and does not need a
+	      serial interface.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Your board may not have a bootloader.
+	    </para>
+	    <para>
+	      In this case, serial uploading is simply not possible.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Your bootloader may have become corrupted.
+	    </para>
+	    <para>
+	      It is not entirely clear how this can happen, but it is
+	      certainly known to happen.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      You may want to load a new bootloader.
+	    </para>
+	    <para>
+	      You may want to change the boot behaviour, particularly
+	      startup timeouts.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      You may need to load a bigger sketch than the standard
+	      bootloader allows.
+	    </para>
+	    <para>
+	      Perhaps by burning a minimal bootloader, you can free up
+	      space that can be used by sketches.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+      <para>
+	It is also possible that loading sketches using an external
+	programmer may be faster than by uploading through the serial
+	interface.
+      </para>
+    </section>
+    <section>
+      <title>External Programmer Options</title>
+      <para>
+	There are many options available for external programmers.
+	The file <literal>programmers.txt</literal> which can be
+	found, for each architecture, in the same installed arduino
+	platform directory as the <literal>boards.txt</literal> and
+	<literal>platform.txt</literal>files, lists and provides
+	parameters for driving each supported external programmer.
+      </para>
+      <para>
+	To list the set of available programmers use <literal>dno
+	list-programmers</literal>.
+      </para>
+    </section>
   </section>
 </chapter>

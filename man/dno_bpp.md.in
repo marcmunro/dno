@@ -20,6 +20,11 @@ This is part of the dno Arduino software builder package.
 
 # OPTIONS
 
+**-a, --arch**
+
+Report the full architecture and path to boards.txt: 
+vendor.architecture.path.
+
 **-f, --full**
 
 In combination with --type, report the full board specifier including

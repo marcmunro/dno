@@ -61,7 +61,7 @@ BUILD_DIR = build
 # Define DEBUG to show the calculated values of key variables.  This can be Y,
 # Yes, or a regexp to match only the variables we want.
 #
-# Define QUIET to cause image size information to not be shown
+# Define QUIET to cause image size an upload information to not be shown
 #
 
 # If VERBOSE is defined $(FEEDBACK) will do nothing and $(AT) will have no
@@ -92,7 +92,6 @@ else
   FEEDBACK = @echo " "
   FEEDBACK_ECHO = true
   AT = @
-  verbose=n
 endif
 
 # Define a hash character.  This can be used to comment out parts of
@@ -106,6 +105,7 @@ endef
 ifdef QUIET
   # This prevents anything following $(IFNOTQUIET) from being executed
   IFNOTQUIET = $(HASH)
+  verbose=n
 endif
 
 # TARGET echoes the current target when REPORT is defined.
@@ -483,7 +483,8 @@ dup_wts = $(foreach dir,$1,$(dir) $(dir)/)
 define SETVERBOSE
 $(if $(call eq,$(verbose),y), \
   $1.verbose=$(tools.$($1.tool).$1.params.verbose), \
-  $1.verbose=$(tools.$($1.tool).$1.params.quiet)) \
+  $(if $(call eq,$(verbose),n), \
+    $1.verbose=$(tools.$($1.tool).$1.params.quiet)))
 
 endef
 
@@ -659,11 +660,10 @@ NO_BUILD_TARGETS = clean tidy pristine extraclean \
 		   do_clean do_tidy do_pristine \
 		   list info help show_boards check_extra_boards \
 		   BOARD_TYPE BOARD_INFO dno_board_type \
-		   list_programmers list-programmers listp \
 		   ../BOARD_INFO docs docs/html boot burn \
 		   devices check_device_path reset \
 		   monitor cat no_screen no-screen noscreen \
-		   list_programmers list-programmers listp \
+		   show-programmers list-programmers listp \
 		   PROGRAMMER unknown
 
 UNIT_TEST_TARGETS = unit_test test tests unit
@@ -796,7 +796,7 @@ ifeq "$(HAVE_CROSS_BUILD_TARGETS)" "t"
     build/.$(strip $2):
 	$$(TARGET)
 	$$(FEEDBACK) Performing $(strip $2)...
-	$$(AT) $$(RH_$(strip $2)_COMMANDS)
+	$$(AT) set -e; $$(RH_$(strip $2)_COMMANDS)
 	$$(AT) touch $$@
 
   endef
@@ -1433,7 +1433,7 @@ PROGRAMMER:
 	else \
 	    echo -e "\n  ERROR: PROGRAMMER not defined" 1>&2; \
 	    echo "    add PROGRAMMER=<programmer name> to command line" 1>&2; \
-	    echo -e "    (use dno list_programmers for values)\n" 1>&2; \
+	    echo -e "    (use dno list-programmers for values)\n" 1>&2; \
 	    exit 1; \
 	fi
 # BOARD_TYPE identifies the type of board that we will be creating
@@ -1517,7 +1517,6 @@ show_boards:
 
 build: BOARD_INFO $(TARGET_HEX) $(TARGET_BIN) \
        $(TARGET_ELF) | check_extra_boards
-	$(QUIET)
 
 unknown: | check_extra_boards
 	@echo "make: Nothing to be done for 'unknown'."
@@ -1782,12 +1781,10 @@ ifeq "$(DIR_TYPE)" "boot"
 
   default_boot_target boot: $(BOOT_TARGET)
 
-# Temporary whil trying to get burn target to work.
+# Temporary while trying to get burn target to work.
 include ../BOARD_INFO
 include ../PROGRAMMER
 
-
-  $(info QQQQQQQQQQQQQQQQQQQQQQQQ)
   burn: ../PROGRAMMER ../BOARD_INFO \
 	check_device_path ## $(BOOT_TARGET)
 	$(TARGET)
@@ -1809,9 +1806,9 @@ endif
 
 
 
-.PHONY: list_programmers list-programmers listp
+.PHONY: list-programmers show-programmers 
 
-list_programmers list-programmers listp:
+list-programmers listp:
 	$(AT) dno_prog -l
 
 
@@ -2034,7 +2031,7 @@ no_screen no-screen noscreen:
 #
 upload:	$(TARGET_HEX) verify_size reset
 	$(TARGET)
-	$(MAKE) do_upload
+	$(AT) $(MAKE) --no-print-directory do_upload
 
 # This is used recursively from the upload target in order to separate any
 # dependencies for this target from the main dependency graph.  This allows us
@@ -2047,6 +2044,7 @@ do_upload: no_screen check_device_path
 	$(FEEDBACK) "  Uploading $(notdir $(TARGET_HEX)) to $(DEVICE_PATH)"
 	@# $(eval $(call SETVERBOSE,upload))
 	$(AT) $(tools.$(upload.tool).upload.pattern)
+	@$(if $(call eq,$(verbose),n),echo upload complete.,true)
 
 # If we are going to build the uploadp target, we need to include
 # PROGRAMMER.
@@ -2059,7 +2057,8 @@ endif
 #
 uploadp: $(TARGET_HEX) verify_size PROGRAMMER
 	$(TARGET)
-	$(MAKE) do_uploadp
+	$(AT) $(MAKE) --no-print-directory do_uploadp
+	@$(if $(call eq,$(verbose),n),echo upload complete.,true)
 
 # Like do_upload, but for the uploadp target.  See the comments for
 # do_upload.
@@ -2217,6 +2216,7 @@ Major dno commands/targets:\n\
                    define the full path to the file using BOARD_PATH=<path>\n\
   help           - provide a summary of the important targets\n\
   list           - list all available targets\n\
+  list-programmers - list the set of available external programmers\n\
   menu           - invoke a menu system to select board options\n\
   monitor        - monitor the serial connection to the Arduino using\n\
                    the linux screen command.  You may need to define\n\
@@ -2239,6 +2239,8 @@ Major dno commands/targets:\n\
                  - show the current set of extra boards.txt files\n\
   upload         - upload code to the Arduino.  You may need\n\
                    to define DEVICE_PATH=<path to serial device>\n\
+  uploadp        - upload code to the Arduino using a programmer.\n\
+		   As with upload you may need to define DEVICE_PATH.\n\
 \n\
 dno can usually be invoked with no targets and will do the right thing based\n\
 on the directory it is run from.\n\n\

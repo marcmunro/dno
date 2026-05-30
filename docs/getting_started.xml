@@ -330,8 +330,17 @@ blink$
       </programlisting>
     </para>
     <para>
-      Please note that the ridiculous verbosity of this is outside of
-      dno's control.
+      If you dislike the ridiculous verbosity of this, you can set
+      <literal>QUIET=y</literal> on the command line.
+    </para>
+  </section>
+  <section xml:id="uploadp">
+    <title xml:id="uploadp.title" >Uploading Using a Programmer</title>
+    <para>
+      If you have an appropriate <link
+      linkend="using-programmers">programmer</link>, you can also
+      upload your compiled sketch using <literal>dno
+      uploadp</literal>.
     </para>
   </section>
   <section>

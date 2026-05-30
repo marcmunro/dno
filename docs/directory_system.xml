@@ -129,7 +129,7 @@ blink$
       <link linkend='board_type'>board type</link>.  This must be a
       unique <link linkend='board-specifiers'>board-specifier</link>,
       but need not be <link
-      linkend='complete-board-specifier'>completely specified</link>. 
+      linkend='incomplete-specifiers'>completely specified</link>. 
     </para>
     <para>
       Usually all sketch source and header files will be placed in the
@@ -151,9 +151,9 @@ blink$
 	directory include:
 	<itemizedlist>
 	  <listitem>
-	    upload;
+	    upload and uploadp;
 	    <para>
-	      This will attempt to upload the latest executable to a
+	      These will attempt to upload the latest executable to a
 	      connected Arduino board.  See
 	      <link linkend='upload' endterm="upload.title"/>.
 	    </para>
@@ -260,7 +260,13 @@ blink$
       Dno does not really know how to build bootloader code.  It
       expects bootloader code to be built using
       <literal>make</literal>, and running dno in a boot directory
-      will simply result in <literal>make</literal> being invoked.
+      will, by default, simply result in <literal>make</literal> being
+      invoked.
+    <para>
+    </para>
+      If more sophisticated behaviour is required a
+      <literal>dno.mk</literal> file can be added to the directory to
+      provide specific build instructions.
     </para>
   </section>
 </chapter>

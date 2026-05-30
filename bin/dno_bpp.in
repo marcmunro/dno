@@ -64,6 +64,8 @@ usage()
   and to create BOARD_TYPE and BOARD_INFO files.
 
   Options:
+  -a, --arch    Report the full architecture id and path to
+      		boards.txt: vendor.architecture.path
   -f, --full    Report the full board-specifier name with --type.
   -h, --help    Provide this help message and exit.
                 Print this help message and exit.
@@ -1041,6 +1043,13 @@ parse_all_files()
 		}
 	    }
 	}
+	# Extract toolname from path, where path looks like
+	# runtime.tools.TOOLNAME.path
+	#
+	function toolname_for_path(path) {
+	    return gensub(/^runtime.tools.([^.]*).path/, "\\1", 1, path)
+	}
+
 	# Attempt to determine paths for an undefined definition def.
 	# We identify potential paths by calling our enclosing script
 	# (dno_bpp) with the -x parameter.
@@ -1058,7 +1067,8 @@ parse_all_files()
 	    }
 	    for (subpath in subpaths) {
 		while (THIS_SCRIPT " -x \"" base_search_path \
-		       "\" \"" subpath "\"" | getline path > 0)
+		       "\" \"" subpath "\" \"" toolname_for_path(def) \
+		       "\"" | getline path > 0)
 		{
 		    paths[path]++
 		    if (paths[path] >= found_count) {
@@ -1194,6 +1204,7 @@ parse_config_files()
 #
 #   $1 - directory from which to look for a file or directory
 #   $2 - a file or directory to look for with $1
+#   $3 - the name of the tool for which we are finding the path
 #
 # stdout:
 #   The full path for $2 within directory $1.
@@ -1214,9 +1225,8 @@ find_paths()
 	    ls -1d "$1"/*/*/"$2"
 	    ls -1d "$1"/*/*/*/"$2"
 	} 2>/dev/null | grep -v '\*'
-    } |  sed -e "s!$2\$!!"
+    } | grep "/$3/" | sed -e "s!$2\$!!"
 }
-
 
 # Handle options.
 #
@@ -1233,10 +1243,13 @@ findpaths=no
 quiet=no
 short=no
 
-while getopts "bfhilnopqstvx-:" opt; do
+while getopts "abfhilnopqstvx-:" opt; do
     case "${opt}" in
 	-)
 	    case "${OPTARG}" in
+		arch*)
+		    action=arch
+		    ;;
 		board*)
 		    action=path
 		    ;;
@@ -1287,6 +1300,9 @@ while getopts "bfhilnopqstvx-:" opt; do
                     fi
 		    ;;
 	    esac
+	    ;;
+	a)
+	    action=arch
 	    ;;
 	b)
 	    action=path
@@ -1343,7 +1359,7 @@ if [ "${findpaths}" = "yes" ]; then
     # parse_all_finds()
     #
     if [ "d$1" != "d" -a -d "$1" ]; then
-	find_paths "$1" "$2"
+	find_paths "$1" "$2" "$3"
 	exit $?
     else
 	echo "`basename $0`: \"$1\" is not a directory" 1>&2
@@ -1380,6 +1396,16 @@ qualified_matches=`echo "${all_matches}" | qualify_matches "${board_parts[@]}"`
 #echo "QUALIFIED MATCHES:" "${qualified_matches}"
 
 case "${action}" in
+    "arch")
+	if [ "x${qualified_matches}" = "x" ]; then
+	    echo "${board_paths}" | sed -e 's|/boards.txt||'
+	else
+	    echo "${qualified_matches}" | while read match; do
+		  arch=`echo "${match}" | sed -e s'/^\([^.]*.[^.*]\).*/\1/'`
+		  echo "${board_paths}" | grep "^${arch}"
+		done | uniq | sed -e 's|/boards.txt||'
+	fi
+	;;
     "list")
 	list_boards "$1" | board_info ${options}
 	;;

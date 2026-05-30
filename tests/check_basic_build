@@ -92,15 +92,15 @@ check_multiple_inos()
 
 check_esp32()
 {
-    if dno_bpp -q esp32.esp32.esp32; then
+    if dno_bpp -q esp32.esp32.esp32 >/dev/null; then
         cd ..
 	rm blink*ino
 	cp ${SCRIPTDIR}/assets/src/blink0.ino .
 	mkdir esp32
 	cd esp32
         run; dno -j 4 REPORT=y >make.log 2>&1 || fail "esp32 build fails"
-        grep -q "LD.*blink2.ino.o" make.log ||
-	    fail "LD of blink2.ino does not  appear in make output."
+        grep -q "LD.*blink3.ino.o" make.log ||
+	    fail "LD of blink3.ino does not  appear in make output."
     else
 	echo -e "\n  [ESP32 boards not installed.  Skipping esp32 tests]"
     fi
