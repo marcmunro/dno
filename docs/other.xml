@@ -583,8 +583,84 @@ Node 554 says Here, put this fish in your ear
       </para>
       <para>
 	To list the set of available programmers use <literal>dno
-	list-programmers</literal>.
+	list-programmers</literal>.  The set of available programmers
+	will depend on the architecture of board you are using.
       </para>
+    </section>
+    <section>
+      <title>Using an Arduino as an External Programmer</title>
+      <para>
+	If you are using an Arduino board and have a spare arduino,
+	you can use that spare as an external programmer.
+      </para>
+      <para>
+	This is done by loading the <literal>ArduinoISP</literal>
+	sketch onto the Arduino that will be your programmer, and then
+	wiring your programmer to the target Arduino.
+      </para>
+      <section>
+	<title>Uploading the ArduinoISP sketch using dno</title>
+	<para>
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+		Locate the ArduinoISP sketch code.
+	      </para>
+	      <para>
+		The <literal>ArduinoISP</literal> sketch is part of the
+		standard Arduino IDE installation.  Typically it will
+		be found in
+		<literal>/usr/share/doc/arduino/examples/11.ArduinoISP/ArduinoISP/ArduinoISP.ino</literal>.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		Create a project directory for it
+	      </para>
+	      <para>
+		Move to the directory where you want to create your
+		ArduinoISP project.  Then create a project directory,
+		and move into it:
+		<programlisting>
+~$ cd projects
+projects$ mkdir ArduinoISP
+projects$ cd ArduinoISP
+ArduinoISP$ 
+		</programlisting>
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		Copy the sketch into your new directory
+	      </para>
+	      <para>
+		<programlisting>
+ArduinoISP$ cp usr/share/doc/arduino/examples/11.ArduinoISP/ArduinoISP/ArduinoISP.ino .
+ArduinoISP$
+		</programlisting>
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		Compile and upload it
+	      </para>
+	      <para>
+		You will
+	      </para>
+	    </listitem>
+	  </itemizedlist>
+	</para>
+      </section>
+      <section>
+	<title>Wiring the Arduino Programmer</title>
+	<para>
+	  This 
+	  <link
+	      xlink:href="https://github.com/arduino/docs-content/blob/main/content/built-in-examples/10.arduino-isp/ArduinoISP/ArduinoISP.md">github
+	  page</link> describes the wiring and also provides good
+	  background information on this type of programming.
+	</para>
+      </section>
     </section>
   </section>
 </chapter>

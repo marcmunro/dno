@@ -2,7 +2,7 @@
 #       Makefile for building and installing dno, the Arduino build
 #       system
 # 
-#       Copyright (c) 2024, 2025 Marc Munro
+#       Copyright (c) 2024, 2025, 2026 Marc Munro
 #       Author:  Marc Munro
 # 	License: GPL-3.0
 #  

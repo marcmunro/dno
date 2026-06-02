@@ -3181,6 +3181,8 @@ ac_config_files="$ac_config_files bin/dno_prog"
 
 ac_config_files="$ac_config_files bin/dno_menu"
 
+ac_config_files="$ac_config_files bin/dno_ino2c"
+
 ac_config_files="$ac_config_files bin/dno"
 
 ac_config_files="$ac_config_files man/BOARD_INFO.md"
@@ -3204,6 +3206,8 @@ ac_config_files="$ac_config_files man/dno_menu.md"
 ac_config_files="$ac_config_files man/dno_prog.md"
 
 ac_config_files="$ac_config_files man/dno_requote.md"
+
+ac_config_files="$ac_config_files man/dno_ino2c.md"
 
 ac_config_files="$ac_config_files README.md"
 
@@ -3921,6 +3925,7 @@ do
     "bin/dno_dirinfo") CONFIG_FILES="$CONFIG_FILES bin/dno_dirinfo" ;;
     "bin/dno_prog") CONFIG_FILES="$CONFIG_FILES bin/dno_prog" ;;
     "bin/dno_menu") CONFIG_FILES="$CONFIG_FILES bin/dno_menu" ;;
+    "bin/dno_ino2c") CONFIG_FILES="$CONFIG_FILES bin/dno_ino2c" ;;
     "bin/dno") CONFIG_FILES="$CONFIG_FILES bin/dno" ;;
     "man/BOARD_INFO.md") CONFIG_FILES="$CONFIG_FILES man/BOARD_INFO.md" ;;
     "man/BOARD_OPTIONS.md") CONFIG_FILES="$CONFIG_FILES man/BOARD_OPTIONS.md" ;;
@@ -3933,6 +3938,7 @@ do
     "man/dno_menu.md") CONFIG_FILES="$CONFIG_FILES man/dno_menu.md" ;;
     "man/dno_prog.md") CONFIG_FILES="$CONFIG_FILES man/dno_prog.md" ;;
     "man/dno_requote.md") CONFIG_FILES="$CONFIG_FILES man/dno_requote.md" ;;
+    "man/dno_ino2c.md") CONFIG_FILES="$CONFIG_FILES man/dno_ino2c.md" ;;
     "README.md") CONFIG_FILES="$CONFIG_FILES README.md" ;;
     "docs/dno_vars.ent") CONFIG_FILES="$CONFIG_FILES docs/dno_vars.ent" ;;
 

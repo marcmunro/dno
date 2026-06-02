@@ -517,6 +517,13 @@ define SETBAUD
 		 9600))
 endef
 
+##
+# QFILES
+# Quote each valid filename.
+#
+define QFILES
+  $(foreach file,$1,$(and $(wildcard $(file)),"$(file)"))
+endef
 
 # DNO_STARTDIR is set when we are recursing for one of the clean targets.
 # In these cases we just want to get started as quickly as possible,
@@ -1144,39 +1151,12 @@ ifeq "$(HAVE_CROSS_BUILD_TARGETS)" "t"
     #
     ino_compiler_flags = -x c++ --include Arduino.h
 
-    # For debugging purposes we create a copy of the concatenated .ino
-    # file sent to the compiler.
-    #
-    ifdef DEBUG
-      INO_SRC_COPY = | tee $(notdir $(INO_MAIN)).dbg
-    else
-      INO_SRC_COPY = 
-    endif
-
-    # Command to extract function prototypes from .ino files.  These
-    # are needed for .ino files to work without the developer being
-    # burdened with needing to understand programming.  Note the
-    # nasty coupling between the arduino-ctags output format and
-    # the sed script to translate it into something usable.  It's
-    # horrible but it works, for now at least.
-    #
-    INO_PROTOTYPES = (arduino-ctags -u --language-force=c++ -f - \
-		        --c++-kinds=spf --fields=STt \
-		        /dev/null $(wildcard $(INO_MAIN)) $(INO_INCLUSIONS) | \
-	sed -e "s/^\([^[:space:]]*\).*ture:\(([^)]*)\).*type:\(.*\)/\3 \1\2;/")
-
-    # Command to create a compilable version of our .ino files as
-    # stdout.  This can be piped in to our compilation command.
-    #
-    $(eval JOIN_INO = $(value INO_PROTOTYPES) | \
-	         cat - $$(wildcard $$(INO_MAIN)) \
-		       $$(INO_INCLUSIONS) $(value INO_SRC_COPY))
-
     # Define the recipe for compiling .ino files as described above.
     #
     $(eval recipe.ino.o.pattern = \
-      $(value JOIN_INO) | \
-        $(subst "$$(source_file)", $$(ino_compiler_flags) -, \
+      set -o pipefail; dno_ino2c \
+	$$(call QFILES,$$(INO_MAIN) $$(INO_INCLUSIONS)) | \
+        $$(subst "$$(source_file)", $$(ino_compiler_flags) -, \
 	        $(value recipe.cpp.o.pattern)))
 
     # define a pattern for uploading eeprom files.  Don't know why
@@ -1608,8 +1588,13 @@ endif
 
 root_code_info root_build_info:
 	$(TARGET)
-	@echo "Nothing to be done here (in `pwd`)."
-	@echo "Try dno ./BOARD_TYPE or dno tests"
+	$(AT) if [ "x$(BOARD)" != "x" ]; then \
+	    $(MAKE) --no-print-directory BOARD_TYPE; \
+	    $(MAKE) --no-print-directory;  \
+	else \
+	    echo "Nothing to be done here (in `pwd`)."; \
+	    echo "Try dno ./BOARD_TYPE or dno tests"; \
+	fi
 
 lib:
 	$(TARGET)
@@ -2195,7 +2180,7 @@ help:
   dno [[target] [VARIABLE=value]]...\n\n\
 Major dno commands/targets:\n\
   boot           - Build a bootloader image.  You need to be in a\n\
-		   boot directory.\n\
+                   boot directory.\n\
   build          - Build the local arduino code (default target)\n\
   burn           - Burn a bootloader to an arduino using a programmer.\n\
   cat            - Cat the output from the board's serial port to\n\
