@@ -82,7 +82,7 @@
 	architecture in addition to the board name.
       </para>
     </section>
-    <section>
+    <section xml:id="board-options">
       <title>Specifying Board Options</title>
       <para>
 	Board options can be appended to board-specifiers to provide
@@ -142,8 +142,8 @@
     </para>
     <para>
       What all of this means is that <literal>dno</literal> will
-      only do as much work as it has to in order to achieve
-      anything.
+      only do as much work as it has to in order to ensure everything
+      is up to date.
     </para>
     <section xml:id="targets">
       <title>Dno "Commands" Are <literal>make</literal> "Targets"</title>
@@ -241,9 +241,11 @@ blink$
 	    </para>
 	    <para>
 	      This is used to identify a specific type of Arduino
-	      board.  For boards that have multiple CPU options, the
-	      cpu can also be specified within this variable following
-	      a period (".").  
+	      board.  For boards that have options, those options can
+	      also be specified within this variable following a
+	      period (".").  See <link
+	      linkend="board-options">Specifiying Board Options</link>
+	      for more.
 	    </para>
 	    <para>
 	      Targets which make use of this variable are:
@@ -412,8 +414,9 @@ blink$
       As an alternative to an explicit <literal>BOARD_TYPE</literal>
       file, dno allows board-specific subdirectories to be added to a
       project.  These directories are given the name of the board in
-      the same format as the contents of a
-      <literal>BOARD_TYPE</literal> file.
+      the same format as would be given when building the 
+      <literal>BOARD_TYPE</literal> file (see <link
+      linkend="board-specifiers">Board Specifiers</link> for more).
     </para>
     <para>
       This allows you to build code for multiple types of boards
@@ -582,8 +585,7 @@ pro.8MHzatmega328$
     <para>
       Dno parses these files, based on the user's
       <link linkend='board_type' endterm="board_type.title">
-	board selection
-      </link>, creating a file that conforms with
+	board selection</link>, creating a file that conforms with
       <literal>makefile</literal> syntax and provides all of the
       definitions necessary for compiling, linking, etc, Arduino
       programs.
@@ -598,8 +600,8 @@ pro.8MHzatmega328$
     <para>
       It is created by running <literal>dno menu</literal>, which
       presents the user with menus of board-specific configuration
-      options.  Note that this does not include any options that are
-      specified by the board directory name or the
+      options.  Note that this will ignore any options that are
+      already specified by the board directory name or the
       <literal>BOARD_TYPE</literal> file.
     </para>
     <para>
@@ -768,7 +770,7 @@ pro.8MHzatmega328$
 	    The benchmarking results are striking in their
 	    demonstration of how inefficient the standard IDE is.
 	    When no code has been changed since the last build, it
-	    will still recompile and rebuild your sketch, and do it
+	    will still recompile and rebuild your sketch.  And do it
 	    slowly.
 	  </para>
 	</listitem>

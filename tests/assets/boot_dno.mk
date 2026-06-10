@@ -17,7 +17,7 @@ BURN_DEPS := optiboot_atmega328_$(build.mcu).hex
 # Make the boot target do nothing useful itself.  Its dependencies
 # will cause the actual build to be done.
 #
-BOOT_BUILDER := @echo "Bootloader successfully built."
+BOOT_BUILDER := echo "Bootloader successfully built."
 
 optiboot_atmega328_$(build.mcu).hex: boot.h optiboot.c pin_defs.h stk500.h
 	$(AT) echo Imagine $@ being built here!

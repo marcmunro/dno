@@ -262,8 +262,8 @@ blink$
       <literal>make</literal>, and running dno in a boot directory
       will, by default, simply result in <literal>make</literal> being
       invoked.
-    <para>
     </para>
+    <para>
       If more sophisticated behaviour is required a
       <literal>dno.mk</literal> file can be added to the directory to
       provide specific build instructions.

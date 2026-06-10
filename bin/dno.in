@@ -552,14 +552,22 @@ ifndef QUICKSTART
 # allowing it to be dynamically discovered.  Bootloader builds require
 # an external build command to be run.  By default this will be make,
 # but dno.mk can redefine BOOT_BUILDER to be something else.
-# BOOT_TARGET may also be redefined.
+# DEFAULT_BOOT_TARGET may also be redefined.
 #
 # BOOT_BUILDER runs make with MAKEFLAGS removed from env
 #
-BOOT_BUILDER := env -u MAKEFLAGS $(REAL_MAKE) --no-print-directory
-BOOT_TARGET := default_boot_target
-BURN_DEPS := $(BOOT_TARGET)
+BOOT_BUILDER  = env -u MAKEFLAGS $(REAL_MAKE) $(BOOT_TARGET) \
+	       --no-print-directory
+DEFAULT_BOOT_TARGET = default_boot_target
+BURN_DEPS = $(DEFAULT_BOOT_TARGET)
+BOOTLOADER_IMAGE =`ls -1t *hex *bin 2>/dev/null | head`
 -include dno.mk
+
+$(call debug,BOOT_BUILDER)
+$(call debug,BOOT_TARGET)
+$(call debug,DEFAULT_BOOT_TARGET)
+$(call debug,BURN_DEPS)
+$(call debug,BOOTLOADER_IMAGE)
 
 ifndef DIR_TYPE
   DIR_TYPE := $(shell $(BINDIR)/dno_dirinfo)
@@ -1018,6 +1026,16 @@ ifeq "$(IN_BOARD_DIR)" "t"
 
     # Before we include the BOARD_INFO file, we will check that it does
     # not need to be rebuilt.
+
+    # If dno.mk used to exist but has been deleted, we'll remove the
+    # BOARD_INFO to cause a rebuild.  Otherwise dno.mk is just a
+    # dependency of BOAR_INFO
+    ifneq "$(wildcard dno.mk)" "dno.mk"
+      DNO_MK_USED != grep "^DNO_MK =" BOARD_INFO
+      ifneq "" "$(DNO_MK_USED)"
+        $(shell rm -f BOARD_INFO)
+      endif
+    endif 
     ifeq "BOARD_INFO" "$(wildcard BOARD_INFO)"
       # We have a BOARD_INFO file.  We must check that it is valid for
       # what we are trying to build...
@@ -1387,10 +1405,11 @@ $(call debug,BOARD)
 
 BOARD_INFO: $(BI_DEPS) $(PLATFORM_LOCAL) $(BOARDS_LOCAL) \
 	    $(BOARD_FILE) $(PLATFORM_FILE) $(wildcard BOARD_OPTIONS) \
-	    | check_extra_boards
+	     $(wildcard dno.mk) | check_extra_boards
 	$(TARGET)
 	$(FEEDBACK) Creating $@...
 	$(AT)if $(BPP) -p $(BOARD) >$@2; then \
+	    [ -f dno.mk ] && echo "DNO_MK = `pwd`/dno.mk" >>$@2; \
 	    mv $@2 $@; \
 	else \
 	    rm -f $@2; false; fi
@@ -1646,61 +1665,52 @@ endif
 .PHONY: boot burn default_boot_target
 
 ifeq "$(DIR_TYPE)" "boot"
-  # The boot image in the boot directory  has to be biult by tools
+  # The boot image in the boot directory  has to be built by tools
   # outside of dno.  The tool to perform the build is defined in
   # BOOT_BUILDER and defaults to make.
-  #
-  # If you want to change this, a dno.mk file can be placed in the
-  # boot directory which can redefine BOOT_BUILDER, BOOT_DEPS and
-  # BURN_DEPS to make this target do more or less whatever you want.
-  # For example:
-  # # dno.mk
-  # # Makefile inclusion for dno to enable dno to build the
-  # # bootloader directly.
-  # 
-  # # Need the board.mcu definition for the next definitions to work.
-  # #
-  # include ../BOARD_INFO
-  # 
-  # # This makes the boot target run our explicit build target below.
-  # #
-  # BOOT_DEPS := optiboot_atmega328_$(build.mcu).hex
-  # 
-  # # Burn is also dependent on the same target.
-  # #
-  # BURN_DEPS := optiboot_atmega328_$(build.mcu).hex
-  # 
-  # # Make the boot target do nothing useful itself.  Its dependencies
-  # # will cause the actual build to be done.
-  # #
-  # BOOT_BUILDER := @echo "Bootloader successfully built."
-  # 
-  # optiboot_atmega328_$(build.mcu).hex: boot.h optiboot.c pin_defs.h stk500.h
-  # 	$(AT) echo Imagine $@ being built here!
-  #
 
-  $(BOOT_TARGET) boot: ../BOARD_INFO ../PROGRAMMER $(BOOT_DEPS)
+  # PROGRAMMER_FILE is defined to be the local copy of the PROGRAMMER
+  # file if it exists, or the parent directory's copy if that exists,
+  # or the local copy (which will have to be created) if neither
+  # exists.
+  #
+  PROGRAMMER_FILE = $(or $(wildcard PROGRAMMER),\
+		         $(wildcard ../PROGRAMMER), PROGRAMMER)
+
+  $(DEFAULT_BOOT_TARGET) boot: $(BOOT_DEPS)
 	$(TARGET)
-	$(BOOT_BUILDER)
+	$(FEEDBACK) CREATE BOOTIMAGE:
+	$(AT) $(call indent,$(BOOT_BUILDER))
+
+ # This target is used from a boot directory in order to rebuild
+  # BOARD_INFO in the parent directory.  We use force to ensure that
+  # this target is always run - this ensures that BOARD_INFO gets
+  # updated if necessary.
+  #
+  ../BOARD_INFO:
+	$(TARGET)
+	$(AT) cd ..; dno BOARD_INFO --no-print-directory -s
 
   # If we are going to do a burn we must include the following files.
   # This will cause them to be rebuilt if necessary.
   ifneq "" "$(filter burn,$(MAKECMDGOALS))"
     include ../BOARD_INFO
-    include ../PROGRAMMER
+    include $(PROGRAMMER_FILE)
   endif
 
-  burn: $(BURN_DEPS) check_device_path
+  burn: $(BURN_DEPS) ../BOARD_INFO $(PROGRAMMER_FILE) check_device_path
 	$(TARGET)
+	@echo "About to burn bootloader: $(BOOTLOADER_IMAGE)"
+	@$(call CONFIRM,Press Y to continue,Bailing out on user request)
 	@# $(eval $(call SETVERBOSE,bootloader))
-	$(AT) bloader=`ls -1t *hex *bin 2>/dev/null | head`; \
+	$(AT) bloader=$(BOOTLOADER_IMAGE); \
 	      burn_cmd=`echo $(tools.$(bootloader.tool).bootloader.pattern) |\
 			sed -e "s!$(runtime.platform.path)/bootloaders/$(bootloader.file)!$${bloader}!"`; \
 	       $(FEEDBACK_ECHO) Executing: $${burn_cmd}; \
 	       $${burn_cmd}
 
 else ifeq "$(findstring _board, $(DIR_TYPE))" "_board"
-  $(BOOT_TARGET) boot:
+  $(DEFAULT_BOOT_TARGET) boot:
 	@echo -e "\n  Error: Must be in a boot directory to build $@.\n" 1>&2
 	@exit 2
 
@@ -1709,7 +1719,7 @@ else ifeq "$(findstring _board, $(DIR_TYPE))" "_board"
     include PROGRAMMER
   endif
 
-  burn: BOARD_INFO PROGRAMMER check_device_path
+  burn: $(PROGRAMMER_FILE) check_device_path
 	$(TARGET)
 	@echo "About to burn bootloader: $(runtime.platform.path)/bootloaders/$(bootloader.file)"
 	@$(call CONFIRM,Press Y to continue,Bailing out on user request)
@@ -1723,79 +1733,15 @@ else
 	@exit 2
 
   burn:
-	@echo -e "\n  Error: Cannot burn images in"\
+	@echo -e "\n  Error: Cannot burn bootloader images from"\
 		  "$(DIR_TYPE) directories.\n" 1>&2
 	@exit 2
 endif
-
-ifeq "x" "y"
-ifeq "$(DIR_TYPE)" "boot"
-
-  # Targets for the boot directory.
-  .PHONY: boot burn default_boot_target FORCE
-
-  # A boot build relies on external build commands.  By default, this
-  # will be make, but other commands are possible and will be defined
-  # in a dno.mk file.  In order that
-  #
-
-  $(BOOT_TARGET): ../BOARD_INFO
-	$(TARGET)
-	$(FEEDBACK) Creating bootloader
-	$(AT) $(BOOT_BUILDER)
-
-
-  # This target is used from a boot directory in order to rebuild
-  # BOARD_INFO in the parent directory.  We use force to ensure that
-  # this target is always run - this ensures that BOARD_INFO gets
-  # updated if necessary.
-  #
-  ../BOARD_INFO: FORCE
-	$(TARGET)
-	$(AT) cd ..; dno BOARD_INFO --no-print-directory -s
-
-  # This target is used from a boot directory in order to rebuild
-  # BOARD_INFO in the parent directory.  We use force to ensure that
-  # this target is always run - this ensures that BOARD_INFO gets
-  # updated if necessary.
-  #
-  ../PROGRAMMER: FORCE
-	$(TARGET)
-	$(AT) cd ..; dno PROGRAMMER --no-print-directory -s
-
-
-  default_boot_target boot: $(BOOT_TARGET)
-
-# Temporary while trying to get burn target to work.
-include ../BOARD_INFO
-include ../PROGRAMMER
-
-  burn: ../PROGRAMMER ../BOARD_INFO \
-	check_device_path ## $(BOOT_TARGET)
-	$(TARGET)
-	@# $(eval $(call SETVERBOSE,$(bootloader.tool),bootloader))
-	@echo ZZZZ $(bootloader.verbose)
-	@echo QQQ $(BOOT_TARGET)
-	@echo '$(tools.avrdude.bootloader.pattern)'
-
-else
-  $(BOOT_TARGET) boot:
-	@echo -e "\n  Error: Must be in a boot directory to build $@.\n" 1>&2
-	@exit 2
-
-  burn:
-	@echo -e "\n  Error: Must be in a boot directory to do $@.\n" 1>&2
-	@exit 2
-endif
-endif
-
-
 
 .PHONY: list-programmers show-programmers 
 
 list-programmers listp:
 	$(AT) dno_prog -l
-
 
 
 ################################################################
@@ -1885,7 +1831,7 @@ clean: do_clean do_tidy
 do_pristine: 
 	$(TARGET)
 	$(AT) if [ x`dno_dirinfo` != 'xunknown' ]; then \
-	    (rm BOARD_INFO TAGS tags 2>/dev/null || true); \
+	    (rm BOARD_INFO PROGRAMMER TAGS tags 2>/dev/null || true); \
 	fi
 
 extraclean pristine: do_clean do_tidy
@@ -1944,7 +1890,7 @@ devices:
 check_device_path:
 	$(TARGET)
 	$(AT) if [ "x$(DEVICE_PATH)" = "x<undefined>" ]; then \
-	    echo -e "\n  ERROR: No DEVICE_PATH provided\n" 1>&2; \
+	    echo -e "\n  ERROR: No device detected or DEVICE_PATH provided\n" 1>&2; \
 	    exit 2; fi
 
 # Attempt to reset the Arduino on $(DEVICE_PATH).  This assumes that
@@ -1983,6 +1929,8 @@ monitor: check_device_path
 		     "$(MONITOR_BAUD): C-a k to exit"
 	$(AT)screen $(DEVICE_PATH) $(MONITOR_BAUD)
 
+# cat is used to read the serial port and send it to stdout.
+#
 cat: check_device_path
 	$(TARGET)
 	@# $(call SETBAUD)
@@ -2245,6 +2193,7 @@ list:
 		     {sub(/:.*/, ""); print}}' | uniq | \
 	    grep -v '[%\\$$]' | grep '^[^/]' | sort -u | sed -e 's/^/  /'
 
+$(eval $(DNO_FINAL))
 
 # Local Variables:
 # mode: makefile

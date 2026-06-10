@@ -513,7 +513,7 @@ pro.8MHzatmega328$
 	library, or where to find it.  We have just placed the library
 	into our project directory, and starting using it in the code.
       </para>
-      <para>
+      <para xml:id="blink_with_deferal">
 	So, now we need to start using Deferal objects.
         <programlisting>
 pro.8MHzatmega328$ [edit edit edit]

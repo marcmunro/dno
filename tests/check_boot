@@ -9,16 +9,20 @@ check_boot_cleanup()
 }
 
 # Check boot targets from root directory
+# CONFIRM= on dno command line prevents the press T to continue
+# interaction.
 check_boot_targets_from_root()
 {
     run; dno boot >make.log 2>&1 && fail "boot target in root dir should fail"
     grep -q "Must be in a boot directory" make.log ||
 	fail "Incorrect directory error for boot target"
-    run; dno burn >make.log 2>&1 && fail "burn target in root dir should fail"
+    run; dno burn CONFIRM=>make.log 2>&1 && fail "burn target in root dir should fail"
     grep -q "Cannot burn.*root.*directories" make.log ||
 	fail "Incorrect directory error for burn target in root"
 }
 
+# CONFIRM= on dno command line prevents the press T to continue
+# interaction.
 check_boot_targets_from_build()
 {
     run; dno >make.log 2>&1 || fail "initial dno in build dir fails"
@@ -27,7 +31,7 @@ check_boot_targets_from_build()
 	fail "Incorrect directory error for boot target in build dir"
     # We can perform a burn target here
 
-    run; dno burn >make.log 2>&1 && fail "burn in build dir should fail"
+    run; dno burn CONFIRM=>make.log 2>&1 && fail "burn in build dir should fail"
     grep -q "PROGRAMMER not defined" make.log ||
 	fail "Should fail due to missing PROGRAMMER file"
 
@@ -35,7 +39,7 @@ check_boot_targets_from_build()
 	fail "PROGRAMMER build failed."
 
     # No confirmation provided for burn
-    run; echo n | dno burn >make.log 2>&1 &&
+    run; echo n | dno burn CONFIRM=>make.log 2>&1 &&
 	fail "burn in build dir should fail (2)"
 
     # We cannot actually perform the burn, so we'll do a dry run.
@@ -58,7 +62,7 @@ check_boot_targets_from_boot()
 	fail "hex file not created by initial build in boot"
     # This will fail because the device in invalid but we should get
     # some good stuff in make.log
-    run; dno burn DEVICE_PATH=/dev/wibble VERBOSE=y >make.log 2>&1 &&
+    run; dno burn DEVICE_PATH=/dev/wibble VERBOSE=y CONFIRM=>make.log 2>&1 &&
 	fail "dno burn in boot should fail"
     grep -q "Executing:.*avrdude.*-Uflash:w:optiboot_atmega328.hex:i" make.log ||
 	fail "No avrdude command for <bootloader>.hex"

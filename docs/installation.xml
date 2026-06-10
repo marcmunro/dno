@@ -39,7 +39,7 @@
   </para>
   <para>
     To build documentation: <literal>pandoc</literal>,
-    <literal>xsltproc</literal> and the docbook xslt stylesheets (v4)
+    <literal>xsltproc</literal> and the docbook xslt stylesheets (v5)
     are required.  Tarball-based installations provide pre-built
     documentation so do not need these.
   </para>
@@ -115,6 +115,7 @@ config.status: creating bin/dno_bpp
 config.status: creating bin/dno_dirinfo
 config.status: creating bin/dno_prog
 config.status: creating bin/dno_menu
+config.status: creating bin/dno_ino2c
 config.status: creating bin/dno
 config.status: creating man/BOARD_INFO.md
 config.status: creating man/BOARD_OPTIONS.md
@@ -127,6 +128,7 @@ config.status: creating man/dno_dirinfo.md
 config.status: creating man/dno_menu.md
 config.status: creating man/dno_prog.md
 config.status: creating man/dno_requote.md
+config.status: creating man/dno_ino2c.md
 config.status: creating README.md
 config.status: creating docs/dno_vars.ent
 dno$ 
@@ -154,6 +156,7 @@ dno$ make
   PANDOC man/dno_checksize.1
   PANDOC man/dno_commands_for.1
   PANDOC man/dno_dirinfo.1
+  PANDOC man/dno_ino2c.1
   PANDOC man/dno.1
   PANDOC man/dno_menu.1
   PANDOC man/dno_prog.1
@@ -168,6 +171,7 @@ dno$ make
   PANDOC docs/parts/dno_checksize.xml
   PANDOC docs/parts/dno_commands_for.xml
   PANDOC docs/parts/dno_dirinfo.xml
+  PANDOC docs/parts/dno_ino2c.xml
   PANDOC docs/parts/dno.xml
   PANDOC docs/parts/dno_menu.xml
   PANDOC docs/parts/dno_prog.xml
@@ -193,7 +197,6 @@ Writing ch01.html for chapter
 Writing ch02.html for chapter
 Writing ch03.html for chapter
 Writing ch04.html for chapter
-Error: no ID for constraint linkend: "complete-board-specifier".
 Writing ch05.html for chapter(directory-system)
 Writing ch06.html for chapter
 Writing ch07.html for chapter(docs)
