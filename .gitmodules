@@ -1,0 +1,3 @@
+[submodule "libfoo"]
+	path = tests/assets/lib/Deferal/
+	url = git://github.com/marcmunro/Deferal.git

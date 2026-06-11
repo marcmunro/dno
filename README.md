@@ -70,14 +70,6 @@ Anything else that can run autotools can probably be made to work.
 Windows will not be supported unless someone wants to fork the project
 or work closely with dno's author to make it happen.
 
-## Release Notes
-
-#### 0.9.3
-
-This version has major refactorings and includes a pretty full test
-suite.  New functionality includes handling for external programmers,
-and for building bootloader images.
-
 ## License
 
 dno is distributed under the General Public License version 3.  See
