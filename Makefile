@@ -420,7 +420,7 @@ uninstall:
 .PHONY: release tarball check_commit check_remote check_tag \
 	check_tarball release_tarball release_docs
 
-GIT_UPSTREAM = github origin
+GIT_UPSTREAM = origin
 
 release: check_tarball check_commit check_remote check_tag 
 	@echo RELEASE APPEARS OK.  
