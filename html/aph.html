@@ -1,18 +1,18 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Appendix H. man page for BOARD_INFO(5)</title>
+<title>Appendix H. man page for dno_prog(1)</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno (0.9.2) User Guide">
-<link rel="up" href="index.html" title="Dno (0.9.2) User Guide">
-<link rel="prev" href="apg.html" title="Appendix G. man page for dno_requote(1)">
-<link rel="next" href="api.html" title="Appendix I. man page for BOARD_OPTIONS(5)">
+<link rel="home" href="index.html" title="Dno (0.9.3) User Guide">
+<link rel="up" href="index.html" title="Dno (0.9.3) User Guide">
+<link rel="prev" href="apg.html" title="Appendix G. man page for dno_menu(1)">
+<link rel="next" href="api.html" title="Appendix I. man page for dno_requote(1)">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div class="navheader">
 <table width="100%" summary="Navigation header">
-<tr><th colspan="3" align="center">Appendix H. man page for BOARD_INFO(5)</th></tr>
+<tr><th colspan="3" align="center">Appendix H. man page for dno_prog(1)</th></tr>
 <tr>
 <td width="20%" align="left">
 <a accesskey="p" href="apg.html">Prev</a> </td>
@@ -26,77 +26,105 @@
 <div class="appendix">
 <div class="titlepage"><div>
 <div><h1 class="title">
-<a name="idm1818"></a>man page for BOARD_INFO(5)</h1></div>
+<a name="id1357"></a>man page for dno_prog(1)</h1></div>
 <div><div class="authorgroup"><div class="author"><h3 class="author">
 <span class="firstname">Marc</span> <span class="surname">Munro</span>
 </h3></div></div></div>
 </div></div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="BOARD_INFO-name"></a>NAME</h2></div></div></div>
+<a name="dno_prog-name"></a>NAME</h2></div></div></div>
 <p>
-      BOARD_INFO - file of Arduino properties in make(1) syntax
+      dno_prog - programmers.txt file parser for the dno Arduino build
+      system.
     </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="BOARD_INFO-description"></a>DESCRIPTION</h2></div></div></div>
+<a name="dno_prog-synopsis"></a>SYNOPSIS</h2></div></div></div>
 <p>
-      BOARD_INFO files are used by
-      <span class="strong"><strong>dno</strong></span>(1) to define all of the
-      various properties required in order to compile and build code for
-      an Arduino board, in make format. This means that BOARD_INFO files
-      can be included into makefiles, which is exactly what
-      <span class="strong"><strong>dno</strong></span> does.
-    </p>
-<p>
-      BOARD_INFO files are derived, primarily, from the Arduino
-      platform.txt and boards.txt files that are supplied with Arduino
-      software, though may also contain entries derived from a local
-      platform.local.txt file.
-    </p>
-<p>
-      BOARD_INFO files are created by
-      <span class="strong"><strong>dno_bpp</strong></span>, which performs the
-      following operations on the incoming files:
-    </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem"><p>
-          header definitions are added to identify the source files, the
-          host OS, and the dno version;
-        </p></li>
-<li class="listitem"><p>
-          properties appearing on the right hand side of definitions are
-          converted into makefile variables;
-        </p></li>
-<li class="listitem"><p>
-          unused board definitions are filtered out;
-        </p></li>
-<li class="listitem"><p>
-          default menu entries are identified;
-        </p></li>
-<li class="listitem"><p>
-          undefined build paths are discovered and defined;
-        </p></li>
-<li class="listitem"><p>
-          quotes appearing in quoted strings are escaped.
-        </p></li>
-</ul></div>
-<p>
-      Note
-    </p>
-<p>
-      FILES platform.txt boards.txt platform.local.txt
+      <span class="strong"><strong>dno_prog</strong></span>
+      <a class="link" href="aph.html#dno_prog-options" title="OPTIONS">OPTIONS</a> {ARG]
     </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="BOARD_INFO-see-also"></a>SEE ALSO</h2></div></div></div>
+<a name="dno_prog-description"></a>DESCRIPTION</h2></div></div></div>
 <p>
-      <span class="strong"><strong>make</strong></span>(1)
+      Parses programmers.txt file to identify, list or extract
+      definitions for a programmer.
+    </p>
+<p>
+      This is part of the dno Arduino software builder package.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno_prog-options"></a>OPTIONS</h2></div></div></div>
+<p>
+      <span class="strong"><strong>-c, –check</strong></span>
+    </p>
+<p>
+      Determine whether arg identifies a known programmer for the
+      current Arduino board type. Returns success if so.
+    </p>
+<p>
+      <span class="strong"><strong>-e, –extract</strong></span>
+    </p>
+<p>
+      Extract programmer details for the programmer given as arg.
+    </p>
+<p>
+      <span class="strong"><strong>-h, –help</strong></span>
+    </p>
+<p>
+      Provide basic help.
+    </p>
+<p>
+      <span class="strong"><strong>-l, –list</strong></span>
+    </p>
+<p>
+      List the available programmers for the current Arduino board type.
+    </p>
+<p>
+      <span class="strong"><strong>-s, –show*</strong></span>
+    </p>
+<p>
+      In combination with -l, show the path to our programmers.txt file.
+    </p>
+<p>
+      <span class="strong"><strong>-v, –version</strong></span>
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno_prog-see-also"></a>SEE ALSO</h2></div></div></div>
+<p>
       <span class="strong"><strong>dno</strong></span>(1)
-      <span class="strong"><strong>dno_bpp</strong></span>
+      <span class="strong"><strong>BOARD_INFO</strong></span>(5)
       <span class="strong"><strong>BOARD_TYPE</strong></span>(5)
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="dno_prog-license"></a>LICENSE</h2></div></div></div>
+<p>
+      <span class="strong"><strong>dno_prog</strong></span> is free software: you
+      can redistribute it and/or modify it under the terms of the GNU
+      General Public License as published by the Free Software
+      Foundation, version 3 of the License.
+    </p>
+<p>
+      <span class="strong"><strong>dno_prog</strong></span> is distributed in the
+      hope that it will be useful, but WITHOUT ANY WARRANTY; without
+      even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+      PARTICULAR PURPOSE. See the GNU General Public License for more
+      details.
+    </p>
+<p>
+      You should have received a copy of the GNU General Public License
+      along with dno. If not, see
+      <a class="link" href="https://www.gnu.org/licenses/" target="_top">https://www.gnu.org/licenses/</a>.
     </p>
 </div>
 </div>
@@ -111,9 +139,9 @@
 </td>
 </tr>
 <tr>
-<td width="40%" align="left" valign="top">Appendix G. man page for dno_requote(1) </td>
+<td width="40%" align="left" valign="top">Appendix G. man page for dno_menu(1) </td>
 <td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
-<td width="40%" align="right" valign="top"> Appendix I. man page for BOARD_OPTIONS(5)</td>
+<td width="40%" align="right" valign="top"> Appendix I. man page for dno_requote(1)</td>
 </tr>
 </table>
 </div>

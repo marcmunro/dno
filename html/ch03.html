@@ -4,8 +4,8 @@
 <title>Chapter 3. Getting Started</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno (0.9.2) User Guide">
-<link rel="up" href="index.html" title="Dno (0.9.2) User Guide">
+<link rel="home" href="index.html" title="Dno (0.9.3) User Guide">
+<link rel="up" href="index.html" title="Dno (0.9.3) User Guide">
 <link rel="prev" href="ch02.html" title="Chapter 2. Installing And Updating Arduino Toolsets">
 <link rel="next" href="ch04.html" title="Chapter 4. A Little Exploration">
 </head>
@@ -25,7 +25,7 @@
 </div>
 <div class="chapter">
 <div class="titlepage"><div><div><h1 class="title">
-<a name="idm228"></a>Chapter 3. Getting Started</h1></div></div></div>
+<a name="id1341"></a>Chapter 3. Getting Started</h1></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="getting_started"></a>3.1. Creating The Project Directory</h2></div></div></div>
@@ -58,7 +58,7 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm239"></a>3.2. Create An Initial Sketch</h2></div></div></div>
+<a name="id1597"></a>3.2. Create An Initial Sketch</h2></div></div></div>
 <p>
       Let's create a copy of the much-used
       <code class="literal">blink.ino</code> sketch.  You can use your favourite
@@ -135,11 +135,11 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm252"></a>3.3. Select Our Board</h2></div></div></div>
+<a name="id1610"></a>3.3. Select Our Board</h2></div></div></div>
 <p>
       We can tell dno what sort of board to build for by creating a
       <code class="literal">BOARD_TYPE</code> file.  The simplest way to do this
-      is using dno's <code class="literal">BOARD_TYPE</code> <a class="link" href="ch04.html#targets" title='4.2.2. Dno "Commands" Are make "Targets"'>target</a>.
+      is using dno's <code class="literal">BOARD_TYPE</code> <a class="link" href="ch04.html#targets" title='4.2.1. Dno "Commands" Are make "Targets"'>target</a>.
     </p>
 <p>
       To see what boards are available use <code class="literal">dno
@@ -193,20 +193,19 @@ blink$
     </p>
 <p>
       We see that it contains the full
-      <a class="link" href="ch04.html#board-specifiers" title="4.1. On Board Specifiers">board-specifier</a> and cpu
+      <a class="link" href="ch04.html#board-specifiers" title="4.1. Board Specifiers">board-specifier</a> and cpu
       identification for our pro mini board.  
     </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm271"></a>3.4. Compiling/Building</h2></div></div></div>
+<a name="id1629"></a>3.4. Compiling/Building</h2></div></div></div>
 <p>
       Let's now run <code class="literal">dno</code> again and see what happens:
       </p>
 <pre class="programlisting">
 blink$ dno
-  Creating BOARD_INFO...
-  C++  [.] blink.ino
+  C++  ./blink.ino 
   AS  [core] wiring_pulse.S
   C  [core] wiring_shift.c
   C  [core] wiring_pulse.c
@@ -235,12 +234,18 @@ blink$ dno
   AR [libcore] abi.o...
   LD blink.ino.o
   OBJCOPY (hex) blink.elf
+Program size:    924 out of 30720  (3%: 29796 remaining)
+   Data size:      9 out of 2048   (0%: 2039 remaining)
+marc:blink$ 
+blink$ ls
+blink.ino  BOARD_INFO  BOARD_TYPE  build  pro.8MHzatmega328
+blink$ rm -rf pro.8MHzatmega328/
 blink$ ls -l
-total 28
--rw-r--r-- 1 user user  1233 Jan  6 11:04 blink.ino
--rw-r--r-- 1 user user 12701 Jan  6 12:15 BOARD_INFO
--rw-r--r-- 1 user user    18 Jan  6 12:04 BOARD_TYPE
-drwxr-xr-x 3 user user  4096 Jan  6 12:15 build
+total 24
+-rw-r--r-- 1 user user  1192 May  9 17:02 blink.ino
+-rw-r--r-- 1 user user 11086 May  9 17:03 BOARD_INFO
+-rw-r--r-- 1 user user    34 May  9 17:03 BOARD_TYPE
+drwxr-xr-x 3 user user  4096 May  9 17:03 build
 blink$ 
       </pre>
 <p>
@@ -258,7 +263,7 @@ blink$
       (<code class="literal">OBJCOPY</code>).
     </p>
 <p>
-      Note thet the dno output shows a sanitised version of what is
+      Note that the dno output shows a sanitised version of what is
       actually being done.  This is mainly for aesthetic reasons:
       showing the full commands that are executed is pretty ugly.  But
       if that's what you want, you can (as shown <a class="link" href="ch04.html#VERBOSE">here</a>) set <code class="literal">VERBOSE</code> on
@@ -275,14 +280,14 @@ blink$ dno VERBOSE=y
       all of our object, lib and executable files are created:
       </p>
 <pre class="programlisting">
-blink$ ls -l build
+blink$ ls -l build/
 total 372
--rwxr-xr-x 1 user user  14108 Jan  6 12:15 blink.elf
--rw-r--r-- 1 user user   2615 Jan  6 12:15 blink.hex
--rw-r--r-- 1 user user   1104 Jan  6 12:15 blink.ino.d
--rw-r--r-- 1 user user   3860 Jan  6 12:15 blink.ino.o
-drwxr-xr-x 2 user user   4096 Jan  6 12:15 libcore
--rw-r--r-- 1 user user 345554 Jan  6 12:15 libcore.a
+-rwxr-xr-x 1 user user  14104 May 10 12:47 blink.elf
+-rw-r--r-- 1 user user   2615 May 10 12:47 blink.hex
+-rw-r--r-- 1 user user   1113 May 10 12:47 blink.ino.d
+-rw-r--r-- 1 user user   3840 May 10 12:47 blink.ino.o
+drwxr-xr-x 2 user user   4096 May 10 12:47 libcore
+-rw-r--r-- 1 user user 345462 May 10 12:47 libcore.a
 blink$ ls build/libcore
 abi.d		   HardwareSerial.o  Stream.d	       wiring.o
 abi.o		   hooks.d	     Stream.o	       wiring_pulse.d
@@ -314,8 +319,8 @@ blink$
     </p>
 <p>
       Note that the message says <code class="literal">make:...</code>.  This is
-      because dno is <a class="link" href="ch04.html#dno_is_make" title="4.2. On Being Based On make">implemented using
-      <code class="literal">make</code></a>.
+      because dno is <a class="link" href="ch04.html#dno_is_make" title="4.2. Dno is Based on make">implemented using
+      <code class="literal">GNU make</code></a>.
     </p>
 </div>
 <div class="section">
@@ -381,13 +386,22 @@ blink$
 <p>
     </p>
 <p>
-      Please note that the ridiculous verbosity of this is outside of
-      dno's control.
+      If you dislike the ridiculous verbosity of this, you can set
+      <code class="literal">QUIET=y</code> on the command line.
     </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm306"></a>3.6. In Summary</h2></div></div></div>
+<a name="uploadp"></a>3.6. Uploading Using a Programmer</h2></div></div></div>
+<p>
+      If you have an appropriate <a class="link" href="ch08.html#using-programmers" title="8.7. Using External Programmers">programmer</a>, you can also
+      upload your compiled sketch using <code class="literal">dno
+      uploadp</code>.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="id1670"></a>3.7. In Summary</h2></div></div></div>
 <p>
       In summary, to create a brand new project, blink, from scratch,
       and upload it to an Arduino board takes only the following steps

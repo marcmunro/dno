@@ -4,8 +4,8 @@
 <title>Chapter 5. The Dno Directory System</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno (0.9.2) User Guide">
-<link rel="up" href="index.html" title="Dno (0.9.2) User Guide">
+<link rel="home" href="index.html" title="Dno (0.9.3) User Guide">
+<link rel="up" href="index.html" title="Dno (0.9.3) User Guide">
 <link rel="prev" href="ch04.html" title="Chapter 4. A Little Exploration">
 <link rel="next" href="ch06.html" title="Chapter 6. Libraries">
 </head>
@@ -52,7 +52,10 @@
 	  a <code class="literal">tests</code> subdirectory;
 	</li>
 <li class="listitem">
-	  a <code class="literal">build</code> subdirectory.
+	  a <code class="literal">build</code> subdirectory;
+	</li>
+<li class="listitem">
+	  a <code class="literal">boot</code> subdirectory.
 	</li>
 </ul></div>
 <p>
@@ -89,7 +92,7 @@
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm704"></a>5.1.1. 
+<a name="id2061"></a>5.1.1. 
 	Running <code class="literal">dno</code> in the Project/Root Directory
       </h3></div></div></div>
 <p>
@@ -125,7 +128,7 @@
       </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm718"></a>5.1.1.1. With a <code class="literal">BOARD_TYPE</code> File</h4></div></div></div>
+<a name="id2075"></a>5.1.1.1. With a <code class="literal">BOARD_TYPE</code> File</h4></div></div></div>
 <p>
 	  When a <code class="literal">BOARD_TYPE</code> file is present in the
 	  project directory, <code class="literal">dno</code> will attempt to
@@ -135,7 +138,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm725"></a>5.1.1.2. Without a <code class="literal">BOARD_TYPE</code> File</h4></div></div></div>
+<a name="id2082"></a>5.1.1.2. Without a <code class="literal">BOARD_TYPE</code> File</h4></div></div></div>
 <p>
 	  In the absence of a <code class="literal">BOARD_TYPE</code> file in the
 	  project directory, <code class="literal">dno</code> will not be able
@@ -157,8 +160,10 @@ blink$
 <a name="board_dir"></a>5.2. Board Subdirectories</h2></div></div></div>
 <p>
       A board subdirectory is used as the home directory for builds
-      for a specific board.  The name of the directory providing the
-      <a class="link" href="ch04.html#board_type" title="4.4.  The BOARD_TYPE File, And Board Types">board type</a>.
+      for a specific board.  The name of the directory provides the
+      <a class="link" href="ch04.html#board_type" title="4.4.  The BOARD_TYPE File, And Board Types">board type</a>.  This must be a
+      unique <a class="link" href="ch04.html#board-specifiers" title="4.1. Board Specifiers">board-specifier</a>,
+      but need not be <a class="link" href="ch04.html#incomplete-specifiers">completely specified</a>. 
     </p>
 <p>
       Usually all sketch source and header files will be placed in the
@@ -169,7 +174,7 @@ blink$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm737"></a>5.2.1. Running <code class="literal">dno</code> in a Board Directory</h3></div></div></div>
+<a name="id2096"></a>5.2.1. Running <code class="literal">dno</code> in a Board Directory</h3></div></div></div>
 <p>
 	Running <code class="literal">dno</code> without an explicit target in a
 	board directory will compile and link any code that needs to
@@ -182,9 +187,9 @@ blink$
 	</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
-	    upload;
+	    upload and uploadp;
 	    <p>
-	      This will attempt to upload the latest executable to a
+	      These will attempt to upload the latest executable to a
 	      connected Arduino board.  See
 	      <a class="link" href="ch03.html#upload" title="3.5. Uploading To A Board">Uploading To A Board</a>.
 	    </p>
@@ -194,7 +199,7 @@ blink$
 	    <p>
 	      This will attempt to upload an eeprom image to a 
 	      connected Arduino board.  See
-	      <a class="link" href="ch08.html#eeprom" title="8.6. EEPROMs">EEPROMs</a>.
+	      <a class="link" href="ch08.html#eeprom" title="8.9. EEPROMs">EEPROMs</a>.
 	    </p>
 </li>
 </ul></div>
@@ -204,7 +209,7 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm751"></a>5.3. Library Subdirectories</h2></div></div></div>
+<a name="id2110"></a>5.3. Library Subdirectories</h2></div></div></div>
 <p>
       A library subdirectory contains the source code for a library.
       This may be a locally modified version of one of the standard
@@ -224,7 +229,7 @@ blink$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm760"></a>5.3.1. Running <code class="literal">dno</code> in a Library Directory</h3></div></div></div>
+<a name="id2119"></a>5.3.1. Running <code class="literal">dno</code> in a Library Directory</h3></div></div></div>
 <p>
 	Running <code class="literal">dno</code> without an explicit target in a
 	library subdirectory will attempt to build and run any unit
@@ -246,7 +251,7 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm771"></a>5.4. The docs Subdirectory</h2></div></div></div>
+<a name="id2130"></a>5.4. The docs Subdirectory</h2></div></div></div>
 <p>
       The docs subdirectory is where Doxygen-based documentation will
       be prepared.  Documentation created here will be for everything
@@ -262,7 +267,7 @@ blink$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm777"></a>5.4.1. 
+<a name="id2136"></a>5.4.1. 
 	Running <code class="literal">dno</code> in a <code class="literal">docs</code>
 	Directory
       </h3></div></div></div>
@@ -273,6 +278,35 @@ blink$
 	exactly the same thing.
       </p>
 </div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="id2143"></a>5.5. The boot Subdirectory</h2></div></div></div>
+<p>
+      A board directory, or the root directory if it identifies a
+      <code class="literal">BOARD_TYPE</code> may contain a
+      <code class="literal">boot</code> subdirectory.  This is where code for a
+      bootloader can be built.
+    </p>
+<p>
+      Bootloaders are able to change the standard on-boot behaviour of
+      an Arduino board.  For example
+      <a class="link" href="https://github.com/Optiboot/optiboot" target="_top">optiboot</a>
+      is a bootloader that allows the Arduino to boot without an
+      initial delay.  This can be very useful for some applications.
+    </p>
+<p>
+      Dno does not really know how to build bootloader code.  It
+      expects bootloader code to be built using
+      <code class="literal">make</code>, and running dno in a boot directory
+      will, by default, simply result in <code class="literal">make</code> being
+      invoked.
+    </p>
+<p>
+      If more sophisticated behaviour is required a
+      <code class="literal">dno.mk</code> file can be added to the directory to
+      provide specific build instructions.
+    </p>
 </div>
 </div>
 <div class="navfooter">

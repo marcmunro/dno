@@ -4,8 +4,8 @@
 <title>Chapter 1. Installation</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno (0.9.2) User Guide">
-<link rel="up" href="index.html" title="Dno (0.9.2) User Guide">
+<link rel="home" href="index.html" title="Dno (0.9.3) User Guide">
+<link rel="up" href="index.html" title="Dno (0.9.3) User Guide">
 <link rel="prev" href="pr01.html" title="Introduction to Dno">
 <link rel="next" href="ch02.html" title="Chapter 2. Installing And Updating Arduino Toolsets">
 </head>
@@ -25,7 +25,7 @@
 </div>
 <div class="chapter">
 <div class="titlepage"><div><div><h1 class="title">
-<a name="idm19"></a>Chapter 1. Installation</h1></div></div></div>
+<a name="id1339"></a>Chapter 1. Installation</h1></div></div></div>
 <p>
     Dno can be installed by downloading and unpacking a release
     tarball or by cloning from <a class="link" href="https://github.com/marcmunro/dno" target="_top">github</a>.
@@ -36,7 +36,7 @@
   </p>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm24"></a>1.1. Compatibility</h2></div></div></div>
+<a name="id1383"></a>1.1. Compatibility</h2></div></div></div>
 <p>
       Dno is expected to run on any Unix-like operating system: Linux,
       BSD, MacOSX.
@@ -46,17 +46,17 @@
       <code class="literal">autotools</code>, so any OS supported by
       <a class="link" href="https://en.wikipedia.org/wiki/GNU_Autotools" target="_top">
       <code class="literal">autotools</code></a> should work.  It is unlikely
-      that Windows(Tm) will ever be supported.
+      that Windows(tm) will ever be supported.
     </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm32"></a>1.2. Dependencies</h2></div></div></div>
+<a name="id1391"></a>1.2. Dependencies</h2></div></div></div>
 <p>
     Dno requires <code class="literal">bash</code>, <code class="literal">make</code>,
-    <code class="literal">sed</code>, <code class="literal">gawk</code> and either
-    <code class="literal">dialog</code> or <code class="literal">whiptail</code> in order
-    to run.
+    <code class="literal">sed</code>, <code class="literal">gawk</code>,
+    <code class="literal">perl</code>, and either <code class="literal">dialog</code> or
+    <code class="literal">whiptail</code> in order to run.
   </p>
 <p>
     For building and installing dno, <code class="literal">gcc</code> is also
@@ -64,7 +64,7 @@
   </p>
 <p>
     To build documentation: <code class="literal">pandoc</code>,
-    <code class="literal">xsltproc</code> and the docbook xslt stylesheets (v4)
+    <code class="literal">xsltproc</code> and the docbook xslt stylesheets (v5)
     are required.  Tarball-based installations provide pre-built
     documentation so do not need these.
   </p>
@@ -75,10 +75,10 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm48"></a>1.3. Installing From A Tarball</h2></div></div></div>
+<a name="id1408"></a>1.3. Installing From A Tarball</h2></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm50"></a>1.3.1. Download</h3></div></div></div>
+<a name="id1410"></a>1.3.1. Download</h3></div></div></div>
 <p>
 	Releases can be found in the github project releases
 	directory: <a class="link" href="https://github.com/marcmunro/dno/tree/main/releases" target="_top">https://github.com/marcmunro/dno/tree/main/releases</a>.
@@ -90,7 +90,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm55"></a>1.3.2. Unpack</h3></div></div></div>
+<a name="id1415"></a>1.3.2. Unpack</h3></div></div></div>
 <p>
 	To unpack the tarball (this will create a new directory called
 	<code class="literal">dno</code>):
@@ -118,16 +118,23 @@
 dno$ ./configure
 checking for sed... yes
 checking for gawk... yes
+checking for perl... yes
+checking for gcc... gcc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ISO C89... none needed
 checking for dialog... no
 checking for whiptail... /usr/bin/whiptail
 checking Checking terminal-based menu command... /usr/bin/whiptail
-checking for pandoc... no
-configure: WARNING: pandoc not found.  Man pages cannot be created
-checking for xsltproc... no
-configure: WARNING: xsltproc not found.  User guide cannot be created
-checking for xmllint... no
-configure: WARNING: xmllint not found.  User guide cannot be created
-checking for DocBook stylesheet... no
+checking for pandoc... /usr/bin/pandoc
+checking for xsltproc... /usr/bin/xsltproc
+checking for xmllint... /usr/bin/xmllint
+checking for DocBook stylesheet... /usr/share/xml/docbook/stylesheet/docbook-xsl-ns
 checking build system type... x86_64-unknown-linux-gnu
 checking host system type... x86_64-unknown-linux-gnu
 checking Checking arduino installation dir... /usr/share/arduino
@@ -137,7 +144,9 @@ config.status: creating Makefile.global
 config.status: creating bin/dno_commands_for
 config.status: creating bin/dno_bpp
 config.status: creating bin/dno_dirinfo
+config.status: creating bin/dno_prog
 config.status: creating bin/dno_menu
+config.status: creating bin/dno_ino2c
 config.status: creating bin/dno
 config.status: creating man/BOARD_INFO.md
 config.status: creating man/BOARD_OPTIONS.md
@@ -148,7 +157,11 @@ config.status: creating man/dno_checksize.md
 config.status: creating man/dno_commands_for.md
 config.status: creating man/dno_dirinfo.md
 config.status: creating man/dno_menu.md
+config.status: creating man/dno_prog.md
 config.status: creating man/dno_requote.md
+config.status: creating man/dno_ino2c.md
+config.status: creating README.md
+config.status: creating docs/dno_vars.ent
 dno$ 
 	</pre>
 <p>
@@ -163,7 +176,7 @@ dno$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm72"></a>1.3.4. Make</h3></div></div></div>
+<a name="id1432"></a>1.3.4. Make</h3></div></div></div>
 <p>
 	Now we build the <code class="literal">dno_requote</code> command and
 	prepare the dno man pages for installation using
@@ -172,145 +185,14 @@ dno$
 <pre class="programlisting">
 dno$ make
   CC, LD [dno_requote]
-    Using distributed version of man/dno_bpp.1
-    Using distributed version of man/dno_checksize.1
-    Using distributed version of man/dno_commands_for.1
-    Using distributed version of man/dno_dirinfo.1
-    Using distributed version of man/dno.1
-    Using distributed version of man/dno_menu.1
-    Using distributed version of man/dno_requote.1
-    Using distributed version of man/BOARD_INFO.5
-    Using distributed version of man/BOARD_OPTIONS.5
-    Using distributed version of man/BOARD_TYPE.5
-    Using distributed version of docs
-dno$ 
-      </pre>
-<p>
-	If you happen to already have the tools installed that are
-	needed for creating dno documentation, this step will build
-	the documentation from source rather than using the
-	distributed versions.  Either way, you will now be ready to
-	install.
-      </p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="idm79"></a>1.3.5. Make Install</h3></div></div></div>
-<p>
-	Installation needs to be done as root.  You can use
-	<code class="literal">sudo</code> if you must
-	<a href="#ftn.sudo-wassup" class="footnote" name="sudo-wassup"><sup class="footnote">[1]</sup></a>, or become root using <code class="literal">su</code> and
-	  run <code class="literal">make install</code>:
-	  </p>
-<pre class="programlisting">
-dno$ su
-Password: 
-dno# make install
-Installing dno executables in /usr/local/bin
-Install dno man pages in /usr/local/share/man
-dno# exit
-dno$
-	  </pre>
-<p>
-      </p>
-<p>
-	That's it.  You are done.
-      </p>
-<p>
-	Note that if you install a new Arduino IDE after this, you
-	should repeat the above installation steps.  This will ensure
-	that dno can find the newly installed Arduino tools.
-      </p>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm95"></a>1.4. Installing By Cloning From Github</h2></div></div></div>
-<div class="section">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="idm97"></a>1.4.1. Pre-requisites</h3></div></div></div>
-<p>
-	The steps for this are much the same as for installing from
-	the tarball, but <span class="emphasis"><em>all</em></span> build tools
-	<span class="emphasis"><em>must</em></span> be installed.  This means that in
-	addition to <code class="literal">gawk</code>, <code class="literal">sed</code>
-	and <code class="literal">gcc</code>, the following must also be
-	present:
-	</p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem"><p>
-	      <code class="literal">pandoc</code>;
-	    </p></li>
-<li class="listitem">
-<p>
-	      <code class="literal">xmllint</code>;
-	    </p>
-<p>
-	      This can often be found in a package called
-	      <code class="literal">libxml2-utils</code>.
-	    </p>
-</li>
-<li class="listitem"><p>
-	      <code class="literal">xsltproc</code>;
-	    </p></li>
-<li class="listitem">
-<p>
-	      docbook5 stylesheets.
-	    </p>
-<p>
-	      You may find these in a package called
-	      <code class="literal">docbook-xsl-ns</code>.
-	    </p>
-</li>
-</ul></div>
-<p>
-      </p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="idm121"></a>1.4.2. Clone From Github</h3></div></div></div>
-<p>
-	When you run the following clone operation a new directory
-	will be created under your current directory:
-	</p>
-<pre class="programlisting">
-~$ git clone https://github.com/marcmunro/dno.git
-Cloning into 'dno'...
-remote: Enumerating objects: 278, done.
-remote: Counting objects: 100% (58/58), done.
-remote: Compressing objects: 100% (43/43), done.
-remote: Total 278 (delta 23), reused 42 (delta 15), pack-reused 220 (from 1)
-Receiving objects: 100% (278/278), 30.90 MiB | 4.29 MiB/s, done.
-Resolving deltas: 100% (157/157), done.
-~$ 
-	</pre>
-<p>
-      </p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="idm125"></a>1.4.3. Configure</h3></div></div></div>
-<p>
-	Move to the new <code class="literal">dno</code> directory and run
-	<code class="literal">./configure</code>.  Be sure to check the output
-	for any indication that our pre-requisites are not installed.
-      </p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="idm130"></a>1.4.4. Make</h3></div></div></div>
-<p>
-	Run <code class="literal">make</code>.  This should build everything,
-	including documentation and man pages from scratch:
-	</p>
-<pre class="programlisting">
-dno$ make
   PANDOC man/dno_bpp.1
   PANDOC man/dno_checksize.1
   PANDOC man/dno_commands_for.1
   PANDOC man/dno_dirinfo.1
+  PANDOC man/dno_ino2c.1
   PANDOC man/dno.1
   PANDOC man/dno_menu.1
+  PANDOC man/dno_prog.1
   PANDOC man/dno_requote.1
   PANDOC man/BOARD_INFO.5
   PANDOC man/BOARD_OPTIONS.5
@@ -322,8 +204,10 @@ dno$ make
   PANDOC docs/parts/dno_checksize.xml
   PANDOC docs/parts/dno_commands_for.xml
   PANDOC docs/parts/dno_dirinfo.xml
+  PANDOC docs/parts/dno_ino2c.xml
   PANDOC docs/parts/dno.xml
   PANDOC docs/parts/dno_menu.xml
+  PANDOC docs/parts/dno_prog.xml
   PANDOC docs/parts/dno_requote.xml
   XMLLINT docs/full_doc.xml
 Creating importer for system base stylesheet for docs...
@@ -339,16 +223,18 @@ Unexpected appendix.autolabel value: ; using default.
 Unexpected appendix.autolabel value: ; using default.
 Unexpected appendix.autolabel value: ; using default.
 Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
 Writing pr01.html for preface(introduction)
 Writing ch01.html for chapter
 Writing ch02.html for chapter
 Writing ch03.html for chapter
 Writing ch04.html for chapter
-Writing ch05.html for chapter
+Writing ch05.html for chapter(directory-system)
 Writing ch06.html for chapter
-Writing ch07.html for chapter
+Writing ch07.html for chapter(docs)
 Writing ch08.html for chapter
-Writing ch09.html for chapter
+Writing ch09.html for chapter(benchmarks)
 Writing ch10.html for chapter
 Unexpected appendix.autolabel value: ; using default.
 Unexpected appendix.autolabel value: ; using default.
@@ -419,17 +305,147 @@ Unexpected appendix.autolabel value: ; using default.
 Unexpected appendix.autolabel value: ; using default.
 Unexpected appendix.autolabel value: ; using default.
 Unexpected appendix.autolabel value: ; using default.
-Writing apj.html for appendix(gpl)
+Unexpected appendix.autolabel value: ; using default.
+Writing apj.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apk.html for appendix
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Unexpected appendix.autolabel value: ; using default.
+Writing apl.html for appendix(gpl)
 Writing index.html for book
 Writing dno.css for book
 dno$ 
+      </pre>
+<p>
+	If you happen to already have the tools installed that are
+	needed for creating dno documentation, this step will build
+	the documentation from source (as shown above) rather than
+	using the distributed versions.  Either way, you will now be
+	ready to install.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id1439"></a>1.3.5. Make Install</h3></div></div></div>
+<p>
+	Installation needs to be done as root.  You can use
+	<code class="literal">sudo</code> if you must
+	<a href="#ftn.sudo-wassup" class="footnote" name="sudo-wassup"><sup class="footnote">[1]</sup></a>, or become root using <code class="literal">su</code> and
+	  run <code class="literal">make install</code>:
+	  </p>
+<pre class="programlisting">
+dno$ su
+Password: 
+dno# make install
+Installing dno executables in /usr/local/bin
+Install dno man pages in /usr/local/share/man
+dno# exit
+dno$
+	  </pre>
+<p>
+      </p>
+<p>
+	That's it.  You are done.
+      </p>
+<p>
+	Note that if you install a new Arduino IDE after this, you
+	should repeat the above installation steps.  This will ensure
+	that dno can find the newly installed Arduino tools.
+      </p>
+</div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="id1455"></a>1.4. Installing By Cloning From Github</h2></div></div></div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id1457"></a>1.4.1. Pre-requisites</h3></div></div></div>
+<p>
+	The steps for this are much the same as for installing from
+	the tarball, but <span class="emphasis"><em>all</em></span> build tools
+	<span class="emphasis"><em>must</em></span> be installed.  This means that in
+	addition to <code class="literal">gawk</code>, <code class="literal">sed</code>
+	<code class="literal">perl</code>, and <code class="literal">gcc</code>, the
+	following must also be present:
+	</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+	      <code class="literal">pandoc</code>;
+	    </p></li>
+<li class="listitem">
+<p>
+	      <code class="literal">xmllint</code>;
+	    </p>
+<p>
+	      This can often be found in a package called
+	      <code class="literal">libxml2-utils</code>.
+	    </p>
+</li>
+<li class="listitem"><p>
+	      <code class="literal">xsltproc</code>;
+	    </p></li>
+<li class="listitem">
+<p>
+	      docbook5 stylesheets.
+	    </p>
+<p>
+	      You may find these in a package called
+	      <code class="literal">docbook-xsl-ns</code>.
+	    </p>
+</li>
+</ul></div>
+<p>
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id1482"></a>1.4.2. Clone From Github</h3></div></div></div>
+<p>
+	When you run the following clone operation a new directory
+	will be created under your current directory:
+	</p>
+<pre class="programlisting">
+~$ git clone https://github.com/marcmunro/dno.git
+Cloning into 'dno'...
+remote: Enumerating objects: 278, done.
+remote: Counting objects: 100% (58/58), done.
+remote: Compressing objects: 100% (43/43), done.
+remote: Total 278 (delta 23), reused 42 (delta 15), pack-reused 220 (from 1)
+Receiving objects: 100% (278/278), 30.90 MiB | 4.29 MiB/s, done.
+Resolving deltas: 100% (157/157), done.
+~$ 
 	</pre>
 <p>
       </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm135"></a>1.4.5. Make Install</h3></div></div></div>
+<a name="id1486"></a>1.4.3. Configure</h3></div></div></div>
+<p>
+	Move to the new <code class="literal">dno</code> directory and run
+	<code class="literal">./configure</code>.  Be sure to check the output
+	for any indication that our pre-requisites are not installed.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id1491"></a>1.4.4. Make</h3></div></div></div>
+<p>
+	Run <code class="literal">make</code>.  This should build everything,
+	including documentation and man pages from scratch.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id1495"></a>1.4.5. Make Install</h3></div></div></div>
 <p>
 	Installation needs to be done as root.  Run <code class="literal">make
 	install</code>.

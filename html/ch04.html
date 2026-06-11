@@ -4,8 +4,8 @@
 <title>Chapter 4. A Little Exploration</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno (0.9.2) User Guide">
-<link rel="up" href="index.html" title="Dno (0.9.2) User Guide">
+<link rel="home" href="index.html" title="Dno (0.9.3) User Guide">
+<link rel="up" href="index.html" title="Dno (0.9.3) User Guide">
 <link rel="prev" href="ch03.html" title="Chapter 3. Getting Started">
 <link rel="next" href="ch05.html" title="Chapter 5. The Dno Directory System">
 </head>
@@ -25,7 +25,7 @@
 </div>
 <div class="chapter">
 <div class="titlepage"><div><div><h1 class="title">
-<a name="idm314"></a>Chapter 4. A Little Exploration</h1></div></div></div>
+<a name="id1342"></a>Chapter 4. A Little Exploration</h1></div></div></div>
 <p>
     The previous section shows how to get started with
     <code class="literal">dno</code> for a simple project.  It introduces a lot of
@@ -34,7 +34,7 @@
   </p>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="board-specifiers"></a>4.1. On Board Specifiers</h2></div></div></div>
+<a name="board-specifiers"></a>4.1. Board Specifiers</h2></div></div></div>
 <p>
       We saw in <a class="link" href="ch03.html#create_board_type">the previous
       section</a> that our <code class="literal">BOARD_TYPE</code> file is
@@ -46,10 +46,10 @@
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm325"></a>4.1.1. Components of Board-Specifiers</h3></div></div></div>
+<a name="id1688"></a>4.1.1. Components of Board-Specifiers</h3></div></div></div>
 <p>
 	A fully-specified Arduino board definition consists of 3
-	parts, separated by dots.  These are:
+	parts separated by dots.  These are:
 	</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
@@ -90,7 +90,7 @@
 <p>
 	      Note that sometimes vendors and architectures might have
 	      the same name as a board.  For example
-	      <code class="literal">esp32</code> is the name of a vendor, it's
+	      <code class="literal">esp32</code> is the name of a vendor, its
 	      architecture, and one of its boards.  Where such
 	      ambiguity exists, it is safer not to use abbreviated
 	      board-specifiers.
@@ -99,16 +99,20 @@
 </ul></div>
 <p>
       </p>
-<p>
+<p><a name="incomplete-specifiers"></a>
 	If a board name is unique across all vendors and architectures
 	it need not be completely specified: it is enough in such
 	cases to simply use the board name: ie <code class="literal">uno</code>
 	rather than <code class="literal">arduino.avr.uno</code>.
       </p>
+<p>
+	As a final option, you can provide just the vendor or
+	architecture in addition to the board name.
+      </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm348"></a>4.1.2. Specifying Options</h3></div></div></div>
+<a name="board-options"></a>4.1.2. Specifying Board Options</h3></div></div></div>
 <p>
 	Board options can be appended to board-specifiers to provide
 	some or all of the board's options.  In <a class="link" href="ch03.html#create_board_type">our previous example</a> we
@@ -140,45 +144,39 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dno_is_make"></a>4.2. On Being Based On <code class="literal">make</code>
+<a name="dno_is_make"></a>4.2. Dno is Based on <code class="literal">make</code>
 </h2></div></div></div>
+<p>
+      We saw in the previous section that after everything had been
+      compiled and linked, running <code class="literal">dno</code> again didn't
+      do anything.
+    </p>
+<p>
+      This is because <code class="literal">dno</code> is based on
+      <code class="literal">make</code> (specifically <code class="literal">GNU
+      make</code>) and understands the dependencies between
+      <span class="emphasis"><em>everything</em></span> that it builds.  If you update a
+      source file, <code class="literal">dno</code> knows that the object for
+      that source file has to be recreated because the object
+      <span class="emphasis"><em>depends</em></span> on that source file.  Similarly, if
+      that object file is part of a library, then the library
+      <span class="emphasis"><em>depends</em></span> on the object and must also be
+      rebuilt.  And if the library or object is part of an image file,
+      then the image <span class="emphasis"><em>depends</em></span> on the library or
+      object, and dno will re-link it.
+    </p>
+<p>
+      All of these dependencies are discovered automatically by
+      <code class="literal">dno</code> whenever it needs to know them.
+    </p>
+<p>
+      What all of this means is that <code class="literal">dno</code> will
+      only do as much work as it has to in order to ensure everything
+      is up to date.
+    </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm366"></a>4.2.1. Dno Rebuilds Only What It Needs To</h3></div></div></div>
-<p>
-	We saw in the previous section that after everything had been
-	compiled and linked, running <code class="literal">dno</code> again didn't
-	do anything.
-      </p>
-<p>
-	This is because <code class="literal">dno</code> is based on
-	<code class="literal">make</code> (specifically <code class="literal">GNU
-	make</code>) and understands the dependencies between
-	<span class="emphasis"><em>everything</em></span> that it builds.  If you update
-	a source file, <code class="literal">dno</code> knows that the object
-	for that source file has to be recreated because the object
-	<span class="emphasis"><em>depends</em></span> on that source file.  Similarly,
-	if that object file is part of a library, then the library
-	<span class="emphasis"><em>depends</em></span> on the object and must also be
-	rebuilt.  And if the library or object is part of an image
-	file, then the image <span class="emphasis"><em>depends</em></span> on the
-	library or object, and dno will re-link it.
-      </p>
-<p>
-	All of these dependencies are discovered automatically by
-	<code class="literal">dno</code>.
-      </p>
-<p>
-	What all of this means, is that <code class="literal">dno</code> will
-	only do as much work as it has to in order to achieve
-	anything.  This makes compilations much faster and more
-	efficient, making <code class="literal">dno</code> more pleasant to use
-	than the standard, much slower, tools.
-      </p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="targets"></a>4.2.2. Dno "Commands" Are <code class="literal">make</code> "Targets"</h3></div></div></div>
+<a name="targets"></a>4.2.1. Dno "Commands" Are <code class="literal">make</code> "Targets"</h3></div></div></div>
 <p>
 	We have been introduced to a number of different
 	<code class="literal">dno</code> invocations:
@@ -226,12 +224,20 @@
 	If you run <code class="literal">dno</code> without an explicit target,
 	it will attempt to build the default target.  What this will
 	do, will depend on the <a class="link" href="ch05.html" title="Chapter 5. The Dno Directory System">type
-	of directory</a> you are in.
+	of directory</a> you are in: if you are in a board
+	directory, it will rebuild the executable; if you are in a lib
+	directory, it will compile the lib and run unit tests; if you
+	are in a docs directory, it will rebuild your documentation.
+      </p>
+<p>
+	This means that for many, or even most, things that you want
+	<code class="literal">dno</code> to do, you don't even need to provide a
+	target: the command will simply be <code class="literal">dno</code>.
       </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm411"></a>4.2.3. Dno Accepts All Make Options</h3></div></div></div>
+<a name="id1775"></a>4.2.2. Dno Accepts All Make Options</h3></div></div></div>
 <p>
 	Of particular interest here is the <code class="literal">-j N</code>
 	option.  This allows make to perform multiple actions ("jobs")
@@ -242,7 +248,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm416"></a>4.2.4. Dno Variables</h3></div></div></div>
+<a name="id1780"></a>4.2.3. Dno Variables</h3></div></div></div>
 <p>
 	There are a number of variables that can be defined on the dno
 	command line that provide information to
@@ -271,9 +277,10 @@ blink$
 	    </p>
 <p>
 	      This is used to identify a specific type of Arduino
-	      board.  For boards that have multiple CPU options, the
-	      cpu can also be specified within this variable following
-	      a period (".").  
+	      board.  For boards that have options, those options can
+	      also be specified within this variable following a
+	      period (".").  See <a class="link" href="ch04.html#board-options" title="4.1.2. Specifying Board Options">Specifiying Board Options</a>
+	      for more.
 	    </p>
 <p>
 	      Targets which make use of this variable are:
@@ -319,7 +326,10 @@ blink$
 <code class="literal">eeprom</code>;
 		</li>
 <li class="listitem">
-<code class="literal">monitor</code>.
+<code class="literal">monitor</code>;
+		</li>
+<li class="listitem">
+<code class="literal">cat</code>.
 		</li>
 </ul></div>
 <p>
@@ -337,7 +347,8 @@ blink$
 	      will get this wrong.
 	    </p>
 <p>
-	      This is used by the <code class="literal">monitor</code> target.
+	      This is used by the <code class="literal">monitor</code> and
+	      <code class="literal">cat</code>targets.
 	    </p>
 </li>
 <li class="listitem">
@@ -371,46 +382,48 @@ blink$
 	      are summarised:
 	      </p>
 <pre class="programlisting">
-8MHzatmega328$ touch ../blink.cpp
-pro.8MHzatmega328$ dno build/blink.o
-  C++  [..] blink.cpp
-make: 'build/blink.o' is up to date.
-pro.8MHzatmega328$ 
+blink$ touch blink.ino 
+blink$  dno build/blink.ino.o
+  C++  ./blink.ino 
+make: 'build/blink.ino.o' is up to date.
+blink$ 
 	      </pre>
 <p>
 	    </p>
 <p>
-	      Setting VERBOSE on the command line changes that, and
-	      causes the actual commands to be shown instead of the
-	      summary.  Additionally, it identifies each target that is
-	      actually run:
+	      Setting <code class="literal">VERBOSE</code> on the command line
+	      changes that, and causes the actual commands to be shown
+	      instead of the summary.  Additionally, it identifies
+	      each target that is actually run:
 	      </p>
 <pre class="programlisting">
-pro.8MHzatmega328$ touch ../blink.cpp
-pro.8MHzatmega328$ dno build/blink.o VERBOSE=y
-BUILDING TARGET[] build/blink.o
-BUILDING TARGET[] prebuild
-BUILDING TARGET[] presketch
-BUILDING TARGET[] build/blink.d
-"/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=00508 -DARDUINO_AVR_PRO -DARDUINO_ARCH_AVR   -I /home/user/.arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino -I /home/user/.arduino15/packages/arduino/hardware/avr/1.8.6/variants/eightanaloginputs -I ../Deferal -I /home/user/.arduino15/packages/arduino/hardware/avr/1.8.6///libraries/EEPROM/src -I /home/user/.arduino15/packages/arduino/hardware/avr/1.8.6///libraries/HID/src -I /home/user/.arduino15/packages/arduino/hardware/avr/1.8.6///libraries/SoftwareSerial/src -I /home/user/.arduino15/packages/arduino/hardware/avr/1.8.6///libraries/SPI/src -I /home/user/.arduino15/packages/arduino/hardware/avr/1.8.6///libraries/Wire/src "..//blink.cpp" -o "build/blink.o" 
-BUILDING TARGET[] postsketch
-BUILDING TARGET[] prelib
-BUILDING TARGET[] postlib
-BUILDING TARGET[] precore
-BUILDING TARGET[1] prebuild
-BUILDING TARGET[1] presketch
-BUILDING TARGET[1] postsketch
-BUILDING TARGET[1] prelib
-BUILDING TARGET[1] postlib
-BUILDING TARGET[1] precore
-make: 'build/blink.o' is up to date.
-pro.8MHzatmega328$ 
+blink$ touch blink.ino 
+blink$  dno build/blink.ino.o VERBOSE=y
+BUILDING TARGET[] build/blink.ino.d
+(arduino-ctags -u --language-force=c++ -f - --c++-kinds=spf --fields=STt /dev/null ./blink.ino  | sed -e "s/^\([^[:space:]]*\).*ture:\(([^)]*)\).*type:\(.*\)/\3 \1\2;/") | cat - ./blink.ino   |  "/home/marc/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=8000000L -DARDUINO=903 -DARDUINO_AVR_PRO -DARDUINO_ARCH_AVR   -I /home/marc/.arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino -I /home/marc/.arduino15/packages/arduino/hardware/avr/1.8.6/variants/eightanaloginputs -I /home/marc/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/EEPROM/src -I /home/marc/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/HID/src -I /home/marc/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/SoftwareSerial/src -I /home/marc/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/SPI/src -I /home/marc/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/Wire/src -I .  -x c++ --include Arduino.h - -o "build/blink.ino.o" 
+sed 's/\([^:]*\).o\s*:/\1.d \1.o:/' &lt;build/blink.ino.d &gt;build/blink.ino.dd
+mv build/blink.ino.dd build/blink.ino.d
+make: 'build/blink.ino.o' is up to date.
+blink$ 
 	      </pre>
 <p>
 	    </p>
 <p>
 	      This can be useful if you want to run a compilation
-	      manually, to debug some unexpected behaviour etc.
+	      manually, to debug some unexpected behaviour etc: you
+	      can simply cut and paste the commands shown into a
+	      command line.
+	    </p>
+</li>
+<li class="listitem">
+<p><a name="QUIET"></a>
+	      <code class="literal">QUIET</code>
+	    </p>
+<p>
+	      Setting <code class="literal">QUIET</code> on the command line
+	      causes upload and related actions to be less verbose,
+	      and program size information to not be displayed after
+	      linking. 
 	    </p>
 </li>
 </ul></div>
@@ -420,11 +433,9 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm479"></a>4.3. The Project Directory</h2></div></div></div>
+<a name="id1853"></a>4.3. The Project Directory</h2></div></div></div>
 <p>
-      The name for a dno project comes from the name of the <a class="link" href="ch05.html#project_dir" title="5.1. The Project/Root Directory">project directory</a>.  The Arduino IDE
-      handles this in much the same way, but setting the name in the
-      Arduino IDE is more cumbersome.
+      The name for a dno project comes from the name of the <a class="link" href="ch05.html#project_dir" title="5.1. The Project/Root Directory">project directory</a>. 
     </p>
 <p>
       You can change the name of your project by simply changing the
@@ -447,8 +458,8 @@ pro.8MHzatmega328$
       As an alternative to an explicit <code class="literal">BOARD_TYPE</code>
       file, dno allows board-specific subdirectories to be added to a
       project.  These directories are given the name of the board in
-      the same format as the contents of a
-      <code class="literal">BOARD_TYPE</code> file.
+      the same format as would be given when building the 
+      <code class="literal">BOARD_TYPE</code> file (see <a class="link" href="ch04.html#board-specifiers" title="4.1. Board Specifiers">Board Specifiers</a> for more).
     </p>
 <p>
       This allows you to build code for multiple types of boards
@@ -457,20 +468,21 @@ pro.8MHzatmega328$
       </p>
 <pre class="programlisting">
 blink$ ls -l
-- rw-r--r-- 1 user user  1233 Jan  6 11:04 blink.ino
--rw-r--r-- 1 user user 12860 Jan 10 16:33 BOARD_INFO
--rw-r--r-- 1 user user    18 Jan 10 16:33 BOARD_TYPE
-drwxr-xr-x 3 user user  4096 Jan 10 16:33 build
-blink$
+total 20
+-rw-r--r-- 1 user user     0 May 10 13:10 blink.ino
+-rw-r--r-- 1 user user 11086 May 10 13:04 BOARD_INFO
+-rw-r--r-- 1 user user    34 May 10 13:03 BOARD_TYPE
+drwxr-xr-x 3 user user  4096 May 10 13:10 build
+blink$ 
       </pre>
 <p>
     </p>
 <p>
       Here we see that we have our source code,
       <code class="literal">blink.ino</code>, our <code class="literal">BOARD_TYPE</code>
-      and <code class="literal">BOARD_INFO</code> files, and a <code class="literal">build
-      directory</code> where all of our objects, libraries and
-      executables are stored.
+      and <code class="literal">BOARD_INFO</code> files, and a
+      <code class="literal">build</code> directory where all of our objects,
+      libraries and executables are stored.
     </p>
 <p>
       We'll want to clean this up before we create our new directory,
@@ -482,14 +494,10 @@ blink$
 blink$ dno pristine
 Super-cleaning .
 blink$ ls -l
-total 8
--rw-r--r-- 1 user user 1233 Jan  6 11:04 blink.ino
--rw-r--r-- 1 user user   18 Jan 10 16:42 BOARD_TYPE
-blink$ rm BOARD_TYPE
-blink$ ls -l
 total 4
--rw-r--r-- 1 user user 1233 Jan  6 11:04 blink.ino
-blink$
+-rw-r--r-- 1 user user  0 May 10 13:10 blink.ino
+-rw-r--r-- 1 user user 34 May 10 13:03 BOARD_TYPE
+blink$ 
       </pre>
 <p>
     </p>
@@ -498,7 +506,7 @@ blink$
       version of the <code class="literal">clean</code> target.  Clean will
       remove the <code class="literal">build</code> directory and its contents.
       Pristine additionally removes the <code class="literal">BOARD_INFO</code>
-      directory.  Note that we still had to manually remove 
+      file.  Note that we still had to manually remove 
       <code class="literal">BOARD_TYPE</code>.
     </p>
 <p>
@@ -539,6 +547,8 @@ pro.8MHzatmega328$ dno
   AR [libcore] abi.o...
   LD blink.ino.o
   OBJCOPY (hex) blink.elf
+Program size:    924 out of 30720  (3%: 29796 remaining)
+   Data size:      9 out of 2048   (0%: 2039 remaining)
 pro.8MHzatmega328$ 
       </pre>
 <p>
@@ -554,9 +564,10 @@ pro.8MHzatmega328$
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="clean"></a>4.5. Cleaning</h2></div></div></div>
 <p>
-      The section above introduced the "clean" and "pristine"
-      targets.  These, along with "tidy" are used for carefully
-      cleaning up unwanted files.
+      The section above introduced the "<code class="literal">clean</code>" and
+      "<code class="literal">pristine</code>" targets.  These, along with
+      "<code class="literal">tidy</code>" are used for carefully cleaning up
+      unwanted files.
     </p>
 <p>
       Although it is easy enough to use the <code class="literal">rm</code>
@@ -567,11 +578,11 @@ pro.8MHzatmega328$
     </p>
 <p>
       Note that all of the cleaning targets work in the current
-      directory as well as its descendant's.
+      directory as well as its descendants.
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm521"></a>4.5.1. <code class="literal">Tidy</code>
+<a name="id1899"></a>4.5.1. <code class="literal">Tidy</code>
 </h3></div></div></div>
 <p>
 	The <code class="literal">tidy</code> target removes all files that look
@@ -580,7 +591,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm526"></a>4.5.2. <code class="literal">Clean</code>
+<a name="id1904"></a>4.5.2. <code class="literal">Clean</code>
 </h3></div></div></div>
 <p>
 	The <code class="literal">Clean</code> target does all that the
@@ -597,7 +608,8 @@ pro.8MHzatmega328$
 <p>
 	The <code class="literal">pristine</code> target does all that the
 	<code class="literal">clean</code> target does, plus it removes any
-	<code class="literal">BOARD_INFO</code> files.
+	<code class="literal">BOARD_INFO</code> and
+	<code class="literal">PROGRAMMER</code> files. 
       </p>
 <p>
 	Use this before committing changes into your repository, or
@@ -607,7 +619,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm543"></a>4.6. The BOARD_INFO file</h2></div></div></div>
+<a name="id1922"></a>4.6. The BOARD_INFO file</h2></div></div></div>
 <p>
       The <code class="literal">BOARD_INFO</code> file is derived from the
       files:
@@ -633,8 +645,7 @@ pro.8MHzatmega328$
 <p>
       Dno parses these files, based on the user's
       <a class="link" href="ch04.html#board_type" title="4.4.  The BOARD_TYPE File, And Board Types">
-	board selection
-      </a>, creating a file that conforms with
+	board selection</a>, creating a file that conforms with
       <code class="literal">makefile</code> syntax and provides all of the
       definitions necessary for compiling, linking, etc, Arduino
       programs.
@@ -642,7 +653,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm559"></a>4.7. The BOARD_OPTIONS file</h2></div></div></div>
+<a name="id1938"></a>4.7. The BOARD_OPTIONS file</h2></div></div></div>
 <p>
       The <code class="literal">BOARD_OPTIONS</code> file describes selected,
       non-default, board-specific configuration values.
@@ -650,8 +661,8 @@ pro.8MHzatmega328$
 <p>
       It is created by running <code class="literal">dno menu</code>, which
       presents the user with menus of board-specific configuration
-      options.  Note that this does not include any options that are
-      specified by the board directory name or the
+      options.  Note that this will ignore any options that are
+      already specified by the board directory name or the
       <code class="literal">BOARD_TYPE</code> file.
     </p>
 <p>
@@ -662,7 +673,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm568"></a>4.8. Connecting to Physical Arduino Boards</h2></div></div></div>
+<a name="id1947"></a>4.8. Connecting to Physical Arduino Boards</h2></div></div></div>
 <p>
       Dno provides a number of commands for interfacing with Arduino
       boards.  It can upload compiled code to a board, modify a
@@ -671,7 +682,7 @@ pro.8MHzatmega328$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm571"></a>4.8.1. Identifying Devices</h3></div></div></div>
+<a name="id1950"></a>4.8.1. Identifying Devices</h3></div></div></div>
 <p>
 	Generally, when a single Arduino board is connected to your
 	computer, dno is able to identify the serial device it is
@@ -697,7 +708,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm579"></a>4.8.2. Uploading Software</h3></div></div></div>
+<a name="id1958"></a>4.8.2. Uploading Software</h3></div></div></div>
 <p>
 	Software is uploaded using dno's <code class="literal">upload</code>
 	target.  More can be found <a class="link" href="ch03.html#upload" title="3.5. Uploading To A Board">here</a>.
@@ -705,7 +716,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm584"></a>4.8.3. Communicating With The Arduino</h3></div></div></div>
+<a name="id1963"></a>4.8.3. Communicating With The Arduino</h3></div></div></div>
 <p>
 	The equivalent to the Arduino IDE's Serial Monitor is invoked
 	by the <code class="literal">monitor</code> target.  More <a class="link" href="ch08.html#monitor" title="8.5. Serial Communication">here</a>.
@@ -713,17 +724,35 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm589"></a>4.8.4. Writing EEPROM data</h3></div></div></div>
+<a name="id1968"></a>4.8.4. Writing EEPROM data</h3></div></div></div>
 <p>
-	Writing to an Arduino's EEPROM from outside of a program is a
-	bit hit and miss.  Dno kind-of, mostly, sort-of supports writing
-	eeproms for AVR-architecture boards.  More <a class="link" href="ch08.html#eeprom" title="8.6. EEPROMs">here</a>.
+	Dno kind-of, mostly, supports writing to a devices eeprom.
+	This works for AVR-architecture boards and may work for others
+	but has not been tested.  More <a class="link" href="ch08.html#eeprom" title="8.9. EEPROMs">here</a>.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id1972"></a>4.8.5. Building and burning bootloaders</h3></div></div></div>
+<p>
+	If your board is connected to a programmer, you can burn a
+	board's standard bootloader by simply running <code class="literal">dno
+	burn</code> in a board directory.  	For more on this see
+	<a class="link" href="ch08.html#burn_standard_bootloader" title="8.7.5.1. Restoring (Burning) the Standard Bootloader">Restoring (Burning)
+	the Standard Bootloader</a>.  
+      </p>
+<p>
+	To create a custom bootloader, you should create a
+	<code class="literal">boot</code> directory below your board directory.
+	Here you can build and burn a custom bootloader image.  For
+	more on this see <a class="link" href="ch08.html#burning_custom_bootloaders" title="8.7.5.2. Burning a Custom Bootloader">Burning a Custom
+	Bootloader</a>.
       </p>
 </div>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm593"></a>4.9. Performance</h2></div></div></div>
+<a name="id1980"></a>4.9. Performance</h2></div></div></div>
 <p>
       Generally speaking dno will easily outperform the Arduino IDE or
       CLI.  This is because dno:
@@ -731,8 +760,8 @@ pro.8MHzatmega328$
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
 <p>
-	    understands dependencies, and so only does work that is
-	    necessary;
+	    fully understands dependencies, and so only does work that
+	    is necessary;
 	  </p>
 <p>
 	    Compare this with the Arduino IDE, which although it
@@ -786,289 +815,97 @@ pro.8MHzatmega328$
 </ul></div>
 <p>
     </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="id2003"></a>4.10. Quantified Performance Comparison</h2></div></div></div>
+<p>
+      A number of comparison benchmarks were performed between the
+      standard Arduino IDE and dno.  The details of these are captured
+      in the <a class="link" href="ch09.html" title="Chapter 9. Benchmarks">benchmarks</a> section.
+    </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm616"></a>4.9.1. Quantified Performance Comparison</h3></div></div></div>
+<a name="id2007"></a>4.10.1. Benchmarking Observations</h3></div></div></div>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
 <p>
-	The following tests were performed using the standard
-	<code class="literal">blink.cpp</code> sketch, compiled for a
-	<code class="literal">pro.8MHzatmega328</code> Arduino board on a
-	relatively old x86_64 GNU/Linux desktop machine.
+	    Performance of standard IDE
+	  </p>
+<p>
+	    The benchmarking results are striking in their
+	    demonstration of how inefficient the standard IDE is.
+	    When no code has been changed since the last build, it
+	    will still recompile and rebuild your sketch.  And do it
+	    slowly.
+	  </p>
+</li>
+<li class="listitem">
+<p>
+	    Full build comparisons
+	  </p>
+<p>
+	    Dno, building from a totally clean directory, and with no
+	    paralellism is about 35% faster than the standard IDE.
+	    With <code class="literal">BOARD_INFO</code> already in place it is
+	    nearly twice as fast (51.9% Real time), and in a more
+	    realistic parallel invocation it is nearly 4 times as fast
+	    (26.8%).
+	  </p>
+</li>
+<li class="listitem">
+<p>
+	    Minimal build comparisons
+	  </p>
+<p>
+	    With only the sketch updated, dno was more than 4 times as
+	    fast as the Arduino IDE (21.54%).  This was without any
+	    paralellism. 
+	  </p>
+<p>
+	    Interestingly, dno outperformed the Arduino IDE's minimal
+	    build, even when doing a full rebuild including
+	    <code class="literal">BOARD_INFO</code>. 
+	  </p>
+<p>
+	    Finally, with no updates to sources, ie with nothing that
+	    needed to be rebuilt, the Arduino IDE still recompiled and
+	    relinked the sketch, taking neary 8 times as long as dno's
+	    do-nothing build.
+	  </p>
+</li>
+<li class="listitem">
+<p>
+	    On determing what to build
+	  </p>
+<p>
+	    The Arduino IDE has a very primitive view of what should
+	    be updated when a compilation is actioned.  It will always
+	    recompile the sketch regardless of whether it needs to,
+	    and will always try to re-use compiled and archived parts
+	    of the core library, presumably regardless of whether the
+	    sources for these have been updated.  While this is very
+	    likely to be safe there can be corner cases with such
+	    policies leading to inconsistent builds.  Dno, being based
+	    on <code class="literal">make</code>, with a full understanding of
+	    <span class="emphasis"><em>all</em></span> dependencies does not have this
+	    problem.  It rebuilds everything that
+	    <span class="emphasis"><em>needs</em></span> to be rebuilt, and nothing that
+	    does not.
+	  </p>
+</li>
+</ul></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id2029"></a>4.10.2. Final Conclusions</h3></div></div></div>
+<p>
+	Even in relatively simple comparisons with simple sketches,
+	dno easily outperforms the standard Arduino IDE.  For more
+	complex programs using multiple libraries, and for more
+	complex architectures, such as the <code class="literal">ESP32</code>,
+	we can expect similar or greater performance gains.
       </p>
-<p>
-	Due to the difficulty of timing actions within the IDE, the
-	comparison is between running the commands that the IDE claims
-	to have issued, with a fresh dno directory containing only the
-	sketch and a <code class="literal">BOARD_TYPE</code> file.
-      </p>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="idm623"></a>4.9.1.1. Comparing Build Times</h4></div></div></div>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="idm625"></a>Arduino CLI</h5></div></div></div>
-<p>
-	    To do this we ran the Arduino IDE to show the build
-	    commands.  These commands were extracted into a script,
-	    shown below:
-	    </p>
-<pre class="programlisting">
-#! /usr/bin/env bash
-
-rm -rf /tmp/arduino_build_22206/
-mkdir /tmp/arduino_build_22206/
-
-do_it ()
-{
-arduino-builder -dump-prefs -logger=machine -hardware /usr/share/arduino/hardware -hardware /home/user/.arduino15/packages -tools /usr/share/arduino/hardware/tools/avr -tools /home/user/.arduino15/packages -libraries /home/user/Arduino/libraries -fqbn=arduino:avr:pro:cpu=16MHzatmega328 -vid-pid=0403_6015 -ide-version=10813 -build-path /tmp/arduino_build_22206 -warnings=none -build-cache /tmp/arduino_cache_578139 -prefs=build.warn_data_percentage=75 -prefs=runtime.tools.arduinoOTA.path=/home/user/.arduino15/packages/arduino/tools/arduinoOTA/1.3.0 -prefs=runtime.tools.arduinoOTA-1.3.0.path=/home/user/.arduino15/packages/arduino/tools/arduinoOTA/1.3.0 -prefs=runtime.tools.avr-gcc.path=/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7 -prefs=runtime.tools.avr-gcc-7.3.0-atmel3.6.1-arduino7.path=/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7 -prefs=runtime.tools.avrdude.path=/home/user/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17 -prefs=runtime.tools.avrdude-6.3.0-arduino17.path=/home/user/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17 -verbose /home/user/proj/cli_blink/blink.cpp
-time arduino-builder -compile -logger=machine -hardware /usr/share/arduino/hardware -hardware /home/user/.arduino15/packages -tools /usr/share/arduino/hardware/tools/avr -tools /home/user/.arduino15/packages -libraries /home/user/Arduino/libraries -fqbn=arduino:avr:pro:cpu=16MHzatmega328 -vid-pid=0403_6015 -ide-version=10813 -build-path /tmp/arduino_build_22206 -warnings=none -build-cache /tmp/arduino_cache_578139 -prefs=build.warn_data_percentage=75 -prefs=runtime.tools.arduinoOTA.path=/home/user/.arduino15/packages/arduino/tools/arduinoOTA/1.3.0 -prefs=runtime.tools.arduinoOTA-1.3.0.path=/home/user/.arduino15/packages/arduino/tools/arduinoOTA/1.3.0 -prefs=runtime.tools.avr-gcc.path=/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7 -prefs=runtime.tools.avr-gcc-7.3.0-atmel3.6.1-arduino7.path=/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7 -prefs=runtime.tools.avrdude.path=/home/user/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17 -prefs=runtime.tools.avrdude-6.3.0-arduino17.path=/home/user/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17 -verbose  /home/user/proj/cli_blink/blink.cpp
-
-}
-
-do_it
-	    </pre>
-<p>
-	  </p>
-<p>
-	    This script, clears any cached build, rebuilds the build
-	    directory, parses the <code class="literal">platform.txt</code> file
-	    (at least that's my assumption of what the first
-	    <code class="literal">arduino-builder</code> command is doing), and
-	    then compiles and links the sketch.  This last command is
-	    executed using the Linux <code class="literal">time</code> command,
-	    which records how long things take.
-	  </p>
-<p>
-	    We run this script 4 times.  The timing results are shown
-	    below:
-	    </p>
-<pre class="programlisting">
-cli_blink$ ./cli.sh 
-[ lots of output removed ]
-real	0m1.304s
-user	0m0.678s
-sys	0m0.732s
-cli_blink$ ./cli.sh 
-[ lots of output removed ]
-real	0m1.373s
-user	0m0.754s
-sys	0m0.775s
-cli_blink$ ./cli.sh 
-[ lots of output removed ]
-real	0m1.344s
-user	0m0.699s
-sys	0m0.744s
-cli_blink$ ./cli.sh 
-[ lots of output removed ]
-real	0m1.263s
-user	0m0.668s
-sys	0m0.696s
-cli_blink$ 	
-	    </pre>
-<p>
-	  </p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="idm635"></a>Dno</h5></div></div></div>
-<p>
-	    We created a directory containing our sketch, and created
-	    <code class="literal">BOARD_TYPE</code> and
-	    <code class="literal">BOARD_INFO</code> files:
-	    </p>
-<pre class="programlisting">
-dno_blink$ ls
-blink.ino
-dno_blink$ dno BOARD_TYPE BOARD=pro.8MHzatmega328
-  Creating BOARD_TYPE...
-dno_blink$ ls
-blink.ino  BOARD_TYPE
-dno_blink$ 
-	    </pre>
-<p>
-	  </p>
-<p>
-	    This is equivalent to the setup above.  Then we run the
-	    following commands:
-	    </p>
-<pre class="programlisting">
-dno pristine; dno BOARD_INFO; time dno
-	    </pre>
-<p>
-	  </p>
-<p>
-	    The first invocation will remove any
-	    <code class="literal">build</code> directory and
-	    <code class="literal">BOARD_INFO</code> file (ensuring that the
-	    contents of BOARD_INFO are not cached by the OS).  The
-	    second, rebuilds <code class="literal">BOARD_INFO</code>, and the
-	    third, provides our timing run of compilation and
-	    linking.  Here are the results:
-	    </p>
-<pre class="programlisting">
-dno_blink$ dno pristine; dno BOARD_INFO; time dno
-[ relatively little output removed ]
-real	0m1.252s
-user	0m1.044s
-sys	0m0.260s
-no_blink$ dno pristine; dno BOARD_INFO; time dno
-[ relatively little output removed ]
-real	0m1.237s
-user	0m1.009s
-sys	0m0.280s
-dno_blink$ dno pristine; dno BOARD_INFO; time dno
-[ relatively little output removed ]
-real	0m1.262s
-user	0m1.006s
-sys	0m0.310s
-dno_blink$ dno pristine; dno BOARD_INFO; time dno
-[ relatively little output removed ]
-real	0m1.213s
-user	0m1.011s
-sys	0m0.254s
-dno_blink$ 
-	    </pre>
-<p>
-	  </p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="idm648"></a>Conclusion</h5></div></div></div>
-<p>
-	    In a pure compilation and linking invocation, with no
-	    cached results, dno is a little faster (about 6%) than the
-	    Arduino CLI.  This might seem surprising given that most
-	    of the time should be spent by the compiler, linker, etc,
-	    which should be identical in both cases, however dno does
-	    optimise the way it generates archive files when compared
-	    to the Arduino tools.  This may account for the consistent
-	    but small difference.
-	  </p>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="idm651"></a>4.9.1.2. Comparing Parse and Build Times</h4></div></div></div>
-<p>
-	  Let's now also consider parse times.  This is the time for
-	  <code class="literal">arduino-builder</code> to dump its preferences,
-	  or for <code class="literal">dno</code> to create the
-	  <code class="literal">BOARD_INFO</code> file.
-	</p>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="idm657"></a>Arduino CLI</h5></div></div></div>
-<p>
-	    For this test, we modify our script as shown below:
-	    </p>
-<pre class="programlisting">
-#! /usr/bin/env bash
-
-rm -rf /tmp/arduino_build_22206/
-mkdir /tmp/arduino_build_22206/
-
-do_it ()
-{
-arduino-builder -dump-prefs -logger=machine -hardware /usr/share/arduino/hardware -hardware /home/user/.arduino15/packages -tools /usr/share/arduino/hardware/tools/avr -tools /home/user/.arduino15/packages -libraries /home/user/Arduino/libraries -fqbn=arduino:avr:pro:cpu=16MHzatmega328 -vid-pid=0403_6015 -ide-version=10813 -build-path /tmp/arduino_build_22206 -warnings=none -build-cache /tmp/arduino_cache_578139 -prefs=build.warn_data_percentage=75 -prefs=runtime.tools.arduinoOTA.path=/home/user/.arduino15/packages/arduino/tools/arduinoOTA/1.3.0 -prefs=runtime.tools.arduinoOTA-1.3.0.path=/home/user/.arduino15/packages/arduino/tools/arduinoOTA/1.3.0 -prefs=runtime.tools.avr-gcc.path=/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7 -prefs=runtime.tools.avr-gcc-7.3.0-atmel3.6.1-arduino7.path=/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7 -prefs=runtime.tools.avrdude.path=/home/user/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17 -prefs=runtime.tools.avrdude-6.3.0-arduino17.path=/home/user/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17 -verbose /home/user/proj/cli_blink/blink.cpp
-arduino-builder -compile -logger=machine -hardware /usr/share/arduino/hardware -hardware /home/user/.arduino15/packages -tools /usr/share/arduino/hardware/tools/avr -tools /home/user/.arduino15/packages -libraries /home/user/Arduino/libraries -fqbn=arduino:avr:pro:cpu=16MHzatmega328 -vid-pid=0403_6015 -ide-version=10813 -build-path /tmp/arduino_build_22206 -warnings=none -build-cache /tmp/arduino_cache_578139 -prefs=build.warn_data_percentage=75 -prefs=runtime.tools.arduinoOTA.path=/home/user/.arduino15/packages/arduino/tools/arduinoOTA/1.3.0 -prefs=runtime.tools.arduinoOTA-1.3.0.path=/home/user/.arduino15/packages/arduino/tools/arduinoOTA/1.3.0 -prefs=runtime.tools.avr-gcc.path=/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7 -prefs=runtime.tools.avr-gcc-7.3.0-atmel3.6.1-arduino7.path=/home/user/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7 -prefs=runtime.tools.avrdude.path=/home/user/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17 -prefs=runtime.tools.avrdude-6.3.0-arduino17.path=/home/user/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino17 -verbose  /home/user/proj/cli_blink/blink.cpp
-
-}
-
-time do_it
-	    </pre>
-<p>
-	  </p>
-<p>
-	    The Linux <code class="literal">time</code> command is now applied
-	    to the entire <code class="literal">do_it</code> function, rather
-	    than just the second <code class="literal">arduino-builder</code>
-	    invocation.
-	  </p>
-<p>
-	    Running this 4 times:
-	    </p>
-<pre class="programlisting">
-cli_blink$ ./cli.sh
-[ output removed ]
-real	0m2.243s
-user	0m1.175s
-sys	0m1.350s
-cli_blink$ ./cli.sh
-[ output removed ]
-real	0m2.489s
-user	0m1.396s
-sys	0m1.426s
-cli_blink$ ./cli.sh
-[ output removed ]
-real	0m2.472s
-user	0m1.333s
-sys	0m1.498s
-cli_blink$ ./cli.sh
-[ output removed ]
-real	0m2.438s
-user	0m1.334s
-sys	0m1.464s
-cli_blink$ 
-	    </pre>
-<p>
-	  </p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="idm667"></a>Dno</h5></div></div></div>
-<p>
-	    We slightly modify our previous invocation and, again, run
-	    4 times:
-	    </p>
-<pre class="programlisting">
-dno_blink$ dno pristine; time dno
-[ output removed ]
-real	0m1.414s
-user	0m1.199s
-sys	0m0.308s
-dno_blink$ dno pristine; time dno
-[ output removed ]
-real	0m1.482s
-user	0m1.290s
-sys	0m0.255s
-dno_blink$ dno pristine; time dno
-[ output removed ]
-real	0m1.465s
-user	0m1.286s
-sys	0m0.270s
-dno_blink$ dno pristine; time dno
-[ output removed ]
-real	0m1.464s
-user	0m1.255s
-sys	0m0.301s
-dno_blink$ 
-	    </pre>
-<p>
-	  </p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h5 class="title">
-<a name="idm671"></a>Conclusion</h5></div></div></div>
-<p>
-	    In this test, dno does even better, achieving around 65%
-	    better performance.  This is quite surprising since the
-	    parsing for dno is essentially done by dumb scripting
-	    tools rather than a compiled executable.
-	  </p>
-</div>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="idm674"></a>4.9.1.3. Final Conclusions</h4></div></div></div>
-<p>
-	  Even in relatively simple comparisons with simple sketches,
-	  dno outperforms the standard Arduino CLI.  Given that: the
-	  Arduino IDE adds additional overhead, beyond that of the
-	  CLI; that parsing appears to be necessary on each
-	  invocation; and that much unnecessary rebuilding is often
-	  performed; on performance dno wins handsomely.
-	</p>
-</div>
 </div>
 </div>
 </div>
