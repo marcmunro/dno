@@ -25,9 +25,6 @@ bin/dno_requote
 bin/dno_prog
 bin/dno_ino2c
 
-# generated test files
-tests/run_tests
-
 # autotools crap
 autom4te.cache
 config.status
