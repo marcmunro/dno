@@ -27,7 +27,10 @@
 	  a <literal>tests</literal> subdirectory;
 	</listitem>
 	<listitem>
-	  a <literal>build</literal> subdirectory.
+	  a <literal>build</literal> subdirectory;
+	</listitem>
+	<listitem>
+	  a <literal>boot</literal> subdirectory.
 	</listitem>
       </itemizedlist>
     </para>
@@ -122,8 +125,11 @@ blink$
     <title>Board Subdirectories</title>
     <para>
       A board subdirectory is used as the home directory for builds
-      for a specific board.  The name of the directory providing the
-      <link linkend='board_type'>board type</link>.
+      for a specific board.  The name of the directory provides the
+      <link linkend='board_type'>board type</link>.  This must be a
+      unique <link linkend='board-specifiers'>board-specifier</link>,
+      but need not be <link
+      linkend='incomplete-specifiers'>completely specified</link>. 
     </para>
     <para>
       Usually all sketch source and header files will be placed in the
@@ -145,9 +151,9 @@ blink$
 	directory include:
 	<itemizedlist>
 	  <listitem>
-	    upload;
+	    upload and uploadp;
 	    <para>
-	      This will attempt to upload the latest executable to a
+	      These will attempt to upload the latest executable to a
 	      connected Arduino board.  See
 	      <link linkend='upload' endterm="upload.title"/>.
 	    </para>
@@ -233,5 +239,34 @@ blink$
 	exactly the same thing.
       </para>
     </section>
+  </section>
+  <section>
+    <title>The boot Subdirectory</title>
+    <para>
+      A board directory, or the root directory if it identifies a
+      <literal>BOARD_TYPE</literal> may contain a
+      <literal>boot</literal> subdirectory.  This is where code for a
+      bootloader can be built.
+    </para>
+    <para>
+      Bootloaders are able to change the standard on-boot behaviour of
+      an Arduino board.  For example
+      <link
+	  xlink:href="https://github.com/Optiboot/optiboot">optiboot</link>
+      is a bootloader that allows the Arduino to boot without an
+      initial delay.  This can be very useful for some applications.
+    </para>
+    <para>
+      Dno does not really know how to build bootloader code.  It
+      expects bootloader code to be built using
+      <literal>make</literal>, and running dno in a boot directory
+      will, by default, simply result in <literal>make</literal> being
+      invoked.
+    </para>
+    <para>
+      If more sophisticated behaviour is required a
+      <literal>dno.mk</literal> file can be added to the directory to
+      provide specific build instructions.
+    </para>
   </section>
 </chapter>

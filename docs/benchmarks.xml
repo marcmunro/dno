@@ -1,0 +1,498 @@
+<?xml version="1.0"?>
+<chapter xmlns:d="http://docbook.org/ns/docbook" version="5.0"
+	 xmlns:xlink="http://www.w3.org/1999/xlink"
+	 id="benchmarks">
+  <info xmlns="http://docbook.org/ns/docbook">
+    <title>Benchmarks</title>
+  </info>
+  <para>
+    This section describes some relatively simple benchmarks performed
+    to compare the execution time of simple builds under the Arduino
+    IDE with those done by dno.  In each case builds were of a
+    slightly modified <literal>blink.ino</literal> file as shown
+    below.
+  </para>
+  <para>
+    The tests were run on a relatively old x86_64 GNU/Linux desktop
+    machine between dno version 0.9.3 and the Arduino IDE version
+    1.8.13.
+  </para>
+  <para>
+    Each benchmark was performed by running the benchmark 5 times and
+    discarding the first result.  This allows the OS cache to be
+    initialised as it would likely be in a normal running situation.
+  </para>
+  <para>
+    We timed 2 distinct invocations of IDE builds: one for an Arduino
+    Pro, and one for an esp32 (coming soon).
+  </para>
+  <para>
+    Since automating the timing of an IDE build is difficult, we ran
+    initial builds in the IDE, and then copied and pasted the commands
+    run by the IDE, into a script.  We then performed timed runs of
+    that script.
+  </para>
+  <para>
+    For all tests, output is redirected to /dev/null in order that
+    processing the terminal output should have as little impact on
+    timing as possible.
+  </para>
+  <para>
+    Our <literal>blink.ino</literal> file looked like this:
+    <programlisting>
+/*
+  Blink
+  Turns on an LED on for one second, then off for one second, repeatedly.
+  Most Arduinos have an on-board LED you can control. On the UNO, MEGA and ZERO 
+  it is attached to digital pin 13, on MKR1000 on pin 6. LED_BUILTIN is set to
+  the correct LED pin independent of which board is used.
+  If you want to know what pin the on-board LED is connected to on your Arduino model, check
+  the Technical Specs of your board  at https://www.arduino.cc/en/Main/Products
+  
+  This example code is in the public domain.
+  modified 8 May 2014
+  by Scott Fitzgerald
+  
+  modified 2 Sep 2016
+  by Arturo Guadalupi
+  
+  modified 8 Sep 2016
+  by Colby Newman
+*/
+
+#ifndef LED_BUILTIN
+#define LED_BUILTIN 13
+#endif
+
+// the setup function runs once when you press reset or power the board
+void setup() {
+  // initialize digital pin LED_BUILTIN as an output.
+  pinMode(LED_BUILTIN, OUTPUT);
+}
+
+// the loop function runs over and over again forever
+void loop() {
+  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(1000);                       // wait for a second
+  digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+  delay(1000);                       // wait for a second
+}  
+    </programlisting>
+  </para>
+  <section>
+    <title>Full build for Arduino Pro</title>
+    <para>
+      This set of comparisons is for a "Full Build".  That is to say,
+      a build where all sources are compiled from scratch.
+    </para>
+    <section>
+      <title>IDE build for Arduino Pro</title>
+      <para>
+	Our script for this was as follows:
+	<programlisting>
+#! /usr/bin/env bash
+
+
+rm /tmp/arduino_cache_248731/core/core_arduino_avr_pro_cpu_16MHzatmega328_1621df717313d057c92202babd71649a.a
+
+find /tmp/arduino_build_271265/ -name '*.o' | xargs rm
+
+
+do_it()
+{
+arduino-builder -dump-prefs -logger=machine -hardware /usr/share/arduino/hardware -tools /usr/share/arduino/hardware/tools/avr -libraries /home/marc/Arduino/libraries -fqbn=arduino:avr:pro:cpu=16MHzatmega328 -ide-version=10813 -build-path /tmp/arduino_build_271265 -warnings=none -build-cache /tmp/arduino_cache_248731 -prefs=build.warn_data_percentage=75 -verbose /home/marc/Arduino/sketch_may10b/sketch_may10b.ino
+arduino-builder -compile -logger=machine -hardware /usr/share/arduino/hardware -tools /usr/share/arduino/hardware/tools/avr -libraries /home/marc/Arduino/libraries -fqbn=arduino:avr:pro:cpu=16MHzatmega328 -ide-version=10813 -build-path /tmp/arduino_build_271265 -warnings=none -build-cache /tmp/arduino_cache_248731 -prefs=build.warn_data_percentage=75 -verbose /home/marc/Arduino/sketch_may10b/sketch_may10b.ino
+}
+
+time do_it
+	</programlisting>
+      </para>
+      <para>
+	This script removes the cached libcore.a file and all
+	previously compiled files, before executing the same commands
+	that the Arduino IDE would issue using the
+	<literal>time</literal> command to capture timing information.
+      </para>
+      <para>
+	Here are the commands which were run and the results:
+	<programlisting>
+blink$ ./cli.sh >/dev/null
+
+real	0m2.562s
+user	0m1.415s
+sys	0m1.341s
+blink$ ./cli.sh >/dev/null
+
+real	0m2.396s
+user	0m1.342s
+sys	0m1.205s
+blink$ ./cli.sh >/dev/null
+
+real	0m2.382s
+user	0m1.319s
+sys	0m1.231s
+blink$ ./cli.sh >/dev/null
+
+real	0m2.515s
+user	0m1.339s
+sys	0m1.356s
+blink$
+	</programlisting>
+      </para>
+    </section>
+    <section>
+      <title>Full dno build for Arduino Pro</title>
+      <para>
+	We created a simple dno project tree as follows:
+	<programlisting>
+blink
+├── blink.ino
+└── pro.8MHzatmega328
+	</programlisting>
+      </para>
+      <para>
+	In this set of builds, we rebuild everything including the
+	<literal>BOARD_INFO</literal> file which normally does not
+	need to be touched.  This is the dno build that is most
+	similar to the IDE build.
+	<programlisting>
+pro.8MHzatmega328$ dno pristine; time dno >/dev/null
+Super-cleaning .
+
+real	0m1.613s
+user	0m1.545s
+sys	0m0.363s
+pro.8MHzatmega328$ dno pristine; time dno >/dev/null
+Super-cleaning .
+
+real	0m1.571s
+user	0m1.461s
+sys	0m0.406s
+pro.8MHzatmega328$ dno pristine; time dno >/dev/null
+Super-cleaning .
+
+real	0m1.566s
+user	0m1.496s
+sys	0m0.367s
+pro.8MHzatmega328$ dno pristine; time dno >/dev/null
+Super-cleaning .
+
+real	0m1.578s
+user	0m1.529s
+sys	0m0.346s
+pro.8MHzatmega328$ 
+
+	</programlisting>
+      </para>
+    </section>
+    <section>
+      <title>Full dno build for Arduino Pro retaining <literal>BOARD_INFO</literal></title>
+      <para>
+	In this set of builds, we rebuild everything except the
+	<literal>BOARD_INFO</literal> file.  This is what a normal
+	clean build would look like.
+	<programlisting>
+pro.8MHzatmega328$ dno clean; time dno >/dev/null
+Cleaning .
+
+real	0m1.279s
+user	0m1.120s
+sys	0m0.304s
+pro.8MHzatmega328$ dno clean; time dno >/dev/null
+Cleaning .
+
+real	0m1.268s
+user	0m1.122s
+sys	0m0.294s
+pro.8MHzatmega328$ dno clean; time dno >/dev/null
+Cleaning .
+
+real	0m1.274s
+user	0m1.148s
+sys	0m0.273s
+pro.8MHzatmega328$ dno clean; time dno >/dev/null
+Cleaning .
+
+real	0m1.289s
+user	0m1.180s
+sys	0m0.255s
+pro.8MHzatmega328$ 
+	</programlisting>
+      </para>
+    </section>
+    <section>
+      <title>Parallel dno build for Arduino Pro retaining <literal>BOARD_INFO</literal></title>
+      <para>
+	For this set of builds we pass the flags <literal>-j
+	4</literal> to dno.  This causes it to run as many as 4
+	commands in parallel when it can.  This is expected to reduce
+	the elapsed build time.
+      </para>
+      <para>
+	This would be the natural, and fastest way to run dno.
+      </para>
+      <para>
+	<programlisting>
+pro.8MHzatmega328$ dno clean; time dno -j 4 >/dev/null
+Cleaning .
+
+real	0m0.657s
+user	0m1.109s
+sys	0m0.289s
+pro.8MHzatmega328$ dno clean; time dno -j 4 >/dev/null
+Cleaning .
+
+real	0m0.656s
+user	0m1.106s
+sys	0m0.295s
+pro.8MHzatmega328$ dno clean; time dno -j 4 >/dev/null
+Cleaning .
+
+real	0m0.669s
+user	0m1.137s
+sys	0m0.278s
+pro.8MHzatmega328$ dno clean; time dno -j 4 >/dev/null
+Cleaning .
+
+real	0m0.655s
+user	0m1.109s
+sys	0m0.289s
+pro.8MHzatmega328$ 
+	</programlisting>
+      </para>
+    </section>
+  </section>
+  <section>
+    <title>Minimal build for Arduino Pro</title>
+    <para>
+      In this scenario, we do a more typical compilation operation,
+      where the core library does not need to be rebuilt.
+    </para>
+    <section>
+      <title>Minimal IDE build for Arduino Pro</title>
+      <para>
+	For this scenario, we re-used our
+	<literal>cli.sh</literal>original script with the
+	<literal>rm</literal> commands commented out.
+	<programlisting>
+blink$ ./cli.sh >/dev/null
+
+real	0m1.732s
+user	0m0.705s
+sys	0m1.184s
+blink$ ./cli.sh >/dev/null
+
+real	0m1.742s
+user	0m0.806s
+sys	0m1.085s
+blink$ ./cli.sh >/dev/null
+
+real	0m1.773s
+user	0m0.707s
+sys	0m1.225s
+blink$ ./cli.sh >/dev/null
+
+real	0m1.990s
+user	0m0.734s
+sys	0m1.442s
+blink$ 
+	</programlisting>
+      </para>
+    </section>
+    <section>
+      <title>dno build with updated blink.ino</title>
+      <para>
+	For this scenario, we <literal>touch</literal> the
+	<literal>blink.ino</literal> file so that it appears to have
+	been updated.  We then run dno and see the following.
+	<programlisting>
+pro.8MHzatmega328$ touch ../blink.ino; time dno
+  C++  ../blink.ino 
+  LD blink.ino.o
+  OBJCOPY (hex) blink.elf
+Program size:    930 out of 30720  (3%: 29790 remaining)
+   Data size:      9 out of 2048   (0%: 2039 remaining)
+
+real	0m0.490s
+user	0m0.421s
+sys	0m0.100s
+pro.8MHzatmega328$ touch ../blink.ino; time dno >/dev/null
+
+real	0m0.391s
+user	0m0.430s
+sys	0m0.076s
+pro.8MHzatmega328$ touch ../blink.ino; time dno >/dev/null
+
+real	0m0.391s
+user	0m0.400s
+sys	0m0.105s
+pro.8MHzatmega328$ touch ../blink.ino; time dno >/dev/null
+
+real	0m0.389s
+user	0m0.410s
+sys	0m0.094s
+pro.8MHzatmega328$ touch ../blink.ino; time dno >/dev/null
+
+real	0m0.388s
+user	0m0.410s
+sys	0m0.092s
+pro.8MHzatmega328$ 
+	</programlisting>
+      </para>
+      <para>
+	Note that the output above shows the first, ignored, dno run
+	where we have not discarded <literal>stdout</literal>.  This
+	is shown simply to show that the dno build did indeed do
+	something.  Otherwise, given the speed of the build, you could
+	be forgiven for thinking that this test was somehow a cheat.
+      </para>
+    </section>
+  </section>
+    <section>
+      <title>dno build with no updates</title>
+      <para>
+	This is the same as above, except that we run dno with no
+	updated sources.  This is equivalent to the situation with the
+	<literal>cli.sh</literal> script above, but dno is smart
+	enough to perform no build.
+	<programlisting>
+pro.8MHzatmega328$ time dno >/dev/null
+
+real	0m0.226s
+user	0m0.255s
+sys	0m0.058s
+pro.8MHzatmega328$ time dno >/dev/null
+
+real	0m0.232s
+user	0m0.263s
+sys	0m0.057s
+pro.8MHzatmega328$ time dno >/dev/null
+
+real	0m0.230s
+user	0m0.259s
+sys	0m0.059s
+pro.8MHzatmega328$ time dno >/dev/null
+
+real	0m0.232s
+user	0m0.272s
+sys	0m0.050s
+pro.8MHzatmega328$ 
+	</programlisting>
+      </para>
+    </section>
+  <section>
+    <title>Tabulated Results</title>
+    <para>
+      <table frame="all">
+	<title>Full Build for Arduino Pro: performance comparison</title>
+	<tgroup cols='9' align="char" char=".">
+	  <colspec colname="title" align="justify" colwidth="4*"/>
+	  <colspec colname="real" colwidth="1*"/>
+	  <colspec colname="user"/>
+	  <colspec colname="sys"/>
+	  <colspec colname="u+s"/>
+	  <colspec colname="real%"/>
+	  <colspec colname="user%"/>
+	  <colspec colname="sys%"/>
+	  <colspec colname="u+s%"/>
+	  <thead>
+	    <row>
+	      <entry morerows="1"/>
+	      <entry namest="real" nameend="u+s"
+		     align="center">Cumulative Seconds (4 runs)</entry>
+	      <entry namest="real%" nameend="u+s%"
+		     align="center">Comparative Time (% of baseline)</entry>
+	    </row>
+	    <row>
+	      <entry>Real</entry>
+	      <entry>User</entry>
+	      <entry>Sys</entry>
+	      <entry>U+S</entry>
+	      <entry>Real %</entry>
+	      <entry>User %</entry>
+	      <entry>Sys %</entry>
+	      <entry>U+S %</entry>
+	    </row>
+	  </thead>
+	  <tbody>
+	    <row>
+	      <entry>Arduino IDE (baseline 1)</entry>
+	      <entry>9.855</entry>
+	      <entry>5.415</entry>
+	      <entry>5.133</entry>
+	      <entry>10.548</entry>
+	    </row>
+	    <row>
+	      <entry>
+		dno, rebuilding BOARD_INFO (against baseline 1)
+	      </entry>
+	      <entry>6.328</entry>
+	      <entry>6.031</entry>
+	      <entry>1.482</entry>
+	      <entry>7.513</entry>
+	      <entry>64.2</entry>
+	      <entry>111.4</entry>
+	      <entry>28.9</entry>
+	      <entry>71.2</entry>
+	    </row>
+	    <row>
+	      <entry>dno, preserved BOARD_INFO (against baseline 1)</entry>
+	      <entry>5.110</entry>
+	      <entry>4.570</entry>
+	      <entry>1.116</entry>
+	      <entry>5.686</entry>
+	      <entry>51.9</entry>
+	      <entry>84.4</entry>
+	      <entry>21.7</entry>
+	      <entry>53.9</entry>
+	    </row>
+	    <row>
+	      <entry>parallel dno (-j 4) (against baseline 1)</entry>
+	      <entry>2.637</entry>
+	      <entry>4.461</entry>
+	      <entry>1.151</entry>
+	      <entry>5.612</entry>
+	      <entry>26.8</entry>
+	      <entry>82.3</entry>
+	      <entry>22.4</entry>
+	      <entry>53.2</entry>
+	    </row>
+	    <row>
+	      <entry>Arduino IDE minimal build (baseline 2)</entry>
+	      <entry>6.328</entry>
+	      <entry>6.031</entry>
+	      <entry>1.482</entry>
+	      <entry>7.513</entry>
+	    </row>
+	    <row>
+	      <entry>
+		dno, rebuilding blink.ino (against baseline 2)
+	      </entry>
+	      <entry>1.559</entry>
+	      <entry>1.650</entry>
+	      <entry>0.367</entry>
+	      <entry>2.017</entry>
+	      <entry>21.5</entry>
+	      <entry>55.9</entry>
+	      <entry>7.4</entry>
+	      <entry>25.6</entry>
+	    </row>
+	    <row>
+	      <entry>
+		dno, no updates (against baseline 2)
+	      </entry>
+	      <entry>0.920</entry>
+	      <entry>1.049</entry>
+	      <entry>0.224</entry>
+	      <entry>1.273</entry>
+	      <entry>12.7</entry>
+	      <entry>35.5</entry>
+	      <entry>4.6</entry>
+	      <entry>16.1</entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </table>
+    </para>
+  </section>
+</chapter>

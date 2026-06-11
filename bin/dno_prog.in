@@ -1,0 +1,260 @@
+#! /usr/bin/env bash
+#
+#       dno_prog - programmers.txt parser for dno
+# 
+#       Copyright (c) 2026 Marc Munro
+#       Author:  Marc Munro
+# 	License: GPL-3.0
+#
+#
+ARDUINO_BOARDS_FILE="@BOARDS_TXT@"
+EXTRA_BOARDS_FILE="@DNO_EXTRA_BOARDS_FILE@"
+DIALOG=@DIALOG@
+DNO_VERSION=@DNO_VERSION@
+
+##
+# error
+# Print an error message to stderr and exit with an error status.
+#
+error()
+{
+    if [ "x${quiet}" != "xyes" ]; then
+	echo -e "dno_prog error:" "$@" 1>&2
+    fi
+    exit 2
+}
+
+##
+# version
+#
+# Print version information.
+#
+version()
+{
+    echo "`basename $0`: version ${DNO_VERSION} (part of the dno toolset)"
+}
+
+##
+# usage
+#
+# Print a usage message.
+#
+usage()
+{
+    echo "dno_prog [options] [board-type]
+
+  Parses programmers.txt file to identify, list or extract definitions
+  for a programmer.
+
+  If board-type is given, check programmers.txt files only for the
+  specific, given, board_type.  By default the architecture for the
+  board_type associated with the current dno board directory will be
+  used, or if the current directory is not a dno board directory, all
+  possible architectures will be considered.  The board-type parameter
+  may be a full 3-part board specifier, or any combination of
+  sub-parts.
+
+  Options:
+  -a, --all     List programmers for all installed arcduino architectures.
+                C
+  -c, --check   Determine whether arg is a valid programmer
+  -e, --extract Extract details for programmer given as arg
+  -h, --help    Provide this help message and exit.
+  -l, --list    List the available programmers.
+  -s, --show*   In combination with -l, show the path to our
+                programmers.txt file.
+  -v, --version	Print version information and exit.
+"
+}
+
+
+#
+# $1 is path to programmers.txt
+# $2 is pretty print
+list_programmers()
+{
+    if [ "x$2" != "x" ]; then
+        echo "Programmers from $1:"
+    fi
+    grep '^[^\.]*\.name=' $1 |
+        while read match; do
+            name=`echo ${match} | cut -d. -f1`
+            descr=`echo ${match} | cut -d= -f2`
+            if [ "x$2" = "xn" ]; then
+                echo ${name}: ${descr}
+            else
+                printf "  %-22s %s\n" "${name}" "${descr}"
+            fi
+        done
+    set +x
+}
+
+
+#
+# $1 is architecture id in form vendor.architecture.path, where path
+# is the path to programmers.txt
+# $2 is the vendor.arch identifier
+# $3 is pretty print (y/n)
+# $3 is identify path to programmers.txt (non-empty string is true).
+#
+list_programmers()
+{
+    echo -n "[$2"
+    if [ "x$4" != "x" ]; then
+	echo -n "    (Programmers from ${1})"
+    fi
+    echo "]"
+    
+    grep '^[^\.]*\.name=' $1 |
+	while read match; do
+	    name=`echo ${match} | cut -d. -f1`
+	    descr=`echo ${match} | cut -d= -f2`
+	    if [ "x$3" = "xn" ]; then
+	        echo ${name}: ${descr}
+	    else
+		printf "  %-22s %s\n" "${name}" "${descr}"
+	    fi
+	done
+}
+
+##
+# Extract and convert to makefile syntax, the details for our
+# programmer.
+#
+# $1 is path to programmers.txt
+# $2 is programmer name
+#
+extract_programmer_entries()
+{
+    echo "program.identifier=$2"
+    grep "^$2\." $1 | \
+	sed -e 's/^[^\.]*.//;s/^name/program.name/' \
+	    -e 's/{/\$(/g;s/}/)/g'
+}
+
+##
+# Ensure that $1 matches exactly one arduino architecture.
+# $1 a board/architecture identifier
+# Raise and report an error if there is more than one match.  Echo the
+# match otherwise.
+#
+ensure_single_arch() {
+    archs=`dno_bpp -a $1`
+    count=`echo "${archs}" | wc -l`
+    if [ ${count} -ne 1 ]; then
+        if [ ${count} -eq 0 ]; then
+	    error "$1 does not match any installed Arduino architecture."
+	else
+	    error "$1 matches too many (${count}) Arduino architectures."
+	fi
+    fi
+    echo "${archs}"
+}
+
+operation=none
+archtitecture=
+while getopts "ac:e:hlsv-:" opt; do
+    case "${opt}" in
+	-)
+	    case "${OPTARG}" in
+		all)
+		    architecture='*'
+		    ;;
+		check)
+		    operation=check
+		    progname="$2"
+		    shift
+		    ;;
+		extract)
+		    operation=extract
+		    progname="$2"
+		    shift
+		    ;;
+		help)
+		    usage
+		    exit 0
+		    ;;
+		list)
+		    operation=list
+		    ;;
+		show*)
+		    show_source=y
+		    ;;
+		version)
+		    version
+		    ;;
+		*)
+		    if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
+                        echo "`basename $0`: Unknown option --${OPTARG}" 1>&2
+			exit 2
+                    fi
+		    ;;
+	    esac
+	    ;;
+	a)
+	    architecture="*";
+	    ;;
+	c)
+	    operation=check
+	    progname="${OPTARG}"
+	    ;;
+	e)
+	    operation=extract
+	    progname="${OPTARG}"
+	    ;;
+	h)
+	    usage
+	    exit 0
+	    ;;
+	l)
+	    operation=list
+	    ;;
+	s)
+	    show_source=y
+	    ;;
+	v)
+	    version
+	    ;;
+	*)
+	    echo "`basename $0`: Unexpected option: -${OPTARG}" 1>&2
+	    exit 1
+	    ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ "x${architecture}" = "x" ]; then
+    if [ "x$1" != "x" ]; then
+	architecture=`dno_bpp -a $1`
+    elif (dno_dirinfo | grep -q board); then
+	# We are in a board directory.  Determine the board type from
+	# the directory.
+	if [ -f BOARD-TYPE ]; then
+	    architecture=`ensure_single_arch $(cat BOARD_TYPE)`
+	else
+	    architecture=`ensure_single_arch $(basename $(pwd))`
+	fi
+    else
+	architecture=`dno_bpp -a`
+    fi
+elif [ "x${architecture}" != 'x*' ]; then
+    # multiple architectures are allowed in this case.
+    architecture=`dno_bpp -a ${architecture}`
+fi
+
+for entry in ${architecture}; do
+    pfile=`echo "${entry}" | cut -d: -f3`/programmers.txt
+    arch=`echo "${entry}" | cut -d: -f1-2`
+
+    case "${operation}" in
+	list)
+            list_programmers "${pfile}" "${arch}" y "${show_source}"
+	    ;;
+	check)
+	    list_programmers "${pfile}" "${arch}" n | grep --silent "^${progname}:"
+	    ;;
+	extract)
+	    extract_programmer_entries "${pfile}" "${progname}"
+	    ;;
+    esac	
+done

@@ -1,0 +1,82 @@
+#! /usr/bin/env bash
+
+# Included from main test runner
+
+
+check_root_build()
+{
+    cd "${test_startdir}"
+    cd tests/proj/blink
+    run; dno 2>&1 | grep -q "Nothing to be done for 'unknown'" ||
+	fail "Expected 'unknown' target message"
+    cp ${SCRIPTDIR}/assets/src/blink.ino .
+    run; dno 2>&1 | grep -q "Try dno ./BOARD_TYPE" ||
+	fail "Expected message about BOARD_TYPE file"
+    echo arduino.avr.uno >BOARD_TYPE
+    run; dno -j 4 >make.log 2>&1 ||
+	fail "Blink build for uno failed see `pwd`/make.log"
+    grep -q 'core.*main.cpp' make.log ||
+        fail "Blink build for uno did not build" \
+	     "core:main.cpp see `pwd`/make.log"
+    cd build
+    run; dno | grep "Nothing to be done for 'unknown'" >/dev/null ||
+        fail "Building in build dir did not prperly fail"
+    cd ..
+    rm -rf build BOARD_INFO BOARD_TYPE
+}
+
+check_boarddir_build()
+{
+    cd "${test_startdir}"
+    cd tests/proj/blink
+    mkdir arduino.uno
+    cd arduino.uno
+    dno -j 4 >make.log 2>&1 ||
+	fail "Blink build for uno failed see `pwd`/make.log"
+    grep -q 'core.*main.cpp' make.log ||
+        fail "Blink build for uno did not build" \
+	     "core:main.cpp see `pwd`/make.log"
+}
+
+# Check that unit tests are run in <lib> and <lib>/tests directories
+check_libdir_build()
+{
+    cd "${test_startdir}"
+    cd tests/proj/blink
+    cp -r ${SCRIPTDIR}/assets/lib/Deferal .
+    cd Deferal
+    run; dno -j 4 >make.log 2>&1 ||
+	fail "Deferal unit test build failed see `pwd`/make.log"
+    grep -q 'Ran.*checks' make.log ||
+        fail "Deferal unit test build failed(2) see `pwd`/make.log" 
+    cd tests
+    run; dno -j 4 >make.log 2>&1 ||
+	fail "Deferal unit test build failed(3) see `pwd`/make.log"
+    grep -q 'Ran.*checks' make.log ||
+        fail "Deferal unit test build failed(4) see `pwd`/make.log"
+}
+
+check_docsdir_build()
+{
+    cd "${test_startdir}"
+    cd tests/proj/blink
+    cp -r ${SCRIPTDIR}/assets/docs .
+    cd docs
+    dno -j 4 >make.log 2>&1 ||
+	fail "docs build failed see `pwd`/make.log"
+}
+
+check_build_type_cleanup()
+{
+    rm -rf tests/proj
+}
+
+check_build_type()
+{
+    echo -n "Checking automated build type identification"
+    mkdir -p tests/proj/blink
+    check_root_build
+    run check_boarddir_build
+    check_libdir_build
+    run check_docsdir_build
+}

@@ -7,12 +7,20 @@
 **dno_checksize** - Arduino image size checker for dno
 
 # SYNOPSIS
- avr-size | **dno_checksize** MAX_DATA=max_data_size MAX_UPLOAD=max_upload_size
+ avr-size | **dno_checksize** progsize-regexp datasize-regexp max-progsize max-datasize 
 
 # DESCRIPTION
 This filter takes image size information from avr-size as stdin,
 formats it into a friendlier output format and ensures that the size
 is within the limits identified on the command line.
+
+The parameters, in order, are taken from the following definitions
+from the Arduino `programs.txt` and `boards.txt` files:
+
+* `recipe.size.regex`
+* `recipe.size.regex.data`
+* `upload.maximum_size`
+* `upload.maximum_data_size`
 
 This is part of the dno Arduino software builder package.
 

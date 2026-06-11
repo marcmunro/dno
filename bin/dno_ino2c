@@ -1,0 +1,165 @@
+#! /usr/bin/env bash
+#
+#       dno_ino2c - Convert .ino files to c++ output
+# 
+#       Copyright (c) 2026 Marc Munro
+#       Author:  Marc Munro
+# 	License: GPL-3.0
+#
+#
+DNO_VERSION=0.9.3
+
+##
+# error
+# Print an error message to stderr and exit with an error status.
+#
+error()
+{
+    if [ "x${quiet}" != "xyes" ]; then
+	echo -e "dno_prog error:" "$@" 1>&2
+    fi
+    exit 2
+}
+
+##
+# version
+#
+# Print version information.
+#
+version()
+{
+    echo "`basename $0`: version ${DNO_VERSION} (part of the dno toolset)"
+}
+
+##
+# usage
+#
+# Print a usage message.
+#
+usage()
+{
+    echo "dno_ino2 [OPTIONS] [INPUT-FILE]...
+
+  Extracts the function prototypes for all INPUT-FILEs and adds the
+  prototypes to the files, writing to stdout.
+
+  Options:
+  -h, --help    Provide this help message and exit.
+  -v, --version	Print version information and exit.
+"
+}
+
+##
+# add_prototypes
+# Take arduino_ctags output, and, for functions, copy it to stdout
+# with appropriate #line directives.
+#
+add_prototypes()
+{
+    awk '
+    BEGIN {
+        WORD_RE = "[[:alpha:]_][[:alnum:]_]*";
+        SEP_RE = "[[:space:]][[:space:]]*";
+        FNAME_RE = "[[:alnum:][:punct:]][[:alnum:][:punct:]]+";
+	fno = 0;
+	min_line = 0;
+    }
+    function printline(line, filname) {
+    	printf("#line %s \"%s\"\n", line, filename);
+    }
+    (NR == FNR) {
+    	# This is stdin, ie the output from ctags
+	if ($0 ~ /\/\^[[:space:]]/) {
+	    # Ignore stuff that appears to be from classes.
+	    next;
+	}
+	if ($0 ~ /;\$/) {
+	    # Ignore stuff that appears to be from forward refs.
+	    next;
+	}
+
+	# If we get here we have an entry we are interested in
+	fno++;
+	line_no = gensub(/.*line:([0-9]*).*/, "\\1", "1");
+	gsub("^" WORD_RE SEP_RE, ""); # Remove function name
+	filename = gensub("^(" FNAME_RE ").*", "\\1", "1");
+	fname[fno] = filename;
+	rtype = gensub(/.*returntype:/, "", "1")
+	gsub(/.*\/\^/, "");
+	gsub(/{?\$.*/, "");
+	if ($0 ~ "^" rtype SEP_RE) {
+	    prototype[fno] = $0;
+	}
+	else {
+	    prototype[fno] = rtype " " $0;
+	    line_no--;
+	}
+	line[fno] = line_no;
+	if (min_line) {
+	    if ((FNAME == INO_FILE) && (min_line > $3)) {
+		min_line = line_no;
+	    }
+	}
+	else {
+	     min_line = line_no;
+	}
+	next;
+    }
+    (FNR == 1) {
+    	printline(1, FILENAME);
+    }
+    (NR != FNR) {
+    	if ((FILENAME == INO_FILE) && (FNR == min_line)) {
+	    for (f = 1; f <= fno; f++) {
+	     	if (line[f] == min_line) {
+		    minline_idx = f;
+	        }
+		printline(line[f], fname[f]);
+	        printf("%s;\n", prototype[f]);
+	    }
+	    printline(line[minline_idx], fname[minline_idx]);
+	}
+        print;
+    }
+    ' INO_FILE="$1" - "$@"
+}
+
+
+operation=none
+archtitecture=
+while getopts "hv-:" opt; do
+    case "${opt}" in
+	-)
+	    case "${OPTARG}" in
+		help)
+		    usage
+		    exit 0
+		    ;;
+		version)
+		    version
+		    ;;
+		*)
+		    if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
+                        echo "`basename $0`: Unknown option --${OPTARG}" 1>&2
+			exit 2
+                    fi
+		    ;;
+	    esac
+	    ;;
+	h)
+	    usage
+	    exit 0
+	    ;;
+	v)
+	    version
+	    ;;
+	*)
+	    echo "`basename $0`: Unexpected option: -${OPTARG}" 1>&2
+	    exit 1
+	    ;;
+    esac
+done
+
+set -o pipefail
+arduino-ctags -u --language-force=c++ -f - --c++-kinds=f  \
+	      --fields=nT /dev/null "$@" | add_prototypes "$@"

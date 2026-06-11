@@ -1,4 +1,4 @@
-# dno 0.9.2
+# dno 0.9.3
 #### A system for building Arduino software
 
 dno provides a command-line alternative to Arduino IDEs.  It is fast
@@ -69,6 +69,14 @@ Anything else that can run autotools can probably be made to work.
 
 Windows will not be supported unless someone wants to fork the project
 or work closely with dno's author to make it happen.
+
+## Release Notes
+
+#### 0.9.3
+
+This version has major refactorings and includes a pretty full test
+suite.  New functionality includes handling for external programmers,
+and for building bootloader images.
 
 ## License
 

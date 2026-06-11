@@ -11,7 +11,7 @@
        The docbook5 dno user guide.
        This is part of dno, the Arduino build system.
 
-       Copyright (c) 2025 Marc Munro
+       Copyright (c) 2025,2026 Marc Munro
        Author:  Marc Munro
        License: GPL-3.0
 
@@ -51,11 +51,14 @@
       libraries and the creation of <link
       xlink:href="https://www.doxygen.nl/index.html">Doxygen</link>-based
       documentation of code.  In short, it aims to support the
-      creation of professional-quality software for Arduino platforms.
+      creation of professional-quality software for Arduino-like
+      platforms.
     </para>
     <para>
-      Finally, it aims to be as simple to use as possible - requiring
-      minimal configuration while providing maximal flexibility.
+      Finally, it aims to be as simple to use as possible.  It
+      provides the simplest possible commands for getting things done
+      and requires minimal configuration while providing maximal
+      flexibility.
     </para>
   </preface>
   <xi:include href="installation.xml"/>
@@ -66,6 +69,7 @@
   <xi:include href="libraries.xml"/>
   <xi:include href="documentation.xml"/>
   <xi:include href="other.xml"/>
+  <xi:include href="benchmarks.xml"/>
   <chapter>
     <title>Developing and Debugging Dno</title>
     <para>
@@ -75,9 +79,9 @@
     </para>
     <para>
       The various helper tools (see the man page appendices) are all
-      shell and awk scripts, and again should be either well-enough
-      documented, or simple enough that they are relatively easy to
-      work on.
+      shell, awk and perl scripts, and again should be either
+      well-enough documented, or simple enough that they are
+      relatively easy to work on.
     </para>
     <para>
       To get started with hacking on <literal>dno</literal> you should
@@ -139,6 +143,11 @@
 	    The IDE is slow everywhere.  It's slow to start, slow to
 	    compile, slow to do anything.
 	  </para>
+	  <para>
+	    Also some operations block the IDE completely.  For
+	    instance, while you are installing new boards the editor
+	    is unusable.  
+	  </para>
 	</listitem>
 	<listitem>
 	  <para>
@@ -156,16 +165,19 @@
 	    its attitude;
 	  </para>
 	  <para>
-	    Here's how you write software: you bring up a really
+	    Its attitude is the attitude of all IDEs.  The attitude is
+	    that this is how you write software: it's the best way;
+	    every other way is inferior; why would you want to do
+	    anything else; if you don't like it you must be missing
+	    something.  For the Arduino IDE, it's maybe a little worse
+	    than most IDEs because its not very good.  It has a really
 	    crappy editor that has no interest in how you want to use
 	    your filesystem and that does not have the power of the
-	    tools that you normally use.  No, you can't use standard
-	    tools.  And, no you can't build from the command line: well,
-	    you can but the commands are insane.
+	    tools that you normally use.
 	  </para>
 	  <para>
-	    <quote>But this is the right way to do it.  In fact it's
-	    the only way.</quote>
+	    <quote>But this is the right way to do it.  Obviously.
+	    Why would you not want to do it this way?</quote>
 	  </para>
 	  <para>
 	    That's the attitude I'm talking about.  And it sucks.
@@ -175,8 +187,9 @@
 	    buy-in to it.  You will often hear the question,
 	    <quote>why would you not use
 	    <emphasis>whatever</emphasis>?</quote>, when the real
-	    question should be <quote>why can't I use tools that I am
-	    familiar with?</quote>
+	    question should be <quote>why can't I use more flexible
+	    and powerful tools that I am already familiar
+	    with?</quote>
 	  </para>
 	</listitem>
 	<listitem>
@@ -191,10 +204,9 @@
 	    directory structured.
 	  </para>
 	  <para>
-	    The IDE provides no way to actually develop libraries.
-	    You can write them, but you can't test them or document
-	    them.  It's a toy development environment for toy
-	    devlopment.
+	    The IDE, as far as I can tell, provides no way to actually
+	    develop libraries.  You can write them, but you can't test
+	    them or document them.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -203,11 +215,16 @@
       <title>And How?</title>
       <para>
 	So, I didn't like the IDE.  I tried using a proper editor and
-	cutting and pasting my code into the IDE.  That sucked.
+	cutting and pasting my code into the IDE.  That sucked. 
       </para>
       <para>
 	I know there are other IDEs, like eclipse, that maybe don't
 	suck, but I still don't like IDEs.
+      </para>
+      <para>
+	And I know that I could use a different editor from the IDE,
+	but then I'd be using an editor <emphasis>and</emphasis> an
+	IDE, and that is no way to make things simpler.
       </para>
       <para>
 	I tried using the CLI.  But the commands are pure mental: way
@@ -225,7 +242,7 @@
       <para>
 	I looked at hacking it, and discovered a lot about
 	<literal>make</literal> that I didn't know.  It was a very
-	good piece of work, but still not quite right.
+	cool piece of work, but still not quite right.
       </para>
       <para>
 	I developed my own version of <literal>Arduino.mk</literal>
@@ -238,7 +255,14 @@
 	<literal>platform.txt</literal> file.  I finally realised that
 	a simple transform could turn it into makefile syntax.  And
 	then I discovered make's <literal>eval</literal> function and
-	everything was suddenly possible.
+	suddenly everything was possible.
+      </para>
+      <para>
+	While I was developing <literal>dno</literal> I discovered a
+	number of other Arduino-compatible toolsets, but each one
+	seemed less flexible and more work to use than
+	<literal>dno</literal> was becoming.  So I kept on, and here
+	we are.
       </para>
     </section>
   </chapter>
@@ -247,7 +271,9 @@
   <xi:include href="parts/dno_checksize.xml"/>
   <xi:include href="parts/dno_commands_for.xml"/>
   <xi:include href="parts/dno_dirinfo.xml"/>
+  <xi:include href="parts/dno_ino2c.xml"/>
   <xi:include href="parts/dno_menu.xml"/>
+  <xi:include href="parts/dno_prog.xml"/>
   <xi:include href="parts/dno_requote.xml"/>
   <xi:include href="parts/BOARD_INFO.xml"/>
   <xi:include href="parts/BOARD_OPTIONS.xml"/>

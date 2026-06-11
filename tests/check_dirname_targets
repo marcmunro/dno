@@ -1,0 +1,35 @@
+#! /usr/bin/env bash
+# Check that docs biuld targets do as expected
+#
+
+
+check_dirname_targets_cleanup()
+{
+    rm -rf ${test_startdir}/tests/proj
+}
+
+# Check dirname targets
+check_dirname_targets1()
+{
+    run; dno Deferal >make.log 2>&1 || fail "Deferal target fails"
+    grep -q "RUN.*test_Deferal" make.log ||
+	fail "Deferal target does not run tests"
+    run; dno Deferal/ >make.log 2>&1 || fail "Deferal/ target fails"
+    grep -q "RUN.*test_Deferal" make.log ||
+	fail "Deferal/ target does not run tests"
+    run; dno avr.pro >make.log 2>&1 || fail "avr.pro target fails"
+    grep -q "OBJCOPY.*blink.elf" make.log ||
+	fail "avr.pro build does not do OBJCOPY"
+}
+
+check_dirname_targets()
+{
+    echo -n "Checking dirname_target builds"
+    cd ${test_startdir}
+    mkdir -p tests/proj/blink
+    cd tests/proj/blink
+    cp ${SCRIPTDIR}/assets/src/blink.cpp .
+    mkdir avr.pro
+    cp -r ${SCRIPTDIR}/assets/lib/Deferal .
+    check_dirname_targets1
+}

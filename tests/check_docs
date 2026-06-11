@@ -1,0 +1,94 @@
+#! /usr/bin/env bash
+# Check that docs biuld targets do as expected
+#
+
+
+check_docs_cleanup()
+{
+    rm -rf ${test_startdir}/tests/proj
+}
+
+# Check explicit unit test targets
+check_docs_targets()
+{
+    # Run without Doxyfile: must fail
+    run dno docs >make.log 2>&1 && fail "docs without Doxyfile does not fail"
+    grep -q "No rule to make .*Doxyfile" make.log || \
+	fail "Incorrect error notice for docs fail"
+
+    # Create Doxyfile
+    mkdir docs
+    cp -r ${SCRIPTDIR}/assets/docs/Doxyfile docs
+
+    # Run in board directory: all docs should be built
+    run; dno docs >make.log || fail "dno docs build fails"
+    [ -f docs/html/index.html ] || fail "docs build: no index.html created"
+    grep -q "DOXYGEN blink" make.log || fail "docs build: no build feedback"
+    grep -q "<title>blink" docs/html/index.html ||
+	fail "docs build: no \"blink\" title"
+    grep -q "blink.cpp" docs/html/files.html ||
+	fail "docs build: blink.cpp not found in files.html"
+    
+    # Ensure no action on attempted retry
+    run; dno docs >make.log || fail "dno docs build retry fails"
+    grep -q "DOXYGEN blink" make.log && \
+	fail "docs build retry: DOXYGEN is rerun"
+
+    # Touch a source file and ensure docs rebuild
+    touch blink.cpp
+    run; dno docs >make.log || fail "dno docs build fails (2)"
+    grep -q "DOXYGEN blink" make.log ||
+	fail "docs rebuild: build not done"
+
+    # Add the Deferal library
+    cp -r ${SCRIPTDIR}/assets/lib/Deferal .
+    run; dno docs >make.log || fail "dno docs build fails (3)"
+    grep -q "Deferal.cpp" docs/html/files.html ||
+	fail "docs build: Deferal.cpp not found in files.html"
+    grep -q "<title>blink" docs/html/index.html ||
+	fail "docs build: no \"blink\" title(2)"
+    
+    # Now build the docs just for the Deferal library.
+    cd Deferal
+    run; dno docs >make.log || fail "dno docs build for Deferal fails"
+    grep -q "<title>Deferal" docs/html/index.html ||
+	fail "docs build: no \"Deferal\" title"
+    grep -q "Deferal.cpp" docs/html/files.html ||
+	fail "docs build: Deferal.cpp not found in files.html(2)"
+    grep -q "blink.cpp" docs/html/files.html &&
+	fail "docs build: Unexpected blink.cpp found in files.html"
+    cd ..
+    
+}
+
+check_default_docs_build()
+{
+    run dno clean >make.log 2>&1 || fail "dno clean fails"
+    cd docs
+    # run dno in blink/docs
+    run dno >make.log 2>&1 || fail "dno fails in blink/docs"
+    grep -q "<title>blink" html/index.html ||
+	fail "docs build: no \"blink\" title (3)"
+    grep -q "blink.cpp" html/files.html ||
+	fail "docs build: blink.cpp not found in files.html(3)"
+    
+    # run dno in blink/Deferal/docs
+    cd ../Deferal/docs
+    run dno >make.log 2>&1 || fail "dno fails in blink/docs"
+    grep -q "<title>Deferal" html/index.html ||
+	fail "docs build: no \"Deferal\" title (2)"
+    grep -q "Deferal.cpp" html/files.html ||
+	fail "docs build: Deferal.cpp not found in files.html(3)"
+}   
+
+check_docs()
+{
+    echo -n "Checking docs build"
+    cd ${test_startdir}
+    mkdir -p tests/proj/blink
+    cd tests/proj/blink
+    echo avr.pro >BOARD_TYPE
+    cp ${SCRIPTDIR}/assets/src/blink.cpp .
+    check_docs_targets
+    check_default_docs_build
+}

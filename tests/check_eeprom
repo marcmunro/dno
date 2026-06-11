@@ -1,0 +1,39 @@
+#! /usr/bin/env bash
+# Check that eeprom targets work as expected
+#
+
+
+check_eeprom_cleanup()
+{
+    rm -rf ${test_startdir}/tests/proj
+}
+
+# Check eeprom_targets.
+# Note that the eeprom image build has already been tested in our
+# basic build tests.
+#
+check_eeprom_targets()
+{
+    run; dno -j 4 eeprom_image >make.log 2>&1 || fail "eeprom target prep fails"
+    [ -f build/blink.eep ] || fail "eep image not created"
+    run; dno eeprom --dry-run >make.log 2>&1 || fail "eprom upload dryrun fails"
+    grep -q "avrdude.*-patmega328p.*-Ueeprom:w:build/blink.eep:i" make.log ||
+        fail "avrdude command for eeprom upload not found"
+    # Now eeprom read
+    run; dno eeprom_read --dry-run >make.log 2>&1 ||
+	fail "eprom read dryrun fails"
+    grep -q "avrdude.*-patmega328p.*-Ueeprom:r:.*\.hex:i" make.log ||
+        fail "avrdude command for eeprom read not found"
+}
+
+check_eeprom()
+{
+    echo -n "Checking eeprom targets"
+    cd ${test_startdir}
+    mkdir -p tests/proj/blink
+    cd tests/proj/blink
+    cp ${SCRIPTDIR}/assets/src/blink.cpp .
+    mkdir -p arduino.avr.pro
+    cd arduino.avr.pro
+    check_eeprom_targets
+}

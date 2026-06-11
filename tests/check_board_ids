@@ -1,0 +1,66 @@
+#! /usr/bin/env bash
+# Check identification mechanisms for boards
+#
+# TODO:
+# - check dno_menu with BOARD_INFO provided
+# - check esp32 boards wioth lots of options
+check_board_ids_cleanup()
+{
+    rm -rf tests/board
+}
+
+check_simple_board_ids()
+{
+    run dno_bpp -i arduino >/dev/null 2>&1 &&
+	fail "arduino incorrectly identified as unique board"
+    run dno_bpp -i arduino.avr >/dev/null 2>&1 &&
+	fail "arduino.avr incorrectly identified as unique board"
+    run dno_bpp -i arduino.avr.pro >/dev/null 2>&1 ||
+	fail "arduino.avr.pro incorrectly not identified as unique board"
+    run dno_bpp -i avr.pro >/dev/null 2>&1 ||
+	fail "avr.pro incorrectly not identified as unique board"
+    run dno_bpp -i arduino.pro >/dev/null 2>&1 ||
+	fail "arduino.pro incorrectly not identified as unique board"
+    run dno_bpp -i arduino.uno >/dev/null 2>&1 ||
+	fail "arduino.uno incorrectly not identified as unique board"
+    run; dno_bpp -i arduino.uno | grep -q "^arduino.avr.uno$" ||
+	fail "arduino.uno not identified as arduino.avr.uno"
+}
+
+check_optioned_board_ids()
+{
+    run; dno_bpp -i arduino.pro.cpu=16MHzatmega328 | 
+	grep -q 'cpu=16MHzatmega328' ||
+	fail "Unrecognised option for arduino.pro: cpu=16MHzatmega328"
+    run; dno_bpp -i arduino.pro.16MHzatmega328 | 
+	grep -q 'cpu=16MHzatmega328' ||
+	fail "Unrecognised option for arduino.pro: 16MHzatmega328"
+    run; dno_bpp -i arduino.pro.8MHzatmega328 | 
+	grep -q 'cpu=8MHzatmega328' ||
+	fail "Unrecognised option for arduino.pro: cpu=8MHzatmega328"
+    run; dno_bpp -i arduino.pro.cpu=16MHzatmega32 2>/dev/null &&
+	fail "Option cpu=8MHzatmega32 for arduino.pro should not be accepted"
+    run; dno_bpp -i arduino.uno.cpu=16MHzatmega328 2>/dev/null &&
+	fail "Option cpu=16MHzatmega32 for arduino.uno should not be accepted"
+}
+
+check_board_options()
+{
+    cd "${test_startdir}"
+    mkdir -p tests/board
+    cd tests/board
+    run; dno_menu -f avr.pro | grep -q 'cpu=16MHzatmega328' ||
+	fail "incorrect default cpu option for avr.pro"
+    run; dno_menu -f avr.pro.16MHzatmega328 | grep -q 'cpu=16MHzatmega328' ||
+	fail "incorrect explicit cpu option for avr.pro(1)"
+    run; dno_menu -f avr.pro.8MHzatmega328 | grep -q 'cpu=8MHzatmega328' ||
+	fail "incorrect explicit cpu option for avr.pro(2)"
+}
+
+check_board_ids()
+{
+    echo -n "Checking identification mechanisms for boards"
+    check_simple_board_ids
+    check_optioned_board_ids
+    check_board_options
+}

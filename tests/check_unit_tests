@@ -1,0 +1,47 @@
+#! /usr/bin/env bash
+# Check that unit test targets do as expected
+#
+
+
+check_unit_tests_cleanup()
+{
+    rm -rf ${test_startdir}/tests/proj
+}
+
+# Check explicit unit test targets
+check_unit_targets()
+{
+    # Run in board directory: unit testing should do nothing
+    run; dno unit >make.log || fail "dno unit fails"
+    grep -q "Nothing to be done" make.log || \
+	fail "dno unit tries to do something"
+    grep -q "C++" make.log && \
+	fail "dno unit tries to compile something"
+    cp -r ${SCRIPTDIR}/assets/lib/Deferal .
+    run; dno unit_test >make.log || fail "dno unit fails(2)"
+    grep -q "Ran.*checks" make.log || fail "Unit tests not run(1)"
+    cd Deferal
+    run; dno test >make.log || fail "dno unit fails(3)"
+    grep -q "Ran.*checks" make.log || fail "Unit tests not run(2)"
+    rm make.log
+    run; dno test >make.log || fail "dno unit fails(4)"
+    grep -q "Ran.*checks" make.log || fail "Unit tests not run(3)"
+    cd ..
+    run; dno unit >make.log || fail "dno unit fails(5)"
+    grep -q "Ran.*checks" make.log || fail "Unit tests not run(4)"
+    dno clean >/dev/null 2>&1
+    run; dno unit >make.log || fail "dno unit fails(6)"
+    grep -q "C++" make.log || fail "Unit tests not built"
+    grep -q "Ran.*checks" make.log || fail "Unit tests not run(5)"
+}
+
+check_unit_tests()
+{
+    echo -n "Checking unit tests"
+    cd ${test_startdir}
+    mkdir -p tests/proj/blink
+    cd tests/proj/blink
+    echo avr.pro >BOARD_TYPE
+    touch blink.ino
+    check_unit_targets
+}

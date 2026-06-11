@@ -1,0 +1,131 @@
+#! /usr/bin/env bash
+#
+#       Unit tests for dno.
+#
+#       Copyright (c) 2024, 2025, 2026 Marc Munro
+#       Author:  Marc Munro
+# 	License: GPL-3.0
+#  
+# Usage:
+#   run_tests [-n] [test_regexp]
+#   run_tests -D
+#
+# -n prevents cleanup following a successful test run
+# -D echos our parameters.  This is a dumb emulation of dialog,
+#    allowing us to see what dialog has been passed as parameters.
+#
+# test_regexp is a regexp that matches a suite name.  Only suites that
+# match this regexp will be run.
+#
+# TODO: Add to configure.
+#
+EXTRA_BOARDS_FILE=${HOME}/.dno_boards_paths
+ARDUINO_BOARDS_FILE=/usr/share/arduino/hardware/arduino/avr/boards.txt
+
+SCRIPTDIR=$(cd `dirname $0`; pwd)
+PROJDIR=$(cd `dirname $0`/..; pwd)
+
+fail()
+{
+    if [ "x$1" != "x-q" ]; then
+        echo
+        echo -e "FAILED:" "$@" 1>&2
+    fi
+    echo -e "\nStacktrace:"
+    echo " " ${FUNCNAME[0]}@${BASH_SOURCE[0]}:$LINENO
+    local i
+    for (( i=1; i<${#FUNCNAME[*]}; i++ )); do
+	echo " " ${FUNCNAME[$i]}@${BASH_SOURCE[$i]}:${BASH_LINENO[$i-1]}
+    done
+    exit 2
+}
+
+suite_cleanup()
+{
+    cd "${SUITE_STARTDIR}"
+    "${SUITE}_cleanup" 2>/dev/null
+}
+
+# Run a test.
+# Provide a "." (dot) of feedback for each test run.
+#
+run()
+{
+    echo -n "."
+    "$@"
+    return $?
+}
+
+# load and run the test suite identified by $1
+# If regexp $(TESTS) is defined, only run the suite if $1 matches.
+#
+runsuite()
+{
+    if [ "x${TESTS}" != "x" ]; then
+	echo "$1" | grep -q "${TESTS}" || return 0
+    fi
+    export SUITE=$1
+    export SUITE_STARTDIR=`pwd`
+    . ${test_dir}/$1 
+    suite_cleanup
+    $1
+    if [ "x${NOCLEANUP}" = "x" ]; then
+        suite_cleanup;
+    fi
+    echo
+}
+
+test_dir=$(cd `dirname $0`; pwd)
+				 
+if [ "x$1" = "x-f" ]; then
+    rm -rf .test >/dev/null
+    shift
+fi
+
+if [ "x$1" = "x-n" ]; then
+    # Do not cleanup
+    export NOCLEANUP=yes
+    shift
+fi
+
+if [ "x$1"  = "x-D" ]; then
+    # Pretend to be the dialog tool so that we can see the parameters
+    # passed to it.
+    shift
+    echo "$@"
+    exit 2
+fi
+
+mkdir .test || (
+    echo "Error .test directory exists. "\
+	 "Delete it or run with -f option" 1>&2
+    exit 2
+) || exit 2
+
+cd .test
+export test_startdir=`pwd`
+
+export MAKEOVERRIDES=""
+export MAKELEVEL=""
+export TESTS="$1"
+
+
+runsuite check_env
+runsuite check_dir_handling
+runsuite check_board_ids
+runsuite check_basic_build
+runsuite check_menu_handling
+runsuite check_build_type
+runsuite check_projname
+runsuite check_boardchange
+runsuite check_helper_targets
+runsuite check_unit_tests
+runsuite check_docs
+runsuite check_boot
+runsuite check_dirname_targets
+runsuite check_tags
+runsuite check_upload
+runsuite check_eeprom
+runsuite check_monitor
+
+

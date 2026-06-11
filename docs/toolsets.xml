@@ -542,7 +542,7 @@ drwxr-x--- 18 user user       4096 Jan  5 13:59 .
 	directory path for the <literal>boards.txt</literal>
 	discovered above:
 	<programlisting>
-~$ dno install_extra_boards BOARDS_PATH=~/arduino15/packages/arduino/hardware/avr/1.8.6
+~$ dno install_extra_boards BOARDS_PATH=~/.arduino15/packages/arduino/hardware/avr/1.8.6
 ~$ 
 	</programlisting>
       </para>
@@ -600,7 +600,7 @@ Supplemental boards.txt directories:
 	<programlisting>
 ~$ dno show_boards
 
-    Supported ArduinoBoard and CPU Types
+    Supported Arduino Board Types
 ============================================================
 waveshare_esp32_s3_touch_lcd_4                        Waveshare ESP32-S3-Touch-LCD-4
 waveshare_esp32_s3_touch_lcd_43                       Waveshare ESP32-S3-Touch-LCD-4.3

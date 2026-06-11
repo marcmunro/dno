@@ -84,51 +84,1358 @@
   </section>
   <section xml:id="monitor">
     <title>Serial Communication</title>
-    <para>
-      You can monitor and interact with your Arduino's serial
-      connection using <literal>dno monitor</literal>.
-    </para>
-    <para>
-      This creates a connection to your Arduino using the Linux
-      <literal>screen</literal> command.
-    </para>
-      <para>
-      You should read the <literal>screen</literal> man page if you
-      are unfamiliar with screen.
-    </para>
     <section>
-      <title>Getting Out of <literal>screen</literal></title>
+      <title>Using screen (the <literal>monitor</literal> target)</title>
       <para>
-	If you are unfamiliar with <literal>screen</literal> you will
-	quickly find yourself wondering, "how do I get out of this"?
+	You can monitor and interact with your Arduino's serial
+	connection using <literal>dno monitor</literal>.
       </para>
       <para>
-	If you find yourself in the monitor and want to get out, use
-	<literal>C-a k</literal>.  That is Control-A followed by k.
+	This creates a connection to your Arduino using the Linux
+	<literal>screen</literal> command.
       </para>
       <para>
-	Another way to kill the screen program is by running
-	<literal>dno noscreen</literal> from another session.
+	You should read the <literal>screen</literal> man page if you
+	are unfamiliar with screen.
+      </para>
+      <section>
+	<title>Getting Out of <literal>screen</literal></title>
+	<para>
+	  If you are unfamiliar with <literal>screen</literal> you will
+	  quickly find yourself wondering, "how do I get out of this"?
+	</para>
+	<para>
+	  If you find yourself in the monitor and want to get out, use
+	  <literal>C-a k</literal>.  That is Control-A followed by k.
+	</para>
+	<para>
+	  Another way to kill the screen program is by running
+	  <literal>dno noscreen</literal> from another session.
+	</para>
+      </section>
+      <section>
+	<title>Why <literal>screen</literal>?</title>
+	<para>
+	  The screen utility provides multiplexed virtual terminals.
+	  This allows you to run multiple sessions from a single
+	  terminal.
+	</para>
+	<para>
+	  By using screen as our monitor tool, we allow the user to
+	  switch between a command line session and the connection to
+	  the Arduino serial interface.  This seemed like a good idea.
+	</para>
+      </section>
+    </section>
+    <section>
+      <title>Output to terminal (using the <literal>cat</literal> target)</title>
+      <para>
+	If you just to watch the output from your Arduino's serial
+	connection and do not need to provide input, you can use the
+	<literal>cat</literal> target.
+      </para>
+      <para>
+	This acts as though you were <literal>cat</literal>ting the
+	output of the connected board to your terminal.  Just as with
+	the standard <literal>cat</literal> command, that output can
+	be redirected to files, piped through filters, etc.
+      </para>
+    </section>
+  </section>
+  <section xml:id="dno.mk">
+    <title>Custom dno Functionality</title>
+    <para>
+      Should you wish to enhance <literal>dno</literal>'s
+      functionality with extra targets, or make subtle changes to its
+      behaviour without hacking the <literal>dno</literal> executable
+      itself, you can add a <literal>dno.mk</literal> file to the
+      directory where you are running <literal>dno</literal>.
+    </para>
+    <para>
+      This is a makefile that will be included into dno before it
+      starts its directory discovery process.  It can provide extra
+      target and variable definitions, and so can change and add to
+      <literal>dno</literal>'s functionality.
+    </para>
+    <para>
+      Since this is loaded quite early in the process of discovering
+      dependencies and definitions, it is possible that the
+      definitions you may want to customise will be overwritten by the
+      load of a subsequent dependency file, in particular the
+      <literal>BOARD_INFO</literal> file.
+    </para>
+    <para>
+      If you need your definitions to be evaluated at the end of 
+      makefile processing, after all other dependency files have been
+      updated and evaluated, you can provide a definition for
+      <literal>INO_FINAL</literal>.  This will be evaluated after
+      everything else but before beginning the build process proper.
+      Here is an example:
+      <programlisting>
+# The following will override the definition of upload.speed in
+# BOARD_INFO.
+define INO_FINAL
+  upload.speed=9600
+endef
+      </programlisting>
+    </para>
+    <para>
+      Note that because this is eval'd using <literal>make</literal>'s
+      <literal>eval</literal> function, you may need to escape any
+      "<literal>$</literal>" characters.  See the <literal>Gnu
+      make</literal> manual for details.
+    </para>
+  </section>
+  <section xml:id="using-programmers">
+    <title>Using External Programmers</title>
+    <section>
+      <title>Limitations of Serial Uploading</title>
+      <para>
+	Most Arduino programming can be done by simply uploading
+	sketches using the board's serial interface.  In this case,
+	the uploader (eg <literal>avrdude</literal>) negotiates with
+	the board's built-in bootloader, which loads the incoming
+	sketch into the board.
+      </para>
+      <para>
+	In some cases though serial uploading may be inadequate for your
+	needs:
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      You may be using a board which doesn't provide a serial
+	      interface.
+	    </para>
+	    <para>
+	      Many inexpensive minimalist boards are available with no
+	      serial interfaces.  Or you may have built your own
+	      board, with custom hardware and no serial interface.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Your board's serial interface pins may be being used for
+	      something else.
+	    </para>
+	    <para>
+	      The Rx/Tx pins can be used as digital I/O pins.  Maybe
+	      your project needs extra I/O pins and does not need a
+	      serial interface.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Your board may not have a bootloader.
+	    </para>
+	    <para>
+	      In this case, serial uploading is simply not possible.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Your bootloader may have become corrupted.
+	    </para>
+	    <para>
+	      It is not entirely clear how this can happen, but it is
+	      certainly known to happen.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      You may want to load a new bootloader.
+	    </para>
+	    <para>
+	      You may want to change the boot behaviour, particularly
+	      startup timeouts.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      You may need to load a bigger sketch than your current
+	      bootloader allows.
+	    </para>
+	    <para>
+	      By burning a smaller-than-standard bootloader, you can
+	      free up space that can be used by sketches.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+      <para>
+	It is also claimed that loading sketches using an external
+	programmer may be faster than by uploading through the serial
+	interface.
       </para>
     </section>
     <section>
-      <title>Why <literal>screen</literal>?</title>
+      <title>External Programmer Options</title>
       <para>
-	The screen utility provides multiplexed virtual terminals.
-	This allows you to run multiple sessions from a single
-	terminal.
+	There are many options available for external programmers.
+	The file <literal>programmers.txt</literal> which can be
+	found, for each architecture, in the same installed arduino
+	platform directory as the <literal>boards.txt</literal> and
+	<literal>platform.txt</literal>files, lists and provides
+	parameters for driving each supported external programmer.
       </para>
       <para>
-	By using screen as our monitor tool, we allow the user to
-	switch between a command line session and the connection to
-	the Arduino serial interface.  This seemed like a good idea.
+	To list the set of available programmers use <literal>dno
+	list-programmers</literal>.  The set of available programmers
+	will depend on the architecture of the board you are using.
       </para>
+    </section>
+    <section>
+      <title>Using an Arduino as an External Programmer</title>
+      <para>
+	If you are using an Arduino board and have a spare arduino,
+	you can use that spare as an external programmer.
+      </para>
+      <para>
+	This is done by loading the <literal>ArduinoISP</literal>
+	sketch onto the Arduino that will be your programmer, and then
+	wiring your programmer to the target Arduino.
+      </para>
+      <section>
+	<title>Uploading the ArduinoISP sketch using dno</title>
+	<para>
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+		Locate the ArduinoISP sketch code.
+	      </para>
+	      <para>
+		The <literal>ArduinoISP</literal> sketch is part of the
+		standard Arduino IDE installation.  Typically it will
+		be found in
+		<literal>/usr/share/doc/arduino/examples/11.ArduinoISP/ArduinoISP/ArduinoISP.ino</literal>.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		Create a project directory for it
+	      </para>
+	      <para>
+		Move to the directory where you want to create your
+		ArduinoISP project.  Then create a project directory,
+		and move into it:
+		<programlisting>
+~$ cd projects
+projects$ mkdir ArduinoISP
+projects$ cd ArduinoISP
+ArduinoISP$ 
+		</programlisting>
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		Copy the sketch into your new directory
+	      </para>
+	      <para>
+		<programlisting>
+ArduinoISP$ cp usr/share/doc/arduino/examples/11.ArduinoISP/ArduinoISP/ArduinoISP.ino .
+ArduinoISP$
+		</programlisting>
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		Compile it.
+	      </para>
+	      <para>
+		You will need to specify the board type.  In the
+		following example we will use an <literal>uno</literal>.
+		<programlisting>
+ArduinoISP$ dno BOARD=uno
+  Creating BOARD_TYPE...
+  Creating BOARD_INFO...
+  C++  ./ArduinoISP.ino 
+  C++  [SPI] SPI.cpp
+  AS  [core] wiring_pulse.S
+  C  [core] wiring_shift.c
+  C  [core] wiring_pulse.c
+  C  [core] wiring_digital.c
+  C  [core] wiring.c
+  C  [core] wiring_analog.c
+  C  [core] WInterrupts.c
+  C  [core] hooks.c
+  C++  [core] WString.cpp
+  C++  [core] WMath.cpp
+  C++  [core] USBCore.cpp
+  C++  [core] Tone.cpp
+  C++  [core] Stream.cpp
+  C++  [core] Print.cpp
+  C++  [core] PluggableUSB.cpp
+  C++  [core] new.cpp
+  C++  [core] main.cpp
+  C++  [core] IPAddress.cpp
+  C++  [core] HardwareSerial.cpp
+  C++  [core] HardwareSerial3.cpp
+  C++  [core] HardwareSerial2.cpp
+  C++  [core] HardwareSerial1.cpp
+  C++  [core] HardwareSerial0.cpp
+  C++  [core] CDC.cpp
+  C++  [core] abi.cpp
+  AR [libcore] abi.o...
+  LD ArduinoISP.ino.o SPI.o
+  OBJCOPY (hex) ArduinoISP.elf
+Program size:   4402 out of 32256  (13%: 27854 remaining)
+   Data size:    482 out of 2048   (23%: 1566 remaining)
+   ArduinoISP$
+		</programlisting>
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		Upload it.
+	      </para>
+	      <para>
+		<programlisting>
+ArduinoISP$ dno upload
+  Resetting device attached to (/dev/ttyACM0)...
+    Uploading ArduinoISP.hex to /dev/ttyACM0
+
+avrdude: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.00s
+
+avrdude: Device signature = 0x1e950f (probably m328p)
+avrdude: reading input file "build/ArduinoISP.hex"
+avrdude: writing flash (4402 bytes):
+
+Writing | ################################################## | 100% 0.72s
+
+avrdude: 4402 bytes of flash written
+avrdude: verifying flash memory against build/ArduinoISP.hex:
+avrdude: load data flash data from input file build/ArduinoISP.hex:
+avrdude: input file build/ArduinoISP.hex contains 4402 bytes
+avrdude: reading on-chip flash data:
+
+Reading | ################################################## | 100% 0.57s
+
+avrdude: verifying ...
+avrdude: 4402 bytes of flash verified
+
+avrdude: safemode: Fuses OK (E:00, H:00, L:00)
+
+avrdude done.  Thank you.
+ArduinoISP$
+		</programlisting>
+	      </para>
+	    </listitem>
+	  </itemizedlist>
+	</para>
+      </section>
+      <section xml:id="wiring-arduinoasisp">
+	<title>Wiring the Arduino Programmer</title>
+	<para>
+	  This 
+	  <link
+	      xlink:href="https://github.com/arduino/docs-content/blob/main/content/built-in-examples/10.arduino-isp/ArduinoISP/ArduinoISP.md">github
+	  page</link> describes the wiring and also provides good
+	  background information on this type of programming.
+	</para>
+      </section>
+    </section>
+    <section>
+      <title>Uploading Sketches Using an External Programmer</title>
+      <para>
+	Let's use our version of the <link
+	linkend="blink_with_deferal">blink sketch</link> with the
+	Deferal library.  We'll create a board directory
+	<literal>pro.8MHzatmega328</literal> where we'll compile our
+	sketch.
+      </para>
+      <para>
+	With our sketch compiled, we try:
+	<programlisting>
+pro.8MHzatmega328$ dno uploadp
+  Creating PROGRAMMER...
+
+  ERROR: PROGRAMMER not defined
+    add PROGRAMMER=&lt;programmer name> to command line
+    (use dno list-programmers for values)
+
+make: *** [/usr/local/bin/dno:1405: PROGRAMMER] Error 1
+pro.8MHzatmega328$ 
+	</programlisting>
+      </para>
+      <para>
+	This tells us we need to define our programmer.  Our choices
+	are given by <literal>dno list-programmers</literal>:
+	<programlisting>
+pro.8MHzatmega328$ dno list-programmers
+[arduino:avr]
+  avrisp                 AVR ISP
+  avrispmkii             AVRISP mkII
+  usbtinyisp             USBtinyISP
+  arduinoisp             ArduinoISP
+  arduinoisporg          ArduinoISP.org
+  usbasp                 USBasp
+  parallel               Parallel Programmer
+  arduinoasisp           Arduino as ISP
+  arduinoasispatmega32u4 Arduino as ISP (ATmega32U4)
+  usbGemma               Arduino Gemma
+  buspirate              BusPirate as ISP
+  stk500                 Atmel STK500 development board
+  jtag3isp               Atmel JTAGICE3 (ISP mode)
+  jtag3                  Atmel JTAGICE3 (JTAG mode)
+  atmel_ice              Atmel-ICE (AVR)
+pro.8MHzatmega328$ 
+	</programlisting>
+      </para>
+      <para>
+	We will use the <literal>arduinoasisp</literal> option, which
+	is for an Arduino wired as a programmer as described <link
+	linkend="wiring-arduinoasisp">here</link>.  Let's try again:
+	<programlisting>
+pro.8MHzatmega328$ dno uploadp PROGRAMMER=arduinoasisp
+  Creating PROGRAMMER...
+    Uploading blink.hex to /dev/ttyACM0
+
+avrdude: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.02s
+
+avrdude: Device signature = 0x1e950f (probably m328p)
+avrdude: NOTE: "flash" memory has been specified, an erase cycle will be performed
+         To disable this feature, specify the -D option.
+avrdude: erasing chip
+avrdude: reading input file "build/blink.hex"
+avrdude: writing flash (1726 bytes):
+
+Writing | ################################################## | 100% 1.95s
+
+avrdude: 1726 bytes of flash written
+avrdude: verifying flash memory against build/blink.hex:
+avrdude: load data flash data from input file build/blink.hex:
+avrdude: input file build/blink.hex contains 1726 bytes
+avrdude: reading on-chip flash data:
+
+Reading | ################################################## | 100% 1.09s
+
+avrdude: verifying ...
+avrdude: 1726 bytes of flash verified
+
+avrdude: safemode: Fuses OK (E:FD, H:DA, L:FF)
+
+avrdude done.  Thank you.
+
+pro.8MHzatmega328$ 
+	</programlisting>
+      </para>
+      <para>
+	And we see the LED flashing (on both Arduinos).  Note that a
+	new file <literal>PROGRAMMER</literal> has been created which
+	records the type of programmer we are using.  From here on it
+	is no longer necessary to specify
+	<literal>PROGRAMMER=...</literal> on the dno invocation.
+      </para>
+    </section>
+    <section>
+      <title>Installing Bootloaders</title>
+      <para>
+	Typically you will want to install a new bootloader for one of
+	two reasons: your bootloader may have stopped working, in
+	which case you will want to try to restore it to its original
+	working state; or you may need functionality that is not built
+	into your current bootloader.
+      </para>
+      <para>
+	To install a bootloader the <literal>dno burn</literal> target
+	is used.  If this is done in a board directory, dno will
+	attempt to burn the standard (default) bootloader image.  If you are
+	instead in a boot directory (a directory named boot, within a
+	board directory), dno will attempt burn a custom bootloader
+	image.
+      </para>
+      <section xml:id="burn_standard_bootloader">
+	<title>Restoring (Burning) the Standard Bootloader</title>
+	<para>
+	  The Arduino IDE is packaged with standard
+	  bootloader images.  The path to such images is given by
+	  <literal>{runtime.platform.path}/bootloaders/{bootloader.file}</literal>
+	  as defined in <literal>platform.txt</literal> and
+	  <literal>boards.txt</literal>. 
+	</para>
+	<para>
+	  We re-install the standard bootloader as follows (from
+	  within our blink project):
+	  <programlisting>
+pro.8MHzatmega328$ dno burn
+About to burn bootloader: /usr/share/arduino/hardware/arduino/avr/bootloaders/atmega/ATmegaBOOT_168_atmega328_pro_8MHz.hex
+Press Y to continue? y
+  Burning bootloader: /usr/share/arduino/hardware/arduino/avr/bootloaders/atmega/ATmegaBOOT_168_atmega328_pro_8MHz.hex
+
+avrdude: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.02s
+
+avrdude: Device signature = 0x1e950f (probably m328p)
+avrdude: NOTE: "flash" memory has been specified, an erase cycle will be performed
+         To disable this feature, specify the -D option.
+avrdude: erasing chip
+avrdude: reading input file "/usr/share/arduino/hardware/arduino/avr/bootloaders/atmega/ATmegaBOOT_168_atmega328_pro_8MHz.hex"
+avrdude: writing flash (32206 bytes):
+
+Writing | ################################################## | 100% 0.00s
+
+avrdude: 32206 bytes of flash written
+avrdude: verifying flash memory against /usr/share/arduino/hardware/arduino/avr/bootloaders/atmega/ATmegaBOOT_168_atmega328_pro_8MHz.hex:
+avrdude: load data flash data from input file /usr/share/arduino/hardware/arduino/avr/bootloaders/atmega/ATmegaBOOT_168_atmega328_pro_8MHz.hex:
+avrdude: input file /usr/share/arduino/hardware/arduino/avr/bootloaders/atmega/ATmegaBOOT_168_atmega328_pro_8MHz.hex contains 32206 bytes
+avrdude: reading on-chip flash data:
+
+Reading | ################################################## | 100% 0.00s
+
+avrdude: verifying ...
+avrdude: 32206 bytes of flash verified
+avrdude: reading input file "0x0F"
+avrdude: writing lock (1 bytes):
+
+Writing |                                                    | 0% 0.00s ***failed;  
+Writing | ################################################## | 100% 0.07s
+
+avrdude: 1 bytes of lock written
+avrdude: verifying lock memory against 0x0F:
+avrdude: load data lock data from input file 0x0F:
+avrdude: input file 0x0F contains 1 bytes
+avrdude: reading on-chip lock data:
+
+Reading | ################################################## | 100% 0.01s
+
+avrdude: verifying ...
+avrdude: verification error, first mismatch at byte 0x0000
+         0xcf != 0x0f
+avrdude: verification error; content mismatch
+
+avrdude: safemode: Fuses OK (E:FD, H:DA, L:FF)
+
+avrdude done.  Thank you.
+
+make: *** [/usr/local/bin/dno:1718: burn] Error 1
+pro.8MHzatmega328$ 
+	  </programlisting>
+	</para>
+	<para>
+	  The verification error above is confusing.  The bootloader
+	  burned in this operation appears to work just fine.
+	</para>
+	<para>
+	  Note that, since burning a bootloader is an operation with
+	  consequences, the user is asked to confirm the operation by
+	  pressing <literal>Y</literal>.
+	</para>
+      </section>
+      <section xml:id="burning_custom_bootloaders">
+	<title>Burning a Custom Bootloader</title>
+	<para>
+	  Custom bootloaders may be built in a special directory
+	  called <literal>boot</literal> within a board directory.
+	</para>
+	<para>
+	  Creating custom bootloader images is described <link
+	  linkend="custom_bootloaders">here</link>.
+	</para>
+	<para>
+	  Once a suitable image has been created, running <literal>dno
+	  burn</literal> from the <literal>boot</literal> directory
+	  will burn the image.  The external programmer must be
+	  connected and the PROGRAMMERS file should have been created.
+	</para>
+	<para>
+	  Note that a PROGRAMMERS file from the parent board directory
+	  will be used if there is no local version.  If neither file
+	  exists, a local version will have to be created.
+	</para>
+	<para>
+	  The following shows the burning of an optiboot bootloader
+	  image for a 3.3V Arduino pro mini using an Arduino Uno as
+	  our external programmer:
+	  <programlisting>
+boot$ dno burn PROGRAMMER=arduinoasisp
+  Creating PROGRAMMER...
+  Creating BOARD_INFO...
+  CREATE BOOTIMAGE:
+    "/usr/bin/make" atmega328 AVR_FREQ=8000000L LED_START_FLASHES=3
+    avr-gcc (GCC) 5.4.0
+    Copyright (C) 2015 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    
+    BAUD RATE CHECK: Desired: 115200, Real: 111111, UBRRL = 8, Difference=-3.5%
+    avr-gcc -g -Wall -Os -fno-split-wide-types -mrelax -mmcu=atmega328p -DF_CPU=8000000L  -DBAUD_RATE=115200 -DLED_START_FLASHES=3                   -c -o optiboot.o optiboot.c
+optiboot.c:422:2: warning: #warning BAUD_RATE off by greater than -2% [-Wcpp]
+ #warning BAUD_RATE off by greater than -2%
+  ^
+    avr-gcc -g -Wall -Os -fno-split-wide-types -mrelax -mmcu=atmega328p -DF_CPU=8000000L  -DBAUD_RATE=115200 -DLED_START_FLASHES=3                 -Wl,-Tlink_optiboot.ld -Wl,--relax -nostartfiles -o optiboot_atmega328.elf optiboot.o 
+    avr-size optiboot_atmega328.elf
+       text	   data	    bss	    dec	    hex	filename
+        482	      0	      0	    482	    1e2	optiboot_atmega328.elf
+    avr-objcopy -j .text -j .data -j .version --set-section-flags .version=alloc,load -O ihex optiboot_atmega328.elf optiboot_atmega328.hex
+    avr-objdump -h -S optiboot_atmega328.elf > optiboot_atmega328.lst
+    rm optiboot.o
+    mv optiboot_atmega328.hex optiboot_atmega328_pro_8MHz.hex
+    mv optiboot_atmega328.lst optiboot_atmega328_pro_8MHz.lst
+About to burn bootloader: optiboot_atmega328_pro_8MHz.hex
+Press Y to continue? y
+
+avrdude: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.02s
+
+avrdude: Device signature = 0x1e950f (probably m328p)
+avrdude: NOTE: "flash" memory has been specified, an erase cycle will be performed
+         To disable this feature, specify the -D option.
+avrdude: erasing chip
+avrdude: reading input file "optiboot_atmega328_pro_8MHz.hex"
+avrdude: writing flash (32768 bytes):
+
+Writing | ################################################## | 100% 0.00s
+
+avrdude: 32768 bytes of flash written
+avrdude: verifying flash memory against optiboot_atmega328_pro_8MHz.hex:
+avrdude: load data flash data from input file optiboot_atmega328_pro_8MHz.hex:
+avrdude: input file optiboot_atmega328_pro_8MHz.hex contains 32768 bytes
+avrdude: reading on-chip flash data:
+
+Reading | ################################################## | 100% 0.00s
+
+avrdude: verifying ...
+avrdude: 32768 bytes of flash verified
+avrdude: reading input file "0x0F"
+avrdude: writing lock (1 bytes):
+
+Writing |                                                    | 0% 0.00s ***failed;  
+Writing | ################################################## | 100% 0.07s
+
+avrdude: 1 bytes of lock written
+avrdude: verifying lock memory against 0x0F:
+avrdude: load data lock data from input file 0x0F:
+avrdude: input file 0x0F contains 1 bytes
+avrdude: reading on-chip lock data:
+
+Reading | ################################################## | 100% 0.01s
+
+avrdude: verifying ...
+avrdude: verification error, first mismatch at byte 0x0000
+         0xcf != 0x0f
+avrdude: verification error; content mismatch
+
+avrdude: safemode: Fuses OK (E:FD, H:DA, L:FF)
+
+avrdude done.  Thank you.
+
+make: *** [/usr/local/bin/dno:1695: burn] Error 1
+boot$ 
+	  </programlisting>
+	</para>
+	<para>
+	  As with the burn for the standard bootloader, the
+	  verification step seems to have failed, however the updated
+	  board appeared to work just fine.
+	</para>
+      </section>
+    </section>
+  </section>
+  <section xml:id="custom_bootloaders">
+    <title>Building Custom Bootloaders</title>
+    <para>
+      Custom bootloaders can be used in place of the standard
+      bootloader in order to change your Arduino's standard boot
+      behaviour.
+    </para>
+    <section>
+      <title>Building Custom Bootloaders With Dno</title>
+      <para>
+	Since there are many ways of putting together a custom
+	bootloader, dno cannot know them all.  Instead, it makes some,
+	reasonable, assumptions about how you will want to construct
+	your bootloader image and provides some relatively simple ways
+	to customise the build process.
+      </para>
+      <para>
+	In fact dno does not need to be involved in the bootloader
+	image build at all, but it will need to know what the image is
+	called in order to be able to burn it to your board.  That
+	said, because dno is always supposed to do the right thing by
+	default, it <emphasis>will</emphasis> try to find a way to
+	build your board for you.
+      </para>
+      <section>
+	<title>Default Bootloader Image Build Mechanism</title>
+	<para>
+	  If you invoke <literal>dno</literal> with no target in a
+	  <literal>boot</literal> directory, it will assume you want
+	  to build a bootloader image.  The way it does this, by
+	  default, is to simply call <literal>make</literal>.  It
+	  assumes that any boot directory worth its salt will, in
+	  addition to source code, contain a
+	  <literal>Makefile</literal> that describes how to build the
+	  bootloader.
+	</para>
+	<para>
+	  Note that since dno uses an external makefile, it has no
+	  visibility itself on whether the bootloader image is up to
+	  date with respect to its dependencies.  For this reason the
+	  burn target has, by default, a dependency on the boot target.
+	</para>
+      </section>
+      <section>
+	<title>Bootloader Image File Identification</title>
+	<para>
+	  By default dno assumes that the first file it can find in
+	  the boot directory that is named
+	  <literal>&lt;something>.hex</literal> or
+	  <literal>&lt;something>.bin</literal> is the bootloader
+	  image file.  This is the file that the
+	  <literal>burn</literal> target will attempt to upload to the
+	  programmer.
+	</para>
+      </section>
+      <section>
+	<title>Customising Bootloader Image Handling Behaviour</title>
+	<para>
+	  A number of <literal>make</literal> variables are used to
+	  allow customisation of dno's build process for bootloader
+	  images.  These can be specified in a <literal><link
+	  linkend="dno.mk">dno.mk</link></literal> file which should
+	  be placed in the <literal>boot</literal> directory.
+	  <itemizedlist>
+	    <listitem>
+	      <para><literal>BOOT_BUILDER</literal></para>
+	      <para>
+		This is the command that is used to build the
+		bootloader image file.  By default it is a recursive
+		make but it could be anything.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para><literal>BOOT_TARGET</literal></para>
+	      <para>
+		This is the target that is passed to the make
+		invocation in <literal>BOOT_BUILDER</literal>.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para><literal>DEFAULT_BOOT_TARGET</literal></para>
+	      <para>
+		This is the default target used when dno is called
+		with no explicit target in a <literal>boot</literal>
+		directory and calls <literal>BOOT_BUILDER</literal>.
+	      </para>
+	      <para>
+		It defaults to <literal>default_boot_target</literal>
+		which is a <literal>PHONY</literal> target.  The
+		explicit target <literal>boot</literal> is an alias.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para><literal>BURN_DEPS</literal></para>
+	      <para>
+		This defaults to <literal>DEFAULT_BOOT_TARGET</literal> and
+		provides the dependency for the
+		<literal>burn</literal> target to the
+		boot target.  If you don't want the burn target to
+		rebuild the boot image, you should redefine this as an
+		empty definition (<literal>BURN_DEPS = </literal>).
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para><literal>BOOTLOADER_IMAGE</literal></para>
+	      <para>
+		This identifies the bootloader image file.  It
+		defaults to a shell command that looks for the first
+		file in the directory named
+		<literal>&lt;something>.hex</literal> or
+		<literal>&lt;something>.bin</literal>.
+	      </para>
+	    </listitem>
+	  </itemizedlist>
+	</para>
+      </section>
+    </section>
+    <section>
+      <title>Worked Example: Building an <literal>Optiboot</literal>
+      Bootloader Image</title>
+      <para>
+	A number of pre-built bootloader images are available for many
+	different Arduino boards.  One of the more popular is
+	<literal>optiboot</literal>.
+      </para>
+      <para>
+	This bootloader is much smaller than the standard bootloader
+	allowing more space for sketches, provides faster baud rates
+	for sketch uploads, and implements a "fastboot" that
+	immediately starts your loaded sketch when the board is
+	powered-up.
+      </para>
+      <para>
+	We will use our previous <literal>blink</literal> project for
+	this, and build a bootloader for an Arduino pro mini.  We'll start
+	by cleaning up the project directories and then creating a
+	<literal>boot</literal> directory under the
+	<literal>pro.8MHzatmega328</literal> directory.
+	<programlisting>
+~$ cd &lt;path-to-blink-project>
+blink$ dno pristine
+Super-cleaning .
+Super-cleaning ./pro.8MHzatmega328
+Super-cleaning ./Deferal
+Super-cleaning ./Deferal/tests
+Super-cleaning ./Deferal/docs
+blink$ cd pro.8MHzatmega328
+pro.8MHzatmega328$ ls
+pro.8MHzatmega328$ mkdir boot
+pro.8MHzatmega328$ cd boot
+boot$ 
+	</programlisting>
+      </para>
+      <section>
+	<title>Getting a copy</title>
+	<para>
+	  You can get the <link
+	  xlink:href="https://github.com/Optiboot/optiboot/tree/master">latest
+	  optiboot</link> from github.
+	</para>
+	<para>
+	  Once you have cloned this, copy the contents of the
+	  <literal>optiboot/bootloaders/optiboot</literal> directory
+	  into your boot directory:
+	  <programlisting>
+boot$ cp &lt;path-to-optiboot-directory>/optiboot/bootloaders/optiboot/* .
+boot$ 
+	  </programlisting>
+	</para>
+	<para>
+	  Reading <literal>README.TXT</literal> (and
+	  <literal>Makefile</literal>), we discover that the make
+	  target we want for the build is
+	  <literal>atmega328_pro8</literal>.  Although we can simply
+	  run <literal>make</literal> with this target we'll integrate
+	  the build with <literal>dno</literal> by creating a
+	  <literal>dno.mk</literal>:
+	  <programlisting>
+boot$ echo "BOOT_TARGET = atmega328_pro8" >dno.mk
+boot$ 	    
+	  </programlisting>
+	</para>
+	<para>
+	  Now, we can simply run <literal>dno</literal> in the
+	  <literal>boot</literal> directory to create our bootimage:
+	  <programlisting xml:id="boot_build">
+boot$ dno
+  CREATE BOOTIMAGE:
+    "/usr/bin/make" atmega328 AVR_FREQ=8000000L LED_START_FLASHES=3
+    avr-gcc (GCC) 5.4.0
+    Copyright (C) 2015 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    
+    BAUD RATE CHECK: Desired: 115200, Real: 111111, UBRRL = 8, Difference=-3.5%
+    avr-gcc -g -Wall -Os -fno-split-wide-types -mrelax -mmcu=atmega328p -DF_CPU=8000000L  -DBAUD_RATE=115200 -DLED_START_FLASHES=3                   -c -o optiboot.o optiboot.c
+optiboot.c:422:2: warning: #warning BAUD_RATE off by greater than -2% [-Wcpp]
+ #warning BAUD_RATE off by greater than -2%
+  ^
+    avr-gcc -g -Wall -Os -fno-split-wide-types -mrelax -mmcu=atmega328p -DF_CPU=8000000L  -DBAUD_RATE=115200 -DLED_START_FLASHES=3                 -Wl,-Tlink_optiboot.ld -Wl,--relax -nostartfiles -o optiboot_atmega328.elf optiboot.o 
+    avr-size optiboot_atmega328.elf
+       text	   data	    bss	    dec	    hex	filename
+        482	      0	      0	    482	    1e2	optiboot_atmega328.elf
+    avr-objcopy -j .text -j .data -j .version --set-section-flags .version=alloc,load -O ihex optiboot_atmega328.elf optiboot_atmega328.hex
+    avr-objdump -h -S optiboot_atmega328.elf > optiboot_atmega328.lst
+    rm optiboot.o
+    mv optiboot_atmega328.hex optiboot_atmega328_pro_8MHz.hex
+    mv optiboot_atmega328.lst optiboot_atmega328_pro_8MHz.lst
+boot$ 
+	  </programlisting>
+	</para>
+      </section>
+      <section>
+	<title>Burning It</title>
+	<para>
+	  See <link linkend="burning_custom_bootloaders">above</link>.
+	</para>
+      </section>
+      <section>
+	<title>Using It</title>
+	<para>
+	  Once you have installed a new bootloader, with new
+	  capabilities, you will have changed your board type: it
+	  will probably support a different baud rate; it may free up
+	  space that can be used by sketches.  This means you will
+	  need to change the board type and rebuild your
+	  <literal>BOARD_INFO</literal> file.  This, in turn, means
+	  you will need to install a new set of
+	  <literal>platform.txt</literal> and
+	  <literal>boards.txt</literal> files.
+	</para>
+      </section>
+      <section>
+	<title>Installing Optiboot Configuration Files</title>
+	<para>
+	  First, we must find the .json file that describes to the
+	  Arduino IDE, where to find information for boards with an
+	  Optiboot bootloader.
+	</para>
+	<para>
+	  As described in the Optiboot github page, this can be found
+	  on the <link
+	  xlink:href="https://github.com/Optiboot/optiboot/releases">Optiboot
+	  Release page</link>, and is called
+	  <literal>package_optiboot_optiboot-additional_index.json</literal>.
+	  Copy the link to this file.
+	</para>
+	<para>
+	  Open up the Arduino IDE, and select
+	  <literal>File->Preferences</literal>.  Paste the link into
+	  the "Additional Boards Manager URLs:" field.
+	</para>
+	<para>
+	  Now, Go into the boards manager
+	  <literal>Tools->Board...->Boards Manager...</literal> in the
+	  IDE.  In the search bar, type Optiboot.  An entry for the
+	  current version of Optiboot should be shown.  Press the
+	  Install button within this entry.
+	</para>
+      </section>
+      <section>
+	<title>Add Optiboot boards to dno</title>
+	<para>
+	  Now we need to find where the Arduino IDE installed the new
+	  board files.  We know that the IDE installs these under the
+	  <literal>.arduino15</literal> directory under your home
+	  directory.  Let's look there:
+	  <programlisting>
+~$ cd .arduino15/
+.arduino15$ find . -name boards.txt
+./packages/esp32/hardware/esp32/3.3.8/boards.txt
+./packages/Optiboot/hardware/avr/0.8.0/boards.txt
+.arduino15$ 
+	  </programlisting>
+	</para>
+	<para>
+	  Now we tell dno about this directory:
+	  <programlisting>
+.arduino15$ dno install_extra_boards BOARDS_PATH=~/.arduino15/packages/Optiboot/hardware/avr/0.8.0
+	  </programlisting>
+	</para>
+	<para>
+	  And we check that we can see the new boards:
+	  <programlisting>
+.arduino15$ dno show_boards BOARD_TYPE=Optiboot
+	      
+    Supported Arduino Board Types
+============================================================
+Optiboot.avr.optiboot28:             Optiboot on 28-pin cpus
+Optiboot.avr.optiboot32:             Optiboot on 32-pin cpus
+Optiboot.avr.optiboot1280:           Optiboot on Mega1280
+Optiboot.avr.optiboot1284:           Optiboot on (generic) Mega1284
+Optiboot.avr.optibootm32:            Optiboot on Mega32
+Optiboot.avr.optiboott84:            Optiboot on Tiny84
+Optiboot.avr.optiboot2560:           Optiboot on Mega2560
+Optiboot.avr.optibootxmini168b:      Optiboot Xplained Mini 168pb
+Optiboot.avr.optibootxmini328pb:     Optiboot Xplained Mini 328pb
+Optiboot.avr.optibootxmini328p:      Optiboot Xplained Mini 328p
+.arduino15$ 	      
+	  </programlisting>
+	</para>
+      </section>
+      <section>
+	<title>Renaming our board type directory</title>
+	<para>
+	  First, we need to identify the full board type for our 3.3v
+	  pro mini.  The basic type, from the list given above, will
+	  be <literal>Optiboot.avr.optiboot32</literal>.  Let's see
+	  what options we have for that board:
+	  <programlisting>
+.arduino15$ dno show_boards BOARD_TYPE=optiboot32 OPTIONS=y
+
+    Supported Arduino Board Types
+============================================================
+Optiboot.avr.optiboot32:             Optiboot on 32-pin cpus
+  mhz=16MHz                            16MHz
+  mhz=8MHz                             8MHz (int)
+  mhz=1MHz                             1MHz (int)
+  cpu=atmega328p                       ATmega328p
+  cpu=atmega328                        ATmega328
+  cpu=atmega168                        ATmega168
+  cpu=atmega168p                       ATmega168p
+.arduino15$ 
+	  </programlisting>
+	</para>
+	<para>
+	  It looks like we need to additionally specify both the speed
+	  and cpu type.  That would give us the name:
+	  <literal>optiboot32.8MHz,atmega328p</literal>.
+	</para>
+	<para>
+	  We'll rename our board directory and re-run dno:
+	  <programlisting>
+.arduino15~$ cd &lt;path-to-blink-project>
+blink$ mv pro.8MHzatmega328 optiboot32.8MHz,atmega328p	    
+blink$ cd optiboot32.8MHz,atmega328p
+optiboot32.8MHz,atmega328p$ dno
+  Creating BOARD_INFO...
+  C++  ../blink.ino 
+  C++  [Deferal] Deferal.cpp
+  AS  [core] wiring_pulse.S
+  C  [core] wiring_shift.c
+  C  [core] wiring_pulse.c
+  C  [core] wiring_digital.c
+  C  [core] wiring.c
+  C  [core] wiring_analog.c
+  C  [core] WInterrupts.c
+  C  [core] hooks.c
+  C++  [core] WString.cpp
+  C++  [core] WMath.cpp
+  C++  [core] USBCore.cpp
+  C++  [core] Tone.cpp
+  C++  [core] Stream.cpp
+  C++  [core] Print.cpp
+  C++  [core] PluggableUSB.cpp
+  C++  [core] new.cpp
+  C++  [core] main.cpp
+  C++  [core] IPAddress.cpp
+  C++  [core] HardwareSerial.cpp
+  C++  [core] HardwareSerial3.cpp
+  C++  [core] HardwareSerial2.cpp
+  C++  [core] HardwareSerial1.cpp
+  C++  [core] HardwareSerial0.cpp
+  C++  [core] CDC.cpp
+  C++  [core] abi.cpp
+  AR [libcore] abi.o...
+  LD blink.ino.o Deferal.o
+  OBJCOPY (hex) blink.elf
+Program size:   1726 out of 32256  (5%: 30530 remaining)
+   Data size:     35 out of 2048   (1%: 2013 remaining)
+optiboot32.8MHz,atmega328p$ 
+	  </programlisting>
+	</para>
+	<para>
+	  Note that as we have changed the name of the board,
+	  everything must be rebuilt.
+	</para>
+      </section>
+      <section>
+	<title>Making it Work</title>
+	<para>
+	  We tried uploading our new sketch and were unable to make
+	  contact with the board.  Hmmm.
+	</para>
+	<para>
+	  Looking back at our <link linkend="boot_build">boot
+	  build</link>, we see this:
+	  <programlisting>
+. . .	    
+    BAUD RATE CHECK: Desired: 115200, Real: 111111, UBRRL = 8, Difference=-3.5%
+    avr-gcc -g -Wall -Os -fno-split-wide-types -mrelax -mmcu=atmega328p -DF_CPU=8000000L  -DBAUD_RATE=115200 -DLED_START_FLASHES=3                   -c -o optiboot.o optiboot.c
+optiboot.c:422:2: warning: #warning BAUD_RATE off by greater than -2% [-Wcpp]
+ #warning BAUD_RATE off by greater than -2%
+. . .
+	  </programlisting>
+	</para>
+	<para>
+	  So, maybe the baud rate is a problem.  Let's try building a
+	  bootloader image with a lower baud rate.  We'll do this by
+	  modifying our dno.mk file to add a BAUD_RATE setting.  This
+	  is what it looks once we have done this:
+	  <programlisting>
+	    BOOT_TARGET = atmega328_pro8 BAUD_RATE=57600
+	  </programlisting>
+	</para>
+	<para>
+	  Let's rebuild:
+	  <programlisting>
+boot$ dno boot
+  CREATE BOOTIMAGE:
+    "/usr/bin/make" atmega328 AVR_FREQ=8000000L LED_START_FLASHES=3
+    avr-gcc (GCC) 5.4.0
+    Copyright (C) 2015 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    
+    BAUD RATE CHECK: Desired: 57600, Real: 58823, UBRRL = 16, Difference=2.1%
+    avr-gcc -g -Wall -Os -fno-split-wide-types -mrelax -mmcu=atmega328p -DF_CPU=8000000L  -DBAUD_RATE=57600 -DLED_START_FLASHES=3                   -c -o optiboot.o optiboot.c
+optiboot.c:429:2: warning: #warning BAUD_RATE off by greater than 2% [-Wcpp]
+ #warning BAUD_RATE off by greater than 2%
+  ^
+    avr-gcc -g -Wall -Os -fno-split-wide-types -mrelax -mmcu=atmega328p -DF_CPU=8000000L  -DBAUD_RATE=57600 -DLED_START_FLASHES=3                 -Wl,-Tlink_optiboot.ld -Wl,--relax -nostartfiles -o optiboot_atmega328.elf optiboot.o 
+    avr-size optiboot_atmega328.elf
+       text	   data	    bss	    dec	    hex	filename
+        482	      0	      0	    482	    1e2	optiboot_atmega328.elf
+    avr-objcopy -j .text -j .data -j .version --set-section-flags .version=alloc,load -O ihex optiboot_atmega328.elf optiboot_atmega328.hex
+    avr-objdump -h -S optiboot_atmega328.elf > optiboot_atmega328.lst
+    rm optiboot.o
+    mv optiboot_atmega328.hex optiboot_atmega328_pro_8MHz.hex
+    mv optiboot_atmega328.lst optiboot_atmega328_pro_8MHz.lst
+boot$ 
+	  </programlisting>
+	</para>
+	<para>
+	  So, our wanted baud rate is still a little bit off.  Let's
+	  burn it anyway and see if we can make it work:
+	  <programlisting>
+boot$ dno burn
+  CREATE BOOTIMAGE:
+    "/usr/bin/make" atmega328 AVR_FREQ=8000000L LED_START_FLASHES=3
+    avr-gcc (GCC) 5.4.0
+    Copyright (C) 2015 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    
+    BAUD RATE CHECK: Desired: 57600, Real: 58823, UBRRL = 16, Difference=2.1%
+    avr-gcc -g -Wall -Os -fno-split-wide-types -mrelax -mmcu=atmega328p -DF_CPU=8000000L  -DBAUD_RATE=57600 -DLED_START_FLASHES=3                   -c -o optiboot.o optiboot.c
+optiboot.c:429:2: warning: #warning BAUD_RATE off by greater than 2% [-Wcpp]
+ #warning BAUD_RATE off by greater than 2%
+  ^
+    avr-gcc -g -Wall -Os -fno-split-wide-types -mrelax -mmcu=atmega328p -DF_CPU=8000000L  -DBAUD_RATE=57600 -DLED_START_FLASHES=3                 -Wl,-Tlink_optiboot.ld -Wl,--relax -nostartfiles -o optiboot_atmega328.elf optiboot.o 
+    avr-size optiboot_atmega328.elf
+       text	   data	    bss	    dec	    hex	filename
+        482	      0	      0	    482	    1e2	optiboot_atmega328.elf
+    avr-objcopy -j .text -j .data -j .version --set-section-flags .version=alloc,load -O ihex optiboot_atmega328.elf optiboot_atmega328.hex
+    avr-objdump -h -S optiboot_atmega328.elf > optiboot_atmega328.lst
+    rm optiboot.o
+    mv optiboot_atmega328.hex optiboot_atmega328_pro_8MHz.hex
+    mv optiboot_atmega328.lst optiboot_atmega328_pro_8MHz.lst
+About to burn bootloader: optiboot_atmega328_pro_8MHz.hex
+Press Y to continue? y
+
+
+avrdude: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.02s
+
+avrdude: Device signature = 0x1e950f (probably m328p)
+avrdude: NOTE: "flash" memory has been specified, an erase cycle will be performed
+         To disable this feature, specify the -D option.
+avrdude: erasing chip
+avrdude: reading input file "optiboot_atmega328_pro_8MHz.hex"
+avrdude: writing flash (32768 bytes):
+
+Writing | ################################################## | 100% 0.00s
+
+avrdude: 32768 bytes of flash written
+avrdude: verifying flash memory against optiboot_atmega328_pro_8MHz.hex:
+avrdude: load data flash data from input file optiboot_atmega328_pro_8MHz.hex:
+avrdude: input file optiboot_atmega328_pro_8MHz.hex contains 32768 bytes
+avrdude: reading on-chip flash data:
+
+Reading | ################################################## | 100% 0.00s
+
+avrdude: verifying ...
+avrdude: 32768 bytes of flash verified
+avrdude: reading input file "0x2F"
+avrdude: writing lock (1 bytes):
+
+Writing |                                                    | 0% 0.00s ***failed;  
+Writing | ################################################## | 100% 0.07s
+
+avrdude: 1 bytes of lock written
+avrdude: verifying lock memory against 0x2F:
+avrdude: load data lock data from input file 0x2F:
+avrdude: input file 0x2F contains 1 bytes
+avrdude: reading on-chip lock data:
+
+Reading | ################################################## | 100% 0.01s
+
+avrdude: verifying ...
+avrdude: verification error, first mismatch at byte 0x0000
+         0xef != 0x2f
+avrdude: verification error; content mismatch
+
+avrdude: safemode: Fuses OK (E:FD, H:DA, L:FF)
+
+avrdude done.  Thank you.
+
+make: *** [/usr/local/bin/dno:1706: burn] Error 1
+boot$ 
+	  </programlisting>
+	</para>
+	<para xml:id="shabby_make">
+	  Maybe that has worked.  On a side note, notice that the burn
+	  target also causes the boot target to be run, and that this
+	  <emphasis>always</emphasis> rebuilds our bootloader.  We'll
+	  try to fix this later.  For now we'll want to make our upload
+	  work with the new bootloader.
+	</para>
+	<para>
+	  Looking at the <literal>BOARD_INFO</literal> file in the
+	  parent, <literal>optiboot32.8MHz,atmega328p</literal>,
+	  directory we see this definition:
+	  <programlisting>
+upload.speed=115200
+	  </programlisting>
+	</para>
+	<para>
+	  We'll want to override this to set it to 57600.  We could
+	  simply edit the <literal>BOARD_INFO</literal> file but it
+	  would be reset and our edits lost any time that
+	  <literal>dno</literal> decides that it needs to be updated.
+	  Instead, we will create a <literal>dno.mk</literal> file and
+	  use that to override the definition.  Here is our new
+	  <literal>dno.mk</literal>:
+	  <programlisting>
+define DNO_FINAL
+    upload.speed=57600
+endef
+	  </programlisting>
+	</para>
+	<para>
+	  We have defined a macro, <literal>DNO_FINAL</literal>, which
+	  provides our updated <literal>upload.speed</literal>
+	  definition.  This macro is expanded by
+	  <literal>dno</literal> as the last step before building
+	  targets.  This means that the definition will override the
+	  previous definition from <literal>BOARD_INFO</literal>.
+	  Let's build again, and try an upload:
+	  <programlisting>
+optiboot32.8MHz,atmega328p$ dno
+  Creating BOARD_INFO...
+  AS  [core] wiring_pulse.S
+  C  [core] wiring_shift.c
+  C  [core] wiring_pulse.c
+  C  [core] wiring_digital.c
+  C  [core] wiring.c
+  C  [core] wiring_analog.c
+  C  [core] WInterrupts.c
+  C  [core] hooks.c
+  C++  [core] WString.cpp
+  C++  [core] WMath.cpp
+  C++  [core] USBCore.cpp
+  C++  [core] Tone.cpp
+  C++  [core] Stream.cpp
+  C++  [core] Print.cpp
+  C++  [core] PluggableUSB.cpp
+  C++  [core] new.cpp
+  C++  [core] main.cpp
+  C++  [core] IPAddress.cpp
+  C++  [core] HardwareSerial.cpp
+  C++  [core] HardwareSerial3.cpp
+  C++  [core] HardwareSerial2.cpp
+  C++  [core] HardwareSerial1.cpp
+  C++  [core] HardwareSerial0.cpp
+  C++  [core] CDC.cpp
+  C++  [core] abi.cpp
+  C++  [Deferal] Deferal.cpp
+  C++  ../blink.ino 
+  AR [libcore] abi.o...
+  LD blink.ino.o Deferal.o
+  OBJCOPY (hex) blink.elf
+Program size:   1726 out of 32256  (5%: 30530 remaining)
+   Data size:     35 out of 2048   (1%: 2013 remaining)
+marc:optiboot32.8MHz,atmega328p$ dno upload
+  Resetting device attached to (/dev/ttyUSB0)...
+    Uploading blink.hex to /dev/ttyUSB0
+
+avrdude: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.01s
+
+avrdude: Device signature = 0x1e950f (probably m328p)
+avrdude: reading input file "build/blink.hex"
+avrdude: writing flash (1726 bytes):
+
+Writing | ################################################## | 100% 0.90s
+
+avrdude: 1726 bytes of flash written
+avrdude: verifying flash memory against build/blink.hex:
+avrdude: load data flash data from input file build/blink.hex:
+avrdude: input file build/blink.hex contains 1726 bytes
+avrdude: reading on-chip flash data:
+
+Reading | ################################################## | 100% 0.76s
+
+avrdude: verifying ...
+avrdude: 1726 bytes of flash verified
+
+avrdude: safemode: Fuses OK (E:00, H:00, L:00)
+
+avrdude done.  Thank you.
+
+optiboot32.8MHz,atmega328p$ 
+	  </programlisting>
+	</para>				   	      
+	<para>
+	  So, the upload succeeded and we see our LED blinking.  We
+	  can call that a success.
+	</para>				   	      
+      </section>
+      <section>
+	<title>Some Final Cleanup</title>
+	<para>
+	  We noted <link linkend="shabby_make">above</link> that
+	  whenever we build the <literal>burn</literal> target, the
+	  <literal>boot</literal> target is 
+	  performed, and each time that is done it recompiles and
+	  relinks the boot image regardless of whether it needs to.
+	</para>
+	<para>
+	  Let's fix that because that's how we roll.
+	</para>
+	<para>
+	  What is actually happening is that our
+	  <literal>burn</literal> target depends on our <literal>boot</literal>
+	  target, through the definition of
+	  <literal>BURN_DEPS</literal>.  We could simply eliminate
+	  this dependency by setting <literal>BURN_DEPS</literal> to
+	  an empty string but if the boot image did need updating it
+	  then wouldn't happen.  The underlying problem is that optiboot's
+	  <literal>Makefile</literal> always does a full rebuild,
+	  whether it needs to or not.
+	</para>
+	<para>
+	  We would like the bootimage to only be rebuilt if something
+	  has changed.  Here is what we will do:
+	  <itemizedlist>
+	    <listitem>
+	      create an explicit target for the boot image;
+	    </listitem>
+	    <listitem>
+	      make that depend on all of the local source files;
+	    </listitem>
+	    <listitem>
+	      add an additional dependency on <literal>dno.mk</literal>;
+	    </listitem>
+	    <listitem>
+	      make <literal>burn</literal> depend on the boot image.
+	    </listitem>
+	  </itemizedlist>
+	</para>
+	<para>
+	  This is our modified <literal>dno.mk</literal>:
+	  <programlisting>
+TARGET_ARCH = atmega328_pro8
+TARGET_ARCHNAME = atmega328_pro_8MHz
+BOOT_TARGET = $(TARGET_ARCH) BAUD_RATE=57600
+TARGET_IMAGE = optiboot_$(TARGET_ARCHNAME).hex
+
+# Our boot image needs to be rebuilt if any Makefile, source file, or
+# this file is updated.  The build command is the same as for the
+# explicit boot target.  Note that the explicit boot target wil
+# continue to build the boot image unconditionally.  This target is
+# just as a dependency for the burn target.
+#
+$(TARGET_IMAGE): $(wildcard *.c *.h Makefile.* *.mk) Makefile
+	$(TARGET)
+	$(FEEDBACK) CREATE BOOTIMAGE:
+	$(AT) $(call indent,$(BOOT_BUILDER))
+
+BURN_DEPS = $(TARGET_IMAGE)	    
+	  </programlisting>
+	</para>
+	<para>
+	  Now, our <literal>burn</literal> target will only rebuild
+	  the boot image if it has to: if the code or build
+	  instructions are more up to date than the image file.  The
+	  <literal>boot</literal> target though, will still
+	  unconditionally rebuild the boot image.
+	</para>
+      </section>
     </section>
   </section>
   <section xml:id="eeprom">
     <title xml:id="eeprom.title">EEPROMs</title>
     <para>
-      Dno provides limited support for writing to an Arduino's EEPROM.
+      Dno provides limited built-in support for writing to an
+      Arduino's EEPROM.
     </para>
     <para>
       The reason that it is limited is that the
@@ -143,7 +1450,16 @@
       <literal>upload</literal> target.
     </para>
     <para>
-      A typical use-case for this would be to give each Arduino in a
+      For non-AVR architectures eeprom support can be added by
+      providing a suitable definition for
+      <literal>recipe.eep.upload.pattern</literal> in a
+      <literal>dno.mk</literal> (see <link linkend="dno.mk">Custom dno
+      Functionality</link>).  See the 
+      built-in definition for this in the <literal>dno</literal>
+      executable for an example of how this can be defined.
+    </para>
+    <para>
+      A typical use-case for EEPROMs would be to give each Arduino in a
       connected cluster its own unique identifier or key.  This would
       mean the same image could be uploaded to each member of the
       cluster, but a separate eeprom image provided for the individual
@@ -180,7 +1496,7 @@
 	  We add a struct definition, with some initialisation.  Note
 	  the use of the EEMEM directive.  This is the crucial
 	  element, and for more information on using Arduino EEPROMs,
-	  this appears to be the best term to search for.
+	  this appears to be the best term to search for on the internet.
 	</para>
 	<para>
 	  Our code now looks like this:

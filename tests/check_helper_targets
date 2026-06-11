@@ -1,0 +1,49 @@
+#! /usr/bin/env bash
+# Check helper targets do as expected
+#
+check_helper_targets_cleanup()
+{
+    rm -rf ${startdir}/tests/proj
+}
+
+check_info()
+{
+    run; dno info >make.log || fail "dno info fails"
+    run; grep -q "Creating BOARD_INFO" make.log && \
+	fail "dno info should not rebuild anything"
+    run; grep -q "make-based system" make.log ||
+	fail "missing text from dno info"
+    rm make.log
+}
+
+check_help()
+{
+    run; dno help >make.log || fail "dno help fails"
+    run; grep -q "Creating BOARD_INFO" make.log && \
+	fail "dno help  should not rebuild anything"
+    run; grep -q "Build the local arduino" make.log ||
+	fail "missing text from dno help"
+    rm make.log
+}
+
+check_list()
+{
+    run; dno help >make.log || fail "dno help fails"
+    run; grep -q "Creating BOARD_INFO" make.log && \
+	fail "dno help  should not rebuild anything"
+    run; grep -q "Build the local arduino" make.log ||
+	fail "missing text from dno help"
+    rm make.log
+}
+
+check_helper_targets()
+{
+    echo -n "Checking helper targets"
+    cd "${test_startdir}"
+    mkdir -p proj/blink
+    cd proj/blink
+    echo avr.pro >BOARD_TYPE
+    touch blink.ino
+    check_info
+    check_help
+}

@@ -1,0 +1,129 @@
+#! /usr/bin/env bash
+# Check that basic build stuff works
+#
+
+
+check_basic_build_cleanup()
+{
+    rm -rf ${test_startdir}/tests/proj
+}
+
+# Check that regexp1 appears in stdin before regexp2
+#
+check_before()
+{
+    awk '
+    	function ooo()
+	{
+	   printf ("\n\nFAILED: \"%s\" does not appear before \"%s\"\n",
+	   	   FIRST, SECOND) | "cat 1>&2"
+	   exit 2
+	}
+        /'"$1"'/ {
+	    first = NR
+	}
+        /'"$2"'/ {
+	    second = NR
+	    if (!first) ooo()
+	}
+	{next}
+	END {
+	    if (!second) ooo()
+	}' FIRST="$1" SECOND="$2" || fail -q
+}
+
+check_hooks_build_order()
+{
+    check_before "TARGET.*prebuild" "TARGET.*presketch" <make.log
+    check_before "TARGET.*prebuild" "TARGET.*blink2.ino.d" <make.log
+    check_before "TARGET.*presketch" "TARGET.*postsketch" <make.log
+    check_before "TARGET.*blink2.ino.d" "TARGET.*postsketch" <make.log
+    check_before "TARGET.*prelib" "TARGET.*Deferal.d" <make.log
+    check_before "TARGET.*Deferal.d" "TARGET.*postlib" <make.log
+    check_before "TARGET.*precore" "TARGET.*wiring.d" <make.log
+    check_before "TARGET.*libcore.a" "TARGET.*postcore" <make.log
+    check_before "TARGET.*prelink" "TARGET.*blink2.elf" <make.log
+    check_before "TARGET.*blink2.elf" "TARGET.*postlink" <make.log
+    check_before "TARGET.*preobjcopy" "OBJCOPY.*hex" <make.log
+    check_before "TARGET.*presavehex" "OBJCOPY.*hex" <make.log
+    check_before "OBJCOPY.*hex" "TARGET.*postsavehex" <make.log
+}
+
+check_hooks_build_order_eeprom()
+{
+    check_before "TARGET.*preobjcopy" "OBJCOPY" <make.log
+    check_before "OBJCOPY" "TARGET.*postobjcopy" <make.log
+}
+
+# Check basic build targets
+check_basic_build_targets()
+{
+    # Basic build, ensure that all the build hooks happenin the
+    # correct order.
+    run; dno BOARD_INFO >make.log 2>&1 || fail "BOARD_INFO build fails"
+
+    # Add a complete set of recipe hooks to BOARD_INFO
+    cat ${SCRIPTDIR}/assets/src/BOARD_INFO.addendum >>BOARD_INFO
+    run; dno REPORT=y >make.log 2>&1 || fail "simple basic build fails"
+    grep -q "LD.*blink2.ino.o" make.log ||
+	fail "LD of blink2.ino does not  appear in make output."
+    check_hooks_build_order
+
+    # Now try to shake up the build order by using -j 4
+    run; dno clean >make.log 2>&1 || fail "dno clean fails"
+    run; dno -j 4 REPORT=y >make.log 2>&1 || fail "simple basic build fails"
+    grep -q "LD.*blink2.ino.o" make.log ||
+	fail "LD of blink2.ino does not  appear in make output."
+    check_hooks_build_order
+    
+    # Check objcopy stuff for eeprom_image
+    rm -f build/.preobjcopy
+    run; dno REPORT=y eeprom_image >make.log 2>&1 ||
+	fail "eeprom_image build fails"
+    check_hooks_build_order_eeprom
+}
+
+check_multiple_inos()
+{
+    run; dno REPORT=y >make.log 2>&1 || fail "multiple ino build fails"
+    grep -q "LD.*blink3.ino.o" make.log ||
+	fail "LD of blink3.ino does not  appear in make output."
+}
+
+check_esp32()
+{
+    if dno_bpp -q esp32.esp32.esp32 >/dev/null; then
+        cd ..
+	rm blink*ino
+	cp ${SCRIPTDIR}/assets/src/blink0.ino .
+	mkdir esp32
+	cd esp32
+        run; dno -j 4 REPORT=y >make.log 2>&1 || fail "esp32 build fails"
+        grep -q "LD.*blink3.ino.o" make.log ||
+	    fail "LD of blink3.ino does not  appear in make output."
+    else
+	echo -e "\n  [ESP32 boards not installed.  Skipping esp32 tests]"
+    fi
+ }
+
+check_basic_build()
+{
+    echo -n "Checking basic build targets"
+    cd ${test_startdir}
+    mkdir -p tests/proj/blink2
+    cd tests/proj/blink2
+    cp ${SCRIPTDIR}/assets/src/blink2.ino .
+    cp -r ${SCRIPTDIR}/assets/lib/Deferal .
+    mkdir pro.8MHzatmega328
+    cd pro.8MHzatmega328
+    check_basic_build_targets
+    cd ../..
+    mkdir blink3
+    cd blink3
+    cp ${SCRIPTDIR}/assets/src/blink3* .
+    cp -r ${SCRIPTDIR}/assets/lib/Deferal .
+    mkdir arduino.uno
+    cd arduino.uno
+    check_multiple_inos
+    check_esp32
+ }

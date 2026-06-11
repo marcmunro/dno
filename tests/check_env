@@ -1,0 +1,49 @@
+#! /usr/bin/env bash
+
+# Included from main test runner
+
+
+check_arduino_boards_file()
+{
+    [ -r "${ARDUINO_BOARDS_FILE}" ] ||
+	fail "Cannot read Arduino boards_file: \"${ARDUINO_BOARDS_FILE}\""
+}
+
+check_tool()
+{
+    # Check that tool is installed
+    which $1 >/dev/null 2>&1 || fail "$1 is not installed"
+    # Check that it is latest version
+    cmp `which $1` ${PROJDIR}/bin/$1 || fail latest "$1" is not installed
+    if [ -f "${PROJDIR}/bin/$1.in" ]; then
+        # Our bin file depends on a .in file.  Let's make sure it is
+	# up to date.
+        (find "${PROJDIR}/bin" -name "$1.in" \
+	     -a -newer "${PROJDIR}/bin/$1" | grep . >/dev/null) &&
+	    fail "$1 is out of date: it must be remade"
+    fi
+    return 0
+}
+
+# We need avr and esp32 architectures for testing
+check_installed_archs()
+{
+    dno_bpp -b pro >/dev/null 2>&1 ||
+	fail "Base Arduino AVR boards not installed"
+    dno_bpp -q esp32.esp32.esp32 >/dev/null 2>&1 ||
+	echo -e "\n  [Esp32 boards not installed.  Esp32 tests will be skipped]"
+}
+
+check_env()
+{
+    echo -n "Checking that test environment is adequate"
+    run check_arduino_boards_file
+    run check_tool dno
+    run check_tool dno_bpp
+    run check_tool dno_checksize
+    run check_tool dno_commands_for
+    run check_tool dno_dirinfo
+    run check_tool dno_menu
+    run check_tool dno_requote
+    run check_installed_archs
+}
