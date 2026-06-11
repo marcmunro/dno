@@ -459,7 +459,7 @@ blink$
       version of the <literal>clean</literal> target.  Clean will
       remove the <literal>build</literal> directory and its contents.
       Pristine additionally removes the <literal>BOARD_INFO</literal>
-      directory.  Note that we still had to manually remove 
+      file.  Note that we still had to manually remove 
       <literal>BOARD_TYPE</literal>.
     </para>
     <para>
@@ -552,7 +552,8 @@ pro.8MHzatmega328$
       <para>
 	The <literal>pristine</literal> target does all that the
 	<literal>clean</literal> target does, plus it removes any
-	<literal>BOARD_INFO</literal> files.
+	<literal>BOARD_INFO</literal> and
+	<literal>PROGRAMMER</literal> files. 
       </para>
       <para>
 	Use this before committing changes into your repository, or
@@ -670,22 +671,17 @@ pro.8MHzatmega328$
       <para>
 	If your board is connected to a programmer, you can burn a
 	board's standard bootloader by simply running <literal>dno
-	burn</literal> in a board directory.
+	burn</literal> in a board directory.  	For more on this see
+	<link linkend="burn_standard_bootloader">Restoring (Burning)
+	the Standard Bootloader</link>.  
       </para>
       <para>
 	To create a custom bootloader, you should create a
 	<literal>boot</literal> directory below your board directory.
-	Here you can build and burn a custom bootloader image.
-      </para>
-      <para>
-	MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE
-	MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE
-	MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE
-	MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE
-	MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE
-	MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE
-	MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE MORE
-	MORE.
+	Here you can build and burn a custom bootloader image.  For
+	more on this see <link
+	linkend="burning_custom_bootloaders">Burning a Custom
+	Bootloader</link>.
       </para>
     </section>
   </section>
@@ -781,9 +777,10 @@ pro.8MHzatmega328$
 	  <para>
 	    Dno, building from a totally clean directory, and with no
 	    paralellism is about 35% faster than the standard IDE.
-	    With BOARD_INFO already in place it is nearly twice as
-	    fast (51.9% Real time), and in a more realistic parallel
-	    invocation it is nearly 4 times as fast (26.8%).
+	    With <literal>BOARD_INFO</literal> already in place it is
+	    nearly twice as fast (51.9% Real time), and in a more
+	    realistic parallel invocation it is nearly 4 times as fast
+	    (26.8%).
 	  </para>
 	</listitem>
 	<listitem>
@@ -797,7 +794,8 @@ pro.8MHzatmega328$
 	  </para>
 	  <para>
 	    Interestingly, dno outperformed the Arduino IDE's minimal
-	    build, even when doing a full rebuild including BOARD_INFO.
+	    build, even when doing a full rebuild including
+	    <literal>BOARD_INFO</literal>. 
 	  </para>
 	  <para>
 	    Finally, with no updates to sources, ie with nothing that

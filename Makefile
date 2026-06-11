@@ -483,6 +483,7 @@ release_tarball:
 .PHONY: test tests check
 test tests check:
 	$(FEEDBACK) Running system tests...
+	$(AT) chmod 755 tests/run_tests
 	$(AT) cd tests; ./run_tests -f \
 		`[ "x${NOCLEANUP}" = "x" ] || printf '%s' '-n'` $(TESTS) 
 

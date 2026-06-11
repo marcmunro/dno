@@ -3,7 +3,7 @@
 # 
 #       Autoconf definitions for dno.
 # 
-#       Copyright (c) 2024, 2025
+#       Copyright (c) 2024, 2025, 2026
 #       Author:  Marc Munro
 # 	License: GPL V3
 #  
@@ -190,5 +190,6 @@ AC_CONFIG_FILES([man/dno_requote.md])
 AC_CONFIG_FILES([man/dno_ino2c.md])
 AC_CONFIG_FILES([README.md])
 AC_CONFIG_FILES([docs/dno_vars.ent])
+AC_CONFIG_FILES([tests/run_tests])
 AC_OUTPUT
  

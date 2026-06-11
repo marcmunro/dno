@@ -165,12 +165,15 @@
 	    its attitude;
 	  </para>
 	  <para>
-	    Here's how you write software: you bring up a really
+	    Its attitude is the attitude of all IDEs.  The attitude is
+	    that this is how you write software: it's the best way;
+	    every other way is inferior; why would you want to do
+	    anything else; if you don't like it you must be missing
+	    something.  For the Arduino IDE, it's maybe a little worse
+	    than most IDEs because its not very good.  It has a really
 	    crappy editor that has no interest in how you want to use
 	    your filesystem and that does not have the power of the
-	    tools that you normally use.  No, you can't use standard
-	    tools.  And, no you can't build from the command line: well,
-	    you can but the commands are insane.
+	    tools that you normally use.
 	  </para>
 	  <para>
 	    <quote>But this is the right way to do it.  Obviously.
@@ -184,8 +187,9 @@
 	    buy-in to it.  You will often hear the question,
 	    <quote>why would you not use
 	    <emphasis>whatever</emphasis>?</quote>, when the real
-	    question should be <quote>why can't I use tools that I am
-	    familiar with?</quote>
+	    question should be <quote>why can't I use more flexible
+	    and powerful tools that I am already familiar
+	    with?</quote>
 	  </para>
 	</listitem>
 	<listitem>
@@ -253,6 +257,13 @@
 	then I discovered make's <literal>eval</literal> function and
 	suddenly everything was possible.
       </para>
+      <para>
+	While I was developing <literal>dno</literal> I discovered a
+	number of other Arduino-compatible toolsets, but each one
+	seemed less flexible and more work to use than
+	<literal>dno</literal> was becoming.  So I kept on, and here
+	we are.
+      </para>
     </section>
   </chapter>
   <xi:include href="parts/dno.xml"/>
@@ -260,6 +271,7 @@
   <xi:include href="parts/dno_checksize.xml"/>
   <xi:include href="parts/dno_commands_for.xml"/>
   <xi:include href="parts/dno_dirinfo.xml"/>
+  <xi:include href="parts/dno_ino2c.xml"/>
   <xi:include href="parts/dno_menu.xml"/>
   <xi:include href="parts/dno_prog.xml"/>
   <xi:include href="parts/dno_requote.xml"/>

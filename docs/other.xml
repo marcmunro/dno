@@ -158,10 +158,32 @@
       <literal>dno</literal>'s functionality.
     </para>
     <para>
-      The caveat to this is that your <literal>dno.mk</literal> will
-      necessarily be pretty tightly coupled to the built-in, pretty
-      sophisticated, behaviour of <literal>dno</literal> and doing
-      more that minimal tweaks may be diificult.
+      Since this is loaded quite early in the process of discovering
+      dependencies and definitions, it is possible that the
+      definitions you may want to customise will be overwritten by the
+      load of a subsequent dependency file, in particular the
+      <literal>BOARD_INFO</literal> file.
+    </para>
+    <para>
+      If you need your definitions to be evaluated at the end of 
+      makefile processing, after all other dependency files have been
+      updated and evaluated, you can provide a definition for
+      <literal>INO_FINAL</literal>.  This will be evaluated after
+      everything else but before beginning the build process proper.
+      Here is an example:
+      <programlisting>
+# The following will override the definition of upload.speed in
+# BOARD_INFO.
+define INO_FINAL
+  upload.speed=9600
+endef
+      </programlisting>
+    </para>
+    <para>
+      Note that because this is eval'd using <literal>make</literal>'s
+      <literal>eval</literal> function, you may need to escape any
+      "<literal>$</literal>" characters.  See the <literal>Gnu
+      make</literal> manual for details.
     </para>
   </section>
   <section xml:id="using-programmers">
@@ -229,7 +251,7 @@
 	  </listitem>
 	  <listitem>
 	    <para>
-	      You may need to load a bigger sketch than the standard
+	      You may need to load a bigger sketch than your current
 	      bootloader allows.
 	    </para>
 	    <para>
@@ -512,20 +534,20 @@ pro.8MHzatmega328$
       <title>Installing Bootloaders</title>
       <para>
 	Typically you will want to install a new bootloader for one of
-	two reasons.  Your bootloader may have stopped working, in
+	two reasons: your bootloader may have stopped working, in
 	which case you will want to try to restore it to its original
-	working state, or you may need functionality that is not built
-	into the standard bootloader.
+	working state; or you may need functionality that is not built
+	into your current bootloader.
       </para>
       <para>
 	To install a bootloader the <literal>dno burn</literal> target
 	is used.  If this is done in a board directory, dno will
-	attempt to burn the standard bootloader image.  If you are
+	attempt to burn the standard (default) bootloader image.  If you are
 	instead in a boot directory (a directory named boot, within a
 	board directory), dno will attempt burn a custom bootloader
 	image.
       </para>
-      <section>
+      <section xml:id="burn_standard_bootloader">
 	<title>Restoring (Burning) the Standard Bootloader</title>
 	<para>
 	  The Arduino IDE is packaged with standard
@@ -708,7 +730,8 @@ boot$
 	</para>
 	<para>
 	  As with the burn for the standard bootloader, the
-	  verification step seems to have failed.
+	  verification step seems to have failed, however the updated
+	  board appeared to work just fine.
 	</para>
       </section>
     </section>
@@ -789,7 +812,7 @@ boot$
 	      <para><literal>BOOT_TARGET</literal></para>
 	      <para>
 		This is the target that is passed to the make
-		invocation in BOOT_BUILDER.
+		invocation in <literal>BOOT_BUILDER</literal>.
 	      </para>
 	    </listitem>
 	    <listitem>
@@ -811,7 +834,9 @@ boot$
 		This defaults to <literal>DEFAULT_BOOT_TARGET</literal> and
 		provides the dependency for the
 		<literal>burn</literal> target to the
-		boot target.
+		boot target.  If you don't want the burn target to
+		rebuild the boot image, you should redefine this as an
+		empty definition (<literal>BURN_DEPS = </literal>).
 	      </para>
 	    </listitem>
 	    <listitem>
@@ -896,7 +921,7 @@ boot$
 	<para>
 	  Now, we can simply run <literal>dno</literal> in the
 	  <literal>boot</literal> directory to create our bootimage:
-	  <programlisting>
+	  <programlisting xml:id="boot_build">
 boot$ dno
   CREATE BOOTIMAGE:
     "/usr/bin/make" atmega328 AVR_FREQ=8000000L LED_START_FLASHES=3
@@ -933,8 +958,8 @@ boot$
 	<title>Using It</title>
 	<para>
 	  Once you have installed a new bootloader, with new
-	  capabilities, you will have changed your board type.  It
-	  will probably support a different baud rate.  It may free up
+	  capabilities, you will have changed your board type: it
+	  will probably support a different baud rate; it may free up
 	  space that can be used by sketches.  This means you will
 	  need to change the board type and rebuild your
 	  <literal>BOARD_INFO</literal> file.  This, in turn, means
@@ -1090,11 +1115,213 @@ optiboot32.8MHz,atmega328p$
 	</para>
       </section>
       <section>
-	<title>Checking It Out</title>
+	<title>Making it Work</title>
 	<para>
-	  All that remains is to try to upload to the board:
+	  We tried uploading our new sketch and were unable to make
+	  contact with the board.  Hmmm.
+	</para>
+	<para>
+	  Looking back at our <link linkend="boot_build">boot
+	  build</link>, we see this:
 	  <programlisting>
-optiboot32.8MHz,atmega328p$ dno upload
+. . .	    
+    BAUD RATE CHECK: Desired: 115200, Real: 111111, UBRRL = 8, Difference=-3.5%
+    avr-gcc -g -Wall -Os -fno-split-wide-types -mrelax -mmcu=atmega328p -DF_CPU=8000000L  -DBAUD_RATE=115200 -DLED_START_FLASHES=3                   -c -o optiboot.o optiboot.c
+optiboot.c:422:2: warning: #warning BAUD_RATE off by greater than -2% [-Wcpp]
+ #warning BAUD_RATE off by greater than -2%
+. . .
+	  </programlisting>
+	</para>
+	<para>
+	  So, maybe the baud rate is a problem.  Let's try building a
+	  bootloader image with a lower baud rate.  We'll do this by
+	  modifying our dno.mk file to add a BAUD_RATE setting.  This
+	  is what it looks once we have done this:
+	  <programlisting>
+	    BOOT_TARGET = atmega328_pro8 BAUD_RATE=57600
+	  </programlisting>
+	</para>
+	<para>
+	  Let's rebuild:
+	  <programlisting>
+boot$ dno boot
+  CREATE BOOTIMAGE:
+    "/usr/bin/make" atmega328 AVR_FREQ=8000000L LED_START_FLASHES=3
+    avr-gcc (GCC) 5.4.0
+    Copyright (C) 2015 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    
+    BAUD RATE CHECK: Desired: 57600, Real: 58823, UBRRL = 16, Difference=2.1%
+    avr-gcc -g -Wall -Os -fno-split-wide-types -mrelax -mmcu=atmega328p -DF_CPU=8000000L  -DBAUD_RATE=57600 -DLED_START_FLASHES=3                   -c -o optiboot.o optiboot.c
+optiboot.c:429:2: warning: #warning BAUD_RATE off by greater than 2% [-Wcpp]
+ #warning BAUD_RATE off by greater than 2%
+  ^
+    avr-gcc -g -Wall -Os -fno-split-wide-types -mrelax -mmcu=atmega328p -DF_CPU=8000000L  -DBAUD_RATE=57600 -DLED_START_FLASHES=3                 -Wl,-Tlink_optiboot.ld -Wl,--relax -nostartfiles -o optiboot_atmega328.elf optiboot.o 
+    avr-size optiboot_atmega328.elf
+       text	   data	    bss	    dec	    hex	filename
+        482	      0	      0	    482	    1e2	optiboot_atmega328.elf
+    avr-objcopy -j .text -j .data -j .version --set-section-flags .version=alloc,load -O ihex optiboot_atmega328.elf optiboot_atmega328.hex
+    avr-objdump -h -S optiboot_atmega328.elf > optiboot_atmega328.lst
+    rm optiboot.o
+    mv optiboot_atmega328.hex optiboot_atmega328_pro_8MHz.hex
+    mv optiboot_atmega328.lst optiboot_atmega328_pro_8MHz.lst
+boot$ 
+	  </programlisting>
+	</para>
+	<para>
+	  So, our wanted baud rate is still a little bit off.  Let's
+	  burn it anyway and see if we can make it work:
+	  <programlisting>
+boot$ dno burn
+  CREATE BOOTIMAGE:
+    "/usr/bin/make" atmega328 AVR_FREQ=8000000L LED_START_FLASHES=3
+    avr-gcc (GCC) 5.4.0
+    Copyright (C) 2015 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    
+    BAUD RATE CHECK: Desired: 57600, Real: 58823, UBRRL = 16, Difference=2.1%
+    avr-gcc -g -Wall -Os -fno-split-wide-types -mrelax -mmcu=atmega328p -DF_CPU=8000000L  -DBAUD_RATE=57600 -DLED_START_FLASHES=3                   -c -o optiboot.o optiboot.c
+optiboot.c:429:2: warning: #warning BAUD_RATE off by greater than 2% [-Wcpp]
+ #warning BAUD_RATE off by greater than 2%
+  ^
+    avr-gcc -g -Wall -Os -fno-split-wide-types -mrelax -mmcu=atmega328p -DF_CPU=8000000L  -DBAUD_RATE=57600 -DLED_START_FLASHES=3                 -Wl,-Tlink_optiboot.ld -Wl,--relax -nostartfiles -o optiboot_atmega328.elf optiboot.o 
+    avr-size optiboot_atmega328.elf
+       text	   data	    bss	    dec	    hex	filename
+        482	      0	      0	    482	    1e2	optiboot_atmega328.elf
+    avr-objcopy -j .text -j .data -j .version --set-section-flags .version=alloc,load -O ihex optiboot_atmega328.elf optiboot_atmega328.hex
+    avr-objdump -h -S optiboot_atmega328.elf > optiboot_atmega328.lst
+    rm optiboot.o
+    mv optiboot_atmega328.hex optiboot_atmega328_pro_8MHz.hex
+    mv optiboot_atmega328.lst optiboot_atmega328_pro_8MHz.lst
+About to burn bootloader: optiboot_atmega328_pro_8MHz.hex
+Press Y to continue? y
+
+
+avrdude: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.02s
+
+avrdude: Device signature = 0x1e950f (probably m328p)
+avrdude: NOTE: "flash" memory has been specified, an erase cycle will be performed
+         To disable this feature, specify the -D option.
+avrdude: erasing chip
+avrdude: reading input file "optiboot_atmega328_pro_8MHz.hex"
+avrdude: writing flash (32768 bytes):
+
+Writing | ################################################## | 100% 0.00s
+
+avrdude: 32768 bytes of flash written
+avrdude: verifying flash memory against optiboot_atmega328_pro_8MHz.hex:
+avrdude: load data flash data from input file optiboot_atmega328_pro_8MHz.hex:
+avrdude: input file optiboot_atmega328_pro_8MHz.hex contains 32768 bytes
+avrdude: reading on-chip flash data:
+
+Reading | ################################################## | 100% 0.00s
+
+avrdude: verifying ...
+avrdude: 32768 bytes of flash verified
+avrdude: reading input file "0x2F"
+avrdude: writing lock (1 bytes):
+
+Writing |                                                    | 0% 0.00s ***failed;  
+Writing | ################################################## | 100% 0.07s
+
+avrdude: 1 bytes of lock written
+avrdude: verifying lock memory against 0x2F:
+avrdude: load data lock data from input file 0x2F:
+avrdude: input file 0x2F contains 1 bytes
+avrdude: reading on-chip lock data:
+
+Reading | ################################################## | 100% 0.01s
+
+avrdude: verifying ...
+avrdude: verification error, first mismatch at byte 0x0000
+         0xef != 0x2f
+avrdude: verification error; content mismatch
+
+avrdude: safemode: Fuses OK (E:FD, H:DA, L:FF)
+
+avrdude done.  Thank you.
+
+make: *** [/usr/local/bin/dno:1706: burn] Error 1
+boot$ 
+	  </programlisting>
+	</para>
+	<para xml:id="shabby_make">
+	  Maybe that has worked.  On a side note, notice that the burn
+	  target also causes the boot target to be run, and that this
+	  <emphasis>always</emphasis> rebuilds our bootloader.  We'll
+	  try to fix this later.  For now we'll want to make our upload
+	  work with the new bootloader.
+	</para>
+	<para>
+	  Looking at the <literal>BOARD_INFO</literal> file in the
+	  parent, <literal>optiboot32.8MHz,atmega328p</literal>,
+	  directory we see this definition:
+	  <programlisting>
+upload.speed=115200
+	  </programlisting>
+	</para>
+	<para>
+	  We'll want to override this to set it to 57600.  We could
+	  simply edit the <literal>BOARD_INFO</literal> file but it
+	  would be reset and our edits lost any time that
+	  <literal>dno</literal> decides that it needs to be updated.
+	  Instead, we will create a <literal>dno.mk</literal> file and
+	  use that to override the definition.  Here is our new
+	  <literal>dno.mk</literal>:
+	  <programlisting>
+define DNO_FINAL
+    upload.speed=57600
+endef
+	  </programlisting>
+	</para>
+	<para>
+	  We have defined a macro, <literal>DNO_FINAL</literal>, which
+	  provides our updated <literal>upload.speed</literal>
+	  definition.  This macro is expanded by
+	  <literal>dno</literal> as the last step before building
+	  targets.  This means that the definition will override the
+	  previous definition from <literal>BOARD_INFO</literal>.
+	  Let's build again, and try an upload:
+	  <programlisting>
+optiboot32.8MHz,atmega328p$ dno
+  Creating BOARD_INFO...
+  AS  [core] wiring_pulse.S
+  C  [core] wiring_shift.c
+  C  [core] wiring_pulse.c
+  C  [core] wiring_digital.c
+  C  [core] wiring.c
+  C  [core] wiring_analog.c
+  C  [core] WInterrupts.c
+  C  [core] hooks.c
+  C++  [core] WString.cpp
+  C++  [core] WMath.cpp
+  C++  [core] USBCore.cpp
+  C++  [core] Tone.cpp
+  C++  [core] Stream.cpp
+  C++  [core] Print.cpp
+  C++  [core] PluggableUSB.cpp
+  C++  [core] new.cpp
+  C++  [core] main.cpp
+  C++  [core] IPAddress.cpp
+  C++  [core] HardwareSerial.cpp
+  C++  [core] HardwareSerial3.cpp
+  C++  [core] HardwareSerial2.cpp
+  C++  [core] HardwareSerial1.cpp
+  C++  [core] HardwareSerial0.cpp
+  C++  [core] CDC.cpp
+  C++  [core] abi.cpp
+  C++  [Deferal] Deferal.cpp
+  C++  ../blink.ino 
+  AR [libcore] abi.o...
+  LD blink.ino.o Deferal.o
+  OBJCOPY (hex) blink.elf
+Program size:   1726 out of 32256  (5%: 30530 remaining)
+   Data size:     35 out of 2048   (1%: 2013 remaining)
+marc:optiboot32.8MHz,atmega328p$ dno upload
   Resetting device attached to (/dev/ttyUSB0)...
     Uploading blink.hex to /dev/ttyUSB0
 
@@ -1125,9 +1352,81 @@ avrdude done.  Thank you.
 
 optiboot32.8MHz,atmega328p$ 
 	  </programlisting>
+	</para>				   	      
+	<para>
+	  So, the upload succeeded and we see our LED blinking.  We
+	  can call that a success.
+	</para>				   	      
+      </section>
+      <section>
+	<title>Some Final Cleanup</title>
+	<para>
+	  We noted <link linkend="shabby_make">above</link> that
+	  whenever we build the <literal>burn</literal> target, the
+	  <literal>boot</literal> target is 
+	  performed, and each time that is done it recompiles and
+	  relinks the boot image regardless of whether it needs to.
 	</para>
 	<para>
-	  So, that looks like success.
+	  Let's fix that because that's how we roll.
+	</para>
+	<para>
+	  What is actually happening is that our
+	  <literal>burn</literal> target depends on our <literal>boot</literal>
+	  target, through the definition of
+	  <literal>BURN_DEPS</literal>.  We could simply eliminate
+	  this dependency by setting <literal>BURN_DEPS</literal> to
+	  an empty string but if the boot image did need updating it
+	  then wouldn't happen.  The underlying problem is that optiboot's
+	  <literal>Makefile</literal> always does a full rebuild,
+	  whether it needs to or not.
+	</para>
+	<para>
+	  We would like the bootimage to only be rebuilt if something
+	  has changed.  Here is what we will do:
+	  <itemizedlist>
+	    <listitem>
+	      create an explicit target for the boot image;
+	    </listitem>
+	    <listitem>
+	      make that depend on all of the local source files;
+	    </listitem>
+	    <listitem>
+	      add an additional dependency on <literal>dno.mk</literal>;
+	    </listitem>
+	    <listitem>
+	      make <literal>burn</literal> depend on the boot image.
+	    </listitem>
+	  </itemizedlist>
+	</para>
+	<para>
+	  This is our modified <literal>dno.mk</literal>:
+	  <programlisting>
+TARGET_ARCH = atmega328_pro8
+TARGET_ARCHNAME = atmega328_pro_8MHz
+BOOT_TARGET = $(TARGET_ARCH) BAUD_RATE=57600
+TARGET_IMAGE = optiboot_$(TARGET_ARCHNAME).hex
+
+# Our boot image needs to be rebuilt if any Makefile, source file, or
+# this file is updated.  The build command is the same as for the
+# explicit boot target.  Note that the explicit boot target wil
+# continue to build the boot image unconditionally.  This target is
+# just as a dependency for the burn target.
+#
+$(TARGET_IMAGE): $(wildcard *.c *.h Makefile.* *.mk) Makefile
+	$(TARGET)
+	$(FEEDBACK) CREATE BOOTIMAGE:
+	$(AT) $(call indent,$(BOOT_BUILDER))
+
+BURN_DEPS = $(TARGET_IMAGE)	    
+	  </programlisting>
+	</para>
+	<para>
+	  Now, our <literal>burn</literal> target will only rebuild
+	  the boot image if it has to: if the code or build
+	  instructions are more up to date than the image file.  The
+	  <literal>boot</literal> target though, will still
+	  unconditionally rebuild the boot image.
 	</para>
       </section>
     </section>

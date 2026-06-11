@@ -1,5 +1,11 @@
 #! /usr/bin/env bash
 #
+#       Unit tests for dno.
+#
+#       Copyright (c) 2024, 2025, 2026 Marc Munro
+#       Author:  Marc Munro
+# 	License: GPL-3.0
+#  
 # Usage:
 #   run_tests [-n] [test_regexp]
 #   run_tests -D
@@ -13,8 +19,8 @@
 #
 # TODO: Add to configure.
 #
-EXTRA_BOARDS_FILE=~/.dno_boards_paths
-ARDUINO_BOARDS_FILE="/usr/share/arduino/hardware/arduino/avr/boards.txt"
+EXTRA_BOARDS_FILE=@DNO_EXTRA_BOARDS_FILE@
+ARDUINO_BOARDS_FILE=@BOARDS_TXT@
 
 SCRIPTDIR=$(cd `dirname $0`; pwd)
 PROJDIR=$(cd `dirname $0`/..; pwd)

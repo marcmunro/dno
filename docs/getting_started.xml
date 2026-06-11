@@ -217,7 +217,7 @@ blink$
       (<literal>OBJCOPY</literal>).
     </para>
     <para>
-      Note thet the dno output shows a sanitised version of what is
+      Note that the dno output shows a sanitised version of what is
       actually being done.  This is mainly for aesthetic reasons:
       showing the full commands that are executed is pretty ugly.  But
       if that's what you want, you can (as shown <link

@@ -40,7 +40,6 @@ check_helper_targets()
 {
     echo -n "Checking helper targets"
     cd "${test_startdir}"
-    cd tests
     mkdir -p proj/blink
     cd proj/blink
     echo avr.pro >BOARD_TYPE

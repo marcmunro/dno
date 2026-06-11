@@ -640,7 +640,7 @@ pro.8MHzatmega328$
       libraries as these can be unit-tested on your host computer.  If
       the library's unit tests are well designed, you should be able
       to test <emphasis>all</emphasis> code paths, no matter how
-      unlikely to be triggered.  As a bonus, the tests also become
+      unlikely to be triggered.  As a bonus the tests also become
       automated and repeatable.
     </para>
     <section xml:id="unit_tests">
@@ -666,7 +666,7 @@ pro.8MHzatmega328$
 	<link
 	    xlink:href="https://github.com/cppunit/cppunit.git">CPlusPlusUnit</link>,
 	which is very small and simple but provides just about all of
-	the functionality you might need, though the documentation is
+	the functionality you might need though the documentation is
 	a little sparse.  Check the
 	<link
 	    xlink:href="https://github.com/marcmunro/Deferal">Deferal</link>

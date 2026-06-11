@@ -4,7 +4,7 @@
 #       Self-executing makefile for dno, the Arduino build system
 #	Execute "dno help" or "dno info" for more information.
 # 
-#       Copyright (c) 2024, 2025 Marc Munro
+#       Copyright (c) 2024, 2025, 2026 Marc Munro
 #       Author:  Marc Munro
 # 	License: GPL-3.0
 #  
@@ -560,7 +560,7 @@ BOOT_BUILDER  = env -u MAKEFLAGS $(REAL_MAKE) $(BOOT_TARGET) \
 	       --no-print-directory
 DEFAULT_BOOT_TARGET = default_boot_target
 BURN_DEPS = $(DEFAULT_BOOT_TARGET)
-BOOTLOADER_IMAGE =`ls -1t *hex *bin 2>/dev/null | head`
+BOOTLOADER_IMAGE =`ls -1t *hex *bin 2>/dev/null | head -1`
 -include dno.mk
 
 $(call debug,BOOT_BUILDER)
@@ -1031,7 +1031,7 @@ ifeq "$(IN_BOARD_DIR)" "t"
     # BOARD_INFO to cause a rebuild.  Otherwise dno.mk is just a
     # dependency of BOAR_INFO
     ifneq "$(wildcard dno.mk)" "dno.mk"
-      DNO_MK_USED != grep "^DNO_MK =" BOARD_INFO
+      DNO_MK_USED != grep "^DNO_MK =" BOARD_INFO 2>/dev/null
       ifneq "" "$(DNO_MK_USED)"
         $(shell rm -f BOARD_INFO)
       endif
@@ -2198,3 +2198,4 @@ $(eval $(DNO_FINAL))
 # Local Variables:
 # mode: makefile
 # End:
+

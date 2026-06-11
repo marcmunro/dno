@@ -3213,6 +3213,8 @@ ac_config_files="$ac_config_files README.md"
 
 ac_config_files="$ac_config_files docs/dno_vars.ent"
 
+ac_config_files="$ac_config_files tests/run_tests"
+
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -3941,6 +3943,7 @@ do
     "man/dno_ino2c.md") CONFIG_FILES="$CONFIG_FILES man/dno_ino2c.md" ;;
     "README.md") CONFIG_FILES="$CONFIG_FILES README.md" ;;
     "docs/dno_vars.ent") CONFIG_FILES="$CONFIG_FILES docs/dno_vars.ent" ;;
+    "tests/run_tests") CONFIG_FILES="$CONFIG_FILES tests/run_tests" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

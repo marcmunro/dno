@@ -7,7 +7,7 @@
 dno_ino2c -  Convert .ino files to c++ output
 
 # SYNOPSIS
- **dno_ino2c** [OPTIONS] {INPUT_FILE]...
+ **dno_ino2c** [OPTIONS] [INPUT_FILE]...
 
 # DESCRIPTION
 

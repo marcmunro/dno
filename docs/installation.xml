@@ -358,8 +358,8 @@ dno$
 	the tarball, but <emphasis>all</emphasis> build tools
 	<emphasis>must</emphasis> be installed.  This means that in
 	addition to <literal>gawk</literal>, <literal>sed</literal>
-	and <literal>gcc</literal>, the following must also be
-	present:
+	<literal>perl</literal>, and <literal>gcc</literal>, the
+	following must also be present:
 	<itemizedlist>
 	  <listitem>
 	    <para>
