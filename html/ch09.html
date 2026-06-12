@@ -104,14 +104,14 @@ void loop() {
   </p>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id2787"></a>9.1. Full build for Arduino Pro</h2></div></div></div>
+<a name="id2785"></a>9.1. Full build for Arduino Pro</h2></div></div></div>
 <p>
       This set of comparisons is for a "Full Build".  That is to say,
       a build where all sources are compiled from scratch.
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2790"></a>9.1.1. IDE build for Arduino Pro</h3></div></div></div>
+<a name="id2788"></a>9.1.1. IDE build for Arduino Pro</h3></div></div></div>
 <p>
 	Our script for this was as follows:
 	</p>
@@ -146,24 +146,24 @@ time do_it
 <pre class="programlisting">
 blink$ ./cli.sh &gt;/dev/null
 
-real	0m2.562s
-user	0m1.415s
-sys	0m1.341s
+real	0m2.798s
+user	0m1.432s
+sys	0m1.560s
 blink$ ./cli.sh &gt;/dev/null
 
-real	0m2.396s
-user	0m1.342s
-sys	0m1.205s
+real	0m2.569s
+user	0m1.250s
+sys	0m1.502s
 blink$ ./cli.sh &gt;/dev/null
 
-real	0m2.382s
-user	0m1.319s
-sys	0m1.231s
+real	0m2.621s
+user	0m1.308s
+sys	0m1.481s
 blink$ ./cli.sh &gt;/dev/null
 
-real	0m2.515s
-user	0m1.339s
-sys	0m1.356s
+real	0m2.484s
+user	0m1.299s
+sys	0m1.363s
 blink$
 	</pre>
 <p>
@@ -171,7 +171,7 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2798"></a>9.1.2. Full dno build for Arduino Pro</h3></div></div></div>
+<a name="id2796"></a>9.1.2. Full dno build for Arduino Pro</h3></div></div></div>
 <p>
 	We created a simple dno project tree as follows:
 	</p>
@@ -189,39 +189,38 @@ blink
 	similar to the IDE build.
 	</p>
 <pre class="programlisting">
-pro.8MHzatmega328$ dno pristine; time dno &gt;/dev/null
+marc:pro.8MHzatmega328$  dno pristine; time dno &gt;/dev/null
 Super-cleaning .
 
-real	0m1.613s
-user	0m1.545s
-sys	0m0.363s
-pro.8MHzatmega328$ dno pristine; time dno &gt;/dev/null
+real	0m1.911s
+user	0m1.805s
+sys	0m0.413s
+pro.8MHzatmega328$  dno pristine; time dno &gt;/dev/null
 Super-cleaning .
 
-real	0m1.571s
-user	0m1.461s
-sys	0m0.406s
-pro.8MHzatmega328$ dno pristine; time dno &gt;/dev/null
+real	0m1.919s
+user	0m1.813s
+sys	0m0.431s
+pro.8MHzatmega328$  dno pristine; time dno &gt;/dev/null
 Super-cleaning .
 
-real	0m1.566s
-user	0m1.496s
-sys	0m0.367s
-pro.8MHzatmega328$ dno pristine; time dno &gt;/dev/null
+real	0m1.881s
+user	0m1.784s
+sys	0m0.418s
+pro.8MHzatmega328$  dno pristine; time dno &gt;/dev/null
 Super-cleaning .
 
-real	0m1.578s
-user	0m1.529s
-sys	0m0.346s
+real	0m1.838s
+user	0m1.763s
+sys	0m0.395s
 pro.8MHzatmega328$ 
-
 	</pre>
 <p>
       </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2805"></a>9.1.3. Full dno build for Arduino Pro retaining <code class="literal">BOARD_INFO</code>
+<a name="id2803"></a>9.1.3. Full dno build for Arduino Pro retaining <code class="literal">BOARD_INFO</code>
 </h3></div></div></div>
 <p>
 	In this set of builds, we rebuild everything except the
@@ -229,30 +228,30 @@ pro.8MHzatmega328$
 	clean build would look like.
 	</p>
 <pre class="programlisting">
-pro.8MHzatmega328$ dno clean; time dno &gt;/dev/null
+pro.8MHzatmega328$  dno clean; time dno &gt;/dev/null
 Cleaning .
 
-real	0m1.279s
-user	0m1.120s
-sys	0m0.304s
-pro.8MHzatmega328$ dno clean; time dno &gt;/dev/null
+real	0m1.441s
+user	0m1.295s
+sys	0m0.307s
+pro.8MHzatmega328$  dno clean; time dno &gt;/dev/null
 Cleaning .
 
-real	0m1.268s
-user	0m1.122s
-sys	0m0.294s
-pro.8MHzatmega328$ dno clean; time dno &gt;/dev/null
+real	0m1.476s
+user	0m1.308s
+sys	0m0.328s
+pro.8MHzatmega328$  dno clean; time dno &gt;/dev/null
 Cleaning .
 
-real	0m1.274s
-user	0m1.148s
-sys	0m0.273s
-pro.8MHzatmega328$ dno clean; time dno &gt;/dev/null
+real	0m1.475s
+user	0m1.316s
+sys	0m0.321s
+pro.8MHzatmega328$  dno clean; time dno &gt;/dev/null
 Cleaning .
 
-real	0m1.289s
-user	0m1.180s
-sys	0m0.255s
+real	0m1.475s
+user	0m1.326s
+sys	0m0.310s
 pro.8MHzatmega328$ 
 	</pre>
 <p>
@@ -260,7 +259,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2811"></a>9.1.4. Parallel dno build for Arduino Pro retaining <code class="literal">BOARD_INFO</code>
+<a name="id2809"></a>9.1.4. Parallel dno build for Arduino Pro retaining <code class="literal">BOARD_INFO</code>
 </h3></div></div></div>
 <p>
 	For this set of builds we pass the flags <code class="literal">-j
@@ -274,30 +273,30 @@ pro.8MHzatmega328$
 <p>
 	</p>
 <pre class="programlisting">
-pro.8MHzatmega328$ dno clean; time dno -j 4 &gt;/dev/null
+pro.8MHzatmega328$  dno clean; time dno -j 4 &gt;/dev/null
 Cleaning .
 
-real	0m0.657s
-user	0m1.109s
-sys	0m0.289s
-pro.8MHzatmega328$ dno clean; time dno -j 4 &gt;/dev/null
+real	0m0.818s
+user	0m1.273s
+sys	0m0.306s
+pro.8MHzatmega328$  dno clean; time dno -j 4 &gt;/dev/null
 Cleaning .
 
-real	0m0.656s
-user	0m1.106s
-sys	0m0.295s
-pro.8MHzatmega328$ dno clean; time dno -j 4 &gt;/dev/null
+real	0m0.820s
+user	0m1.257s
+sys	0m0.321s
+pro.8MHzatmega328$  dno clean; time dno -j 4 &gt;/dev/null
 Cleaning .
 
-real	0m0.669s
-user	0m1.137s
-sys	0m0.278s
-pro.8MHzatmega328$ dno clean; time dno -j 4 &gt;/dev/null
+real	0m0.816s
+user	0m1.288s
+sys	0m0.286s
+pro.8MHzatmega328$  dno clean; time dno -j 4 &gt;/dev/null
 Cleaning .
 
-real	0m0.655s
-user	0m1.109s
-sys	0m0.289s
+real	0m0.819s
+user	0m1.299s
+sys	0m0.279s
 pro.8MHzatmega328$ 
 	</pre>
 <p>
@@ -306,14 +305,14 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id2819"></a>9.2. Minimal build for Arduino Pro</h2></div></div></div>
+<a name="id2817"></a>9.2. Minimal build for Arduino Pro</h2></div></div></div>
 <p>
       In this scenario, we do a more typical compilation operation,
       where the core library does not need to be rebuilt.
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2822"></a>9.2.1. Minimal IDE build for Arduino Pro</h3></div></div></div>
+<a name="id2820"></a>9.2.1. Minimal IDE build for Arduino Pro</h3></div></div></div>
 <p>
 	For this scenario, we re-used our
 	<code class="literal">cli.sh</code>original script with the
@@ -322,24 +321,24 @@ pro.8MHzatmega328$
 <pre class="programlisting">
 blink$ ./cli.sh &gt;/dev/null
 
-real	0m1.732s
-user	0m0.705s
-sys	0m1.184s
+real	0m1.842s
+user	0m0.793s
+sys	0m1.212s
 blink$ ./cli.sh &gt;/dev/null
 
-real	0m1.742s
-user	0m0.806s
-sys	0m1.085s
+real	0m1.828s
+user	0m0.732s
+sys	0m1.260s
 blink$ ./cli.sh &gt;/dev/null
 
-real	0m1.773s
-user	0m0.707s
-sys	0m1.225s
+real	0m1.791s
+user	0m0.678s
+sys	0m1.263s
 blink$ ./cli.sh &gt;/dev/null
 
-real	0m1.990s
-user	0m0.734s
-sys	0m1.442s
+real	0m1.741s
+user	0m0.789s
+sys	0m1.102s
 blink$ 
 	</pre>
 <p>
@@ -347,43 +346,33 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2828"></a>9.2.2. dno build with updated blink.ino</h3></div></div></div>
+<a name="id2826"></a>9.2.2. dno build with updated blink.ino</h3></div></div></div>
 <p>
 	For this scenario, we <code class="literal">touch</code> the
 	<code class="literal">blink.ino</code> file so that it appears to have
 	been updated.  We then run dno and see the following.
 	</p>
 <pre class="programlisting">
-pro.8MHzatmega328$ touch ../blink.ino; time dno
-  C++  ../blink.ino 
-  LD blink.ino.o
-  OBJCOPY (hex) blink.elf
-Program size:    930 out of 30720  (3%: 29790 remaining)
-   Data size:      9 out of 2048   (0%: 2039 remaining)
-
-real	0m0.490s
-user	0m0.421s
-sys	0m0.100s
 pro.8MHzatmega328$ touch ../blink.ino; time dno &gt;/dev/null
 
-real	0m0.391s
-user	0m0.430s
-sys	0m0.076s
+real	0m0.528s
+user	0m0.541s
+sys	0m0.109s
 pro.8MHzatmega328$ touch ../blink.ino; time dno &gt;/dev/null
 
-real	0m0.391s
-user	0m0.400s
+real	0m0.523s
+user	0m0.542s
+sys	0m0.104s
+pro.8MHzatmega328$ touch ../blink.ino; time dno &gt;/dev/null
+
+real	0m0.520s
+user	0m0.538s
+sys	0m0.107s
+pro.8MHzatmega328$ touch ../blink.ino; time dno &gt;/dev/null
+
+real	0m0.526s
+user	0m0.546s
 sys	0m0.105s
-pro.8MHzatmega328$ touch ../blink.ino; time dno &gt;/dev/null
-
-real	0m0.389s
-user	0m0.410s
-sys	0m0.094s
-pro.8MHzatmega328$ touch ../blink.ino; time dno &gt;/dev/null
-
-real	0m0.388s
-user	0m0.410s
-sys	0m0.092s
 pro.8MHzatmega328$ 
 	</pre>
 <p>
@@ -399,7 +388,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id2836"></a>9.3. dno build with no updates</h2></div></div></div>
+<a name="id2834"></a>9.3. dno build with no updates</h2></div></div></div>
 <p>
 	This is the same as above, except that we run dno with no
 	updated sources.  This is equivalent to the situation with the
@@ -407,26 +396,26 @@ pro.8MHzatmega328$
 	enough to perform no build.
 	</p>
 <pre class="programlisting">
-pro.8MHzatmega328$ time dno &gt;/dev/null
+pro.8MHzatmega328$  time dno &gt;/dev/null
 
-real	0m0.226s
-user	0m0.255s
-sys	0m0.058s
-pro.8MHzatmega328$ time dno &gt;/dev/null
-
-real	0m0.232s
-user	0m0.263s
-sys	0m0.057s
-pro.8MHzatmega328$ time dno &gt;/dev/null
-
-real	0m0.230s
-user	0m0.259s
+real	0m0.341s
+user	0m0.378s
 sys	0m0.059s
-pro.8MHzatmega328$ time dno &gt;/dev/null
+pro.8MHzatmega328$  time dno &gt;/dev/null
 
-real	0m0.232s
-user	0m0.272s
-sys	0m0.050s
+real	0m0.342s
+user	0m0.373s
+sys	0m0.066s
+pro.8MHzatmega328$  time dno &gt;/dev/null
+
+real	0m0.339s
+user	0m0.362s
+sys	0m0.073s
+pro.8MHzatmega328$  time dno &gt;/dev/null
+
+real	0m0.340s
+user	0m0.386s
+sys	0m0.049s
 pro.8MHzatmega328$ 
 	</pre>
 <p>
@@ -434,11 +423,11 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id2841"></a>9.4. Tabulated Results</h2></div></div></div>
+<a name="id2839"></a>9.4. Tabulated Results</h2></div></div></div>
 <p>
       </p>
 <div class="table">
-<a name="id2844"></a><p class="title"><b>Table 9.1. Full Build for Arduino Pro: performance comparison</b></p>
+<a name="id2842"></a><p class="title"><b>Table 9.1. Full Build for Arduino Pro: performance comparison</b></p>
 <div class="table-contents"><table class="table" summary="Full Build for Arduino Pro: performance comparison" border="1">
 <colgroup>
 <col align="justify" class="title">
@@ -471,10 +460,10 @@ pro.8MHzatmega328$
 <tbody>
 <tr>
 <td align="justify" char=".">Arduino IDE (baseline 1)</td>
-<td align="char" char=".">9.855</td>
-<td align="char" char=".">5.415</td>
-<td align="char" char=".">5.133</td>
-<td align="char" char=".">10.548</td>
+<td align="char" char=".">10.472</td>
+<td align="char" char=".">5.289</td>
+<td align="char" char=".">5.906</td>
+<td align="char" char=".">11.195</td>
 <td class="auto-generated"> </td>
 <td class="auto-generated"> </td>
 <td class="auto-generated"> </td>
@@ -484,43 +473,43 @@ pro.8MHzatmega328$
 <td align="justify" char=".">
 		dno, rebuilding BOARD_INFO (against baseline 1)
 	      </td>
-<td align="char" char=".">6.328</td>
-<td align="char" char=".">6.031</td>
-<td align="char" char=".">1.482</td>
-<td align="char" char=".">7.513</td>
-<td align="char" char=".">64.2</td>
-<td align="char" char=".">111.4</td>
-<td align="char" char=".">28.9</td>
-<td align="char" char=".">71.2</td>
+<td align="char" char=".">7.549</td>
+<td align="char" char=".">7.165</td>
+<td align="char" char=".">1.657</td>
+<td align="char" char=".">8.822</td>
+<td align="char" char=".">72.1</td>
+<td align="char" char=".">135.5</td>
+<td align="char" char=".">28.1</td>
+<td align="char" char=".">78.8</td>
 </tr>
 <tr>
 <td align="justify" char=".">dno, preserved BOARD_INFO (against baseline 1)</td>
-<td align="char" char=".">5.110</td>
-<td align="char" char=".">4.570</td>
-<td align="char" char=".">1.116</td>
-<td align="char" char=".">5.686</td>
-<td align="char" char=".">51.9</td>
-<td align="char" char=".">84.4</td>
-<td align="char" char=".">21.7</td>
-<td align="char" char=".">53.9</td>
+<td align="char" char=".">5.867</td>
+<td align="char" char=".">5.245</td>
+<td align="char" char=".">1.266</td>
+<td align="char" char=".">6.511</td>
+<td align="char" char=".">56.0</td>
+<td align="char" char=".">99.2</td>
+<td align="char" char=".">21.4</td>
+<td align="char" char=".">58.2</td>
 </tr>
 <tr>
 <td align="justify" char=".">parallel dno (-j 4) (against baseline 1)</td>
-<td align="char" char=".">2.637</td>
-<td align="char" char=".">4.461</td>
-<td align="char" char=".">1.151</td>
-<td align="char" char=".">5.612</td>
-<td align="char" char=".">26.8</td>
-<td align="char" char=".">82.3</td>
-<td align="char" char=".">22.4</td>
-<td align="char" char=".">53.2</td>
+<td align="char" char=".">3.273</td>
+<td align="char" char=".">5.117</td>
+<td align="char" char=".">1.192</td>
+<td align="char" char=".">6.309</td>
+<td align="char" char=".">31.3</td>
+<td align="char" char=".">96.7</td>
+<td align="char" char=".">20.2</td>
+<td align="char" char=".">56.4</td>
 </tr>
 <tr>
 <td align="justify" char=".">Arduino IDE minimal build (baseline 2)</td>
-<td align="char" char=".">6.328</td>
-<td align="char" char=".">6.031</td>
-<td align="char" char=".">1.482</td>
-<td align="char" char=".">7.513</td>
+<td align="char" char=".">7.202</td>
+<td align="char" char=".">2.992</td>
+<td align="char" char=".">4.837</td>
+<td align="char" char=".">7.829</td>
 <td class="auto-generated"> </td>
 <td class="auto-generated"> </td>
 <td class="auto-generated"> </td>
@@ -530,27 +519,27 @@ pro.8MHzatmega328$
 <td align="justify" char=".">
 		dno, rebuilding blink.ino (against baseline 2)
 	      </td>
-<td align="char" char=".">1.559</td>
-<td align="char" char=".">1.650</td>
-<td align="char" char=".">0.367</td>
-<td align="char" char=".">2.017</td>
-<td align="char" char=".">21.5</td>
-<td align="char" char=".">55.9</td>
-<td align="char" char=".">7.4</td>
-<td align="char" char=".">25.6</td>
+<td align="char" char=".">2.097</td>
+<td align="char" char=".">2.167</td>
+<td align="char" char=".">0.425</td>
+<td align="char" char=".">2.592</td>
+<td align="char" char=".">29.1</td>
+<td align="char" char=".">72.4</td>
+<td align="char" char=".">8.8</td>
+<td align="char" char=".">33.1</td>
 </tr>
 <tr>
 <td align="justify" char=".">
 		dno, no updates (against baseline 2)
 	      </td>
-<td align="char" char=".">0.920</td>
-<td align="char" char=".">1.049</td>
-<td align="char" char=".">0.224</td>
-<td align="char" char=".">1.273</td>
-<td align="char" char=".">12.7</td>
-<td align="char" char=".">35.5</td>
-<td align="char" char=".">4.6</td>
-<td align="char" char=".">16.1</td>
+<td align="char" char=".">1.362</td>
+<td align="char" char=".">1.499</td>
+<td align="char" char=".">0.247</td>
+<td align="char" char=".">1.746</td>
+<td align="char" char=".">18.9</td>
+<td align="char" char=".">50.1</td>
+<td align="char" char=".">5.1</td>
+<td align="char" char=".">22.3</td>
 </tr>
 </tbody>
 </table></div>

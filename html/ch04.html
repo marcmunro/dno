@@ -815,18 +815,18 @@ pro.8MHzatmega328$
 </ul></div>
 <p>
     </p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id2003"></a>4.10. Quantified Performance Comparison</h2></div></div></div>
-<p>
-      A number of comparison benchmarks were performed between the
-      standard Arduino IDE and dno.  The details of these are captured
-      in the <a class="link" href="ch09.html" title="Chapter 9. Benchmarks">benchmarks</a> section.
-    </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2007"></a>4.10.1. Benchmarking Observations</h3></div></div></div>
+<a name="id2003"></a>4.9.1. Quantified Performance Comparison</h3></div></div></div>
+<p>
+	A number of comparison benchmarks were performed between the
+	standard Arduino IDE and dno.  The details of these are captured
+	in the <a class="link" href="ch09.html" title="Chapter 9. Benchmarks">benchmarks</a> section.
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="id2007"></a>4.9.2. Benchmarking Observations</h3></div></div></div>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
 <p>
@@ -846,11 +846,11 @@ pro.8MHzatmega328$
 	  </p>
 <p>
 	    Dno, building from a totally clean directory, and with no
-	    paralellism is about 35% faster than the standard IDE.
+	    paralellism is about 25% faster than the standard IDE.
 	    With <code class="literal">BOARD_INFO</code> already in place it is
-	    nearly twice as fast (51.9% Real time), and in a more
-	    realistic parallel invocation it is nearly 4 times as fast
-	    (26.8%).
+	    nearly twice as fast (56.0% Real time), and in a more
+	    realistic parallel invocation it is more than 3 times as fast
+	    (31.3% Real time).
 	  </p>
 </li>
 <li class="listitem">
@@ -858,19 +858,14 @@ pro.8MHzatmega328$
 	    Minimal build comparisons
 	  </p>
 <p>
-	    With only the sketch updated, dno was more than 4 times as
-	    fast as the Arduino IDE (21.54%).  This was without any
+	    With only the sketch updated, dno was more than 3 times as
+	    fast as the Arduino IDE (29.1% Real time).  This was without any
 	    paralellism. 
-	  </p>
-<p>
-	    Interestingly, dno outperformed the Arduino IDE's minimal
-	    build, even when doing a full rebuild including
-	    <code class="literal">BOARD_INFO</code>. 
 	  </p>
 <p>
 	    Finally, with no updates to sources, ie with nothing that
 	    needed to be rebuilt, the Arduino IDE still recompiled and
-	    relinked the sketch, taking neary 8 times as long as dno's
+	    relinked the sketch, taking more than 5 times as long as dno's
 	    do-nothing build.
 	  </p>
 </li>
@@ -898,7 +893,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2029"></a>4.10.2. Final Conclusions</h3></div></div></div>
+<a name="id2027"></a>4.9.3. Final Conclusions</h3></div></div></div>
 <p>
 	Even in relatively simple comparisons with simple sketches,
 	dno easily outperforms the standard Arduino IDE.  For more
