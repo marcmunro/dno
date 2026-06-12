@@ -118,24 +118,24 @@ time do_it
 	<programlisting>
 blink$ ./cli.sh >/dev/null
 
-real	0m2.562s
-user	0m1.415s
-sys	0m1.341s
+real	0m2.798s
+user	0m1.432s
+sys	0m1.560s
 blink$ ./cli.sh >/dev/null
 
-real	0m2.396s
-user	0m1.342s
-sys	0m1.205s
+real	0m2.569s
+user	0m1.250s
+sys	0m1.502s
 blink$ ./cli.sh >/dev/null
 
-real	0m2.382s
-user	0m1.319s
-sys	0m1.231s
+real	0m2.621s
+user	0m1.308s
+sys	0m1.481s
 blink$ ./cli.sh >/dev/null
 
-real	0m2.515s
-user	0m1.339s
-sys	0m1.356s
+real	0m2.484s
+user	0m1.299s
+sys	0m1.363s
 blink$
 	</programlisting>
       </para>
@@ -156,32 +156,31 @@ blink
 	need to be touched.  This is the dno build that is most
 	similar to the IDE build.
 	<programlisting>
-pro.8MHzatmega328$ dno pristine; time dno >/dev/null
+marc:pro.8MHzatmega328$  dno pristine; time dno >/dev/null
 Super-cleaning .
 
-real	0m1.613s
-user	0m1.545s
-sys	0m0.363s
-pro.8MHzatmega328$ dno pristine; time dno >/dev/null
+real	0m1.911s
+user	0m1.805s
+sys	0m0.413s
+pro.8MHzatmega328$  dno pristine; time dno >/dev/null
 Super-cleaning .
 
-real	0m1.571s
-user	0m1.461s
-sys	0m0.406s
-pro.8MHzatmega328$ dno pristine; time dno >/dev/null
+real	0m1.919s
+user	0m1.813s
+sys	0m0.431s
+pro.8MHzatmega328$  dno pristine; time dno >/dev/null
 Super-cleaning .
 
-real	0m1.566s
-user	0m1.496s
-sys	0m0.367s
-pro.8MHzatmega328$ dno pristine; time dno >/dev/null
+real	0m1.881s
+user	0m1.784s
+sys	0m0.418s
+pro.8MHzatmega328$  dno pristine; time dno >/dev/null
 Super-cleaning .
 
-real	0m1.578s
-user	0m1.529s
-sys	0m0.346s
+real	0m1.838s
+user	0m1.763s
+sys	0m0.395s
 pro.8MHzatmega328$ 
-
 	</programlisting>
       </para>
     </section>
@@ -192,30 +191,30 @@ pro.8MHzatmega328$
 	<literal>BOARD_INFO</literal> file.  This is what a normal
 	clean build would look like.
 	<programlisting>
-pro.8MHzatmega328$ dno clean; time dno >/dev/null
+pro.8MHzatmega328$  dno clean; time dno >/dev/null
 Cleaning .
 
-real	0m1.279s
-user	0m1.120s
-sys	0m0.304s
-pro.8MHzatmega328$ dno clean; time dno >/dev/null
+real	0m1.441s
+user	0m1.295s
+sys	0m0.307s
+pro.8MHzatmega328$  dno clean; time dno >/dev/null
 Cleaning .
 
-real	0m1.268s
-user	0m1.122s
-sys	0m0.294s
-pro.8MHzatmega328$ dno clean; time dno >/dev/null
+real	0m1.476s
+user	0m1.308s
+sys	0m0.328s
+pro.8MHzatmega328$  dno clean; time dno >/dev/null
 Cleaning .
 
-real	0m1.274s
-user	0m1.148s
-sys	0m0.273s
-pro.8MHzatmega328$ dno clean; time dno >/dev/null
+real	0m1.475s
+user	0m1.316s
+sys	0m0.321s
+pro.8MHzatmega328$  dno clean; time dno >/dev/null
 Cleaning .
 
-real	0m1.289s
-user	0m1.180s
-sys	0m0.255s
+real	0m1.475s
+user	0m1.326s
+sys	0m0.310s
 pro.8MHzatmega328$ 
 	</programlisting>
       </para>
@@ -233,30 +232,30 @@ pro.8MHzatmega328$
       </para>
       <para>
 	<programlisting>
-pro.8MHzatmega328$ dno clean; time dno -j 4 >/dev/null
+pro.8MHzatmega328$  dno clean; time dno -j 4 >/dev/null
 Cleaning .
 
-real	0m0.657s
-user	0m1.109s
-sys	0m0.289s
-pro.8MHzatmega328$ dno clean; time dno -j 4 >/dev/null
+real	0m0.818s
+user	0m1.273s
+sys	0m0.306s
+pro.8MHzatmega328$  dno clean; time dno -j 4 >/dev/null
 Cleaning .
 
-real	0m0.656s
-user	0m1.106s
-sys	0m0.295s
-pro.8MHzatmega328$ dno clean; time dno -j 4 >/dev/null
+real	0m0.820s
+user	0m1.257s
+sys	0m0.321s
+pro.8MHzatmega328$  dno clean; time dno -j 4 >/dev/null
 Cleaning .
 
-real	0m0.669s
-user	0m1.137s
-sys	0m0.278s
-pro.8MHzatmega328$ dno clean; time dno -j 4 >/dev/null
+real	0m0.816s
+user	0m1.288s
+sys	0m0.286s
+pro.8MHzatmega328$  dno clean; time dno -j 4 >/dev/null
 Cleaning .
 
-real	0m0.655s
-user	0m1.109s
-sys	0m0.289s
+real	0m0.819s
+user	0m1.299s
+sys	0m0.279s
 pro.8MHzatmega328$ 
 	</programlisting>
       </para>
@@ -277,24 +276,24 @@ pro.8MHzatmega328$
 	<programlisting>
 blink$ ./cli.sh >/dev/null
 
-real	0m1.732s
-user	0m0.705s
-sys	0m1.184s
+real	0m1.842s
+user	0m0.793s
+sys	0m1.212s
 blink$ ./cli.sh >/dev/null
 
-real	0m1.742s
-user	0m0.806s
-sys	0m1.085s
+real	0m1.828s
+user	0m0.732s
+sys	0m1.260s
 blink$ ./cli.sh >/dev/null
 
-real	0m1.773s
-user	0m0.707s
-sys	0m1.225s
+real	0m1.791s
+user	0m0.678s
+sys	0m1.263s
 blink$ ./cli.sh >/dev/null
 
-real	0m1.990s
-user	0m0.734s
-sys	0m1.442s
+real	0m1.741s
+user	0m0.789s
+sys	0m1.102s
 blink$ 
 	</programlisting>
       </para>
@@ -306,36 +305,26 @@ blink$
 	<literal>blink.ino</literal> file so that it appears to have
 	been updated.  We then run dno and see the following.
 	<programlisting>
-pro.8MHzatmega328$ touch ../blink.ino; time dno
-  C++  ../blink.ino 
-  LD blink.ino.o
-  OBJCOPY (hex) blink.elf
-Program size:    930 out of 30720  (3%: 29790 remaining)
-   Data size:      9 out of 2048   (0%: 2039 remaining)
-
-real	0m0.490s
-user	0m0.421s
-sys	0m0.100s
 pro.8MHzatmega328$ touch ../blink.ino; time dno >/dev/null
 
-real	0m0.391s
-user	0m0.430s
-sys	0m0.076s
+real	0m0.528s
+user	0m0.541s
+sys	0m0.109s
 pro.8MHzatmega328$ touch ../blink.ino; time dno >/dev/null
 
-real	0m0.391s
-user	0m0.400s
+real	0m0.523s
+user	0m0.542s
+sys	0m0.104s
+pro.8MHzatmega328$ touch ../blink.ino; time dno >/dev/null
+
+real	0m0.520s
+user	0m0.538s
+sys	0m0.107s
+pro.8MHzatmega328$ touch ../blink.ino; time dno >/dev/null
+
+real	0m0.526s
+user	0m0.546s
 sys	0m0.105s
-pro.8MHzatmega328$ touch ../blink.ino; time dno >/dev/null
-
-real	0m0.389s
-user	0m0.410s
-sys	0m0.094s
-pro.8MHzatmega328$ touch ../blink.ino; time dno >/dev/null
-
-real	0m0.388s
-user	0m0.410s
-sys	0m0.092s
 pro.8MHzatmega328$ 
 	</programlisting>
       </para>
@@ -356,26 +345,26 @@ pro.8MHzatmega328$
 	<literal>cli.sh</literal> script above, but dno is smart
 	enough to perform no build.
 	<programlisting>
-pro.8MHzatmega328$ time dno >/dev/null
+pro.8MHzatmega328$  time dno >/dev/null
 
-real	0m0.226s
-user	0m0.255s
-sys	0m0.058s
-pro.8MHzatmega328$ time dno >/dev/null
-
-real	0m0.232s
-user	0m0.263s
-sys	0m0.057s
-pro.8MHzatmega328$ time dno >/dev/null
-
-real	0m0.230s
-user	0m0.259s
+real	0m0.341s
+user	0m0.378s
 sys	0m0.059s
-pro.8MHzatmega328$ time dno >/dev/null
+pro.8MHzatmega328$  time dno >/dev/null
 
-real	0m0.232s
-user	0m0.272s
-sys	0m0.050s
+real	0m0.342s
+user	0m0.373s
+sys	0m0.066s
+pro.8MHzatmega328$  time dno >/dev/null
+
+real	0m0.339s
+user	0m0.362s
+sys	0m0.073s
+pro.8MHzatmega328$  time dno >/dev/null
+
+real	0m0.340s
+user	0m0.386s
+sys	0m0.049s
 pro.8MHzatmega328$ 
 	</programlisting>
       </para>
@@ -417,78 +406,78 @@ pro.8MHzatmega328$
 	  <tbody>
 	    <row>
 	      <entry>Arduino IDE (baseline 1)</entry>
-	      <entry>9.855</entry>
-	      <entry>5.415</entry>
-	      <entry>5.133</entry>
-	      <entry>10.548</entry>
+	      <entry>10.472</entry>
+	      <entry>5.289</entry>
+	      <entry>5.906</entry>
+	      <entry>11.195</entry>
 	    </row>
 	    <row>
 	      <entry>
 		dno, rebuilding BOARD_INFO (against baseline 1)
 	      </entry>
-	      <entry>6.328</entry>
-	      <entry>6.031</entry>
-	      <entry>1.482</entry>
-	      <entry>7.513</entry>
-	      <entry>64.2</entry>
-	      <entry>111.4</entry>
-	      <entry>28.9</entry>
-	      <entry>71.2</entry>
+	      <entry>7.549</entry>
+	      <entry>7.165</entry>
+	      <entry>1.657</entry>
+	      <entry>8.822</entry>
+	      <entry>72.1</entry>
+	      <entry>135.5</entry>
+	      <entry>28.1</entry>
+	      <entry>78.8</entry>
 	    </row>
 	    <row>
 	      <entry>dno, preserved BOARD_INFO (against baseline 1)</entry>
-	      <entry>5.110</entry>
-	      <entry>4.570</entry>
-	      <entry>1.116</entry>
-	      <entry>5.686</entry>
-	      <entry>51.9</entry>
-	      <entry>84.4</entry>
-	      <entry>21.7</entry>
-	      <entry>53.9</entry>
+	      <entry>5.867</entry>
+	      <entry>5.245</entry>
+	      <entry>1.266</entry>
+	      <entry>6.511</entry>
+	      <entry>56.0</entry>
+	      <entry>99.2</entry>
+	      <entry>21.4</entry>
+	      <entry>58.2</entry>
 	    </row>
 	    <row>
 	      <entry>parallel dno (-j 4) (against baseline 1)</entry>
-	      <entry>2.637</entry>
-	      <entry>4.461</entry>
-	      <entry>1.151</entry>
-	      <entry>5.612</entry>
-	      <entry>26.8</entry>
-	      <entry>82.3</entry>
-	      <entry>22.4</entry>
-	      <entry>53.2</entry>
+	      <entry>3.273</entry>
+	      <entry>5.117</entry>
+	      <entry>1.192</entry>
+	      <entry>6.309</entry>
+	      <entry>31.3</entry>
+	      <entry>96.7</entry>
+	      <entry>20.2</entry>
+	      <entry>56.4</entry>
 	    </row>
 	    <row>
 	      <entry>Arduino IDE minimal build (baseline 2)</entry>
-	      <entry>6.328</entry>
-	      <entry>6.031</entry>
-	      <entry>1.482</entry>
-	      <entry>7.513</entry>
+	      <entry>7.202</entry>
+	      <entry>2.992</entry>
+	      <entry>4.837</entry>
+	      <entry>7.829</entry>
 	    </row>
 	    <row>
 	      <entry>
 		dno, rebuilding blink.ino (against baseline 2)
 	      </entry>
-	      <entry>1.559</entry>
-	      <entry>1.650</entry>
-	      <entry>0.367</entry>
-	      <entry>2.017</entry>
-	      <entry>21.5</entry>
-	      <entry>55.9</entry>
-	      <entry>7.4</entry>
-	      <entry>25.6</entry>
+	      <entry>2.097</entry>
+	      <entry>2.167</entry>
+	      <entry>0.425</entry>
+	      <entry>2.592</entry>
+	      <entry>29.1</entry>
+	      <entry>72.4</entry>
+	      <entry>8.8</entry>
+	      <entry>33.1</entry>
 	    </row>
 	    <row>
 	      <entry>
 		dno, no updates (against baseline 2)
 	      </entry>
-	      <entry>0.920</entry>
-	      <entry>1.049</entry>
-	      <entry>0.224</entry>
-	      <entry>1.273</entry>
-	      <entry>12.7</entry>
-	      <entry>35.5</entry>
-	      <entry>4.6</entry>
-	      <entry>16.1</entry>
+	      <entry>1.362</entry>
+	      <entry>1.499</entry>
+	      <entry>0.247</entry>
+	      <entry>1.746</entry>
+	      <entry>18.9</entry>
+	      <entry>50.1</entry>
+	      <entry>5.1</entry>
+	      <entry>22.3</entry>
 	    </row>
 	  </tbody>
 	</tgroup>

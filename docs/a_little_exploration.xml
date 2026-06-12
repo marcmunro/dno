@@ -747,14 +747,14 @@ pro.8MHzatmega328$
 	</listitem>
       </itemizedlist>
     </para>
-  </section>
-  <section>
-    <title>Quantified Performance Comparison</title>
-    <para>
-      A number of comparison benchmarks were performed between the
-      standard Arduino IDE and dno.  The details of these are captured
-      in the <link linkend='benchmarks'>benchmarks</link> section.
-    </para>
+    <section>
+      <title>Quantified Performance Comparison</title>
+      <para>
+	A number of comparison benchmarks were performed between the
+	standard Arduino IDE and dno.  The details of these are captured
+	in the <link linkend='benchmarks'>benchmarks</link> section.
+      </para>
+    </section>
     <section>
       <title>Benchmarking Observations</title>
       <itemizedlist>
@@ -776,11 +776,11 @@ pro.8MHzatmega328$
 	  </para>
 	  <para>
 	    Dno, building from a totally clean directory, and with no
-	    paralellism is about 35% faster than the standard IDE.
+	    paralellism is about 25% faster than the standard IDE.
 	    With <literal>BOARD_INFO</literal> already in place it is
-	    nearly twice as fast (51.9% Real time), and in a more
-	    realistic parallel invocation it is nearly 4 times as fast
-	    (26.8%).
+	    nearly twice as fast (56.0% Real time), and in a more
+	    realistic parallel invocation it is more than 3 times as fast
+	    (31.3% Real time).
 	  </para>
 	</listitem>
 	<listitem>
@@ -788,19 +788,14 @@ pro.8MHzatmega328$
 	    Minimal build comparisons
 	  </para>
 	  <para>
-	    With only the sketch updated, dno was more than 4 times as
-	    fast as the Arduino IDE (21.54%).  This was without any
+	    With only the sketch updated, dno was more than 3 times as
+	    fast as the Arduino IDE (29.1% Real time).  This was without any
 	    paralellism. 
-	  </para>
-	  <para>
-	    Interestingly, dno outperformed the Arduino IDE's minimal
-	    build, even when doing a full rebuild including
-	    <literal>BOARD_INFO</literal>. 
 	  </para>
 	  <para>
 	    Finally, with no updates to sources, ie with nothing that
 	    needed to be rebuilt, the Arduino IDE still recompiled and
-	    relinked the sketch, taking neary 8 times as long as dno's
+	    relinked the sketch, taking more than 5 times as long as dno's
 	    do-nothing build.
 	  </para>
 	</listitem>
