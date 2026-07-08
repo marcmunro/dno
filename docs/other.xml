@@ -17,8 +17,8 @@
     <title>Configuration Options</title>
     <para>
       Each Arduino board has a number of user-selectable configuration
-      options.  For some boards, like the esp32, there can be many,
-      many options.
+      options.  For some boards, like those in the esp32 family, there
+      can be many, many options.
     </para>
     <para>
       To view and modify the options for your selected Arduino board,
@@ -168,13 +168,13 @@
       If you need your definitions to be evaluated at the end of 
       makefile processing, after all other dependency files have been
       updated and evaluated, you can provide a definition for
-      <literal>INO_FINAL</literal>.  This will be evaluated after
+      <literal>DNO_FINAL</literal>.  This will be evaluated after
       everything else but before beginning the build process proper.
       Here is an example:
       <programlisting>
 # The following will override the definition of upload.speed in
 # BOARD_INFO.
-define INO_FINAL
+define DNO_FINAL
   upload.speed=9600
 endef
       </programlisting>
@@ -272,7 +272,7 @@ endef
       <para>
 	There are many options available for external programmers.
 	The file <literal>programmers.txt</literal> which can be
-	found, for each architecture, in the same installed arduino
+	found, for each architecture, in the same installed Arduino
 	platform directory as the <literal>boards.txt</literal> and
 	<literal>platform.txt</literal>files, lists and provides
 	parameters for driving each supported external programmer.
@@ -286,7 +286,7 @@ endef
     <section>
       <title>Using an Arduino as an External Programmer</title>
       <para>
-	If you are using an Arduino board and have a spare arduino,
+	If you are using an Arduino board and have a spare Arduino,
 	you can use that spare as an external programmer.
       </para>
       <para>

@@ -266,6 +266,42 @@
       </para>
     </section>
   </chapter>
+  <chapter>
+    <title>Releases</title>
+    <section>
+      <title>0.9.x Series</title>
+      <para>
+	These releases are the beta test series and the run-up to it.
+      </para>
+      <section>
+	<title>0.9.4</title>
+	<para>
+	  Improved unit test handling for libraries: uses the
+	  libraries' own Makefiles if they exist.
+	</para>
+	<para>
+	  Plus many minor tweaks.
+	</para>
+      </section>
+      <section>
+	<title>0.9.3</title>
+	<para>
+	  First release that is considered truly usable.  Fully
+	  functional, with unit tests to prove it.
+	</para>
+	<para>
+	  Includes a major refactoring of <literal>dno</literal>, plus
+	  addition of unit testing framework and tests.
+	</para>
+      </section>
+      <section>
+	<title>Earlier</title>
+	<para>
+	  Experimental releases.  Mostly usable.
+	</para>
+      </section>
+    </section>
+  </chapter>
   <xi:include href="parts/dno.xml"/>
   <xi:include href="parts/dno_bpp.xml"/>
   <xi:include href="parts/dno_checksize.xml"/>

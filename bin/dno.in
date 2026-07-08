@@ -10,13 +10,6 @@
 #  
 #
 
-# TODOs:
-# Test cleanup
-#  - esp32 tests should be conditional
-#  - can we make conditional upload, etc tests?
-# Check indentation in conditional sections
-# deb package build
-
 # Version and configuration stuff
 #
 DNO_VERSION = @DNO_VERSION@
@@ -606,6 +599,7 @@ else ifeq "$(DIR_TYPE)" "test"
   PARENT = $(shell $(BINDIR)/dno_dirinfo ..)
   ifeq "$(PARENT)" "lib"
     TEST_LIB = $(notdir $(realpath ..))
+    $(call debug,TEST_LIB)
     TEST_LIB_DIR = ../../$(TEST_LIB)
     TEST_CODE_DIR = .
     GPARENT = $(shell $(BINDIR)/dno_dirinfo ../..)
@@ -702,27 +696,37 @@ ifneq "$(DIR_TYPE)" "unknown"
     # The only thing we can do in this dir is a boot (or docs) build, so don't
     # check for anything else.
   else
-    ifeq "$(MAKECMDGOALS)" ""
-      HAVE_CROSS_BUILD_TARGETS := $(IN_BOARD_DIR)
-      HAVE_TEST_TARGETS := \
-	$(and $(filter test test_container,$(DIR_TYPE)),t)
-    else
-      # We have explicit targets.  Determine whether any of them require
-      # us to do cross-builds or local builds.
+    ifeq "$(DIR_TYPE)" "test"
+      HAVE_TEST_MAKEFILE = $(or $(wildcard Makefile), \
+			        $(wildcard makefile), \
+			        $(wildcard GNUMakefile))
+    endif
+    ifeq "$(HAVE_TEST_MAKEFILE)" ""
 
-      HAVE_CROSS_BUILD_TARGETS := \
+      ifeq "$(MAKECMDGOALS)" ""
+        HAVE_CROSS_BUILD_TARGETS := $(IN_BOARD_DIR)
+        HAVE_TEST_TARGETS := \
+	  $(and $(filter test test_container,$(DIR_TYPE)),t)
+      else
+        # We have explicit targets.  Determine whether any of them require
+        # us to do cross-builds or local builds.
+
+        HAVE_CROSS_BUILD_TARGETS := \
 	   $(and $(strip \
 		   $(call minus,$(MAKECMDGOALS),\
 	                        $(NO_BUILD_TARGETS) $(UNIT_TEST_TARGETS) \
 				$(LIB_DIRS) $(BOARD_DIRS))),t)
-      HAVE_TEST_TARGETS := \
+        HAVE_TEST_TARGETS := \
 	   $(call not,$(call minus,$(MAKECMDGOALS),$(UNIT_TEST_TARGETS)))
+      endif
     endif
   endif
 endif
 
+
 HAVE_BUILD_TARGETS := $(and $(or $(HAVE_TEST_TARGETS),\
-			        $(HAVE_CROSS_BUILD_TARGETS)),t)
+			          $(HAVE_CROSS_BUILD_TARGETS)), \
+			    $(call not $(HAVE_TEST_MAKEFILE)))
 
 $(call debug,HAVE_CROSS_BUILD_TARGETS)
 $(call debug,HAVE_TEST_TARGETS)
@@ -850,7 +854,6 @@ ifeq "$(HAVE_CROSS_BUILD_TARGETS)" "t"
   $(call debug,RH_preobjcopy_COMMANDS)
   $(call debug,RH_postobjcopy_TARGET)
   $(call debug,RH_postobjcopy_COMMANDS)
-
 
   # Eval'able rule definition for compiling C++, C, INO and ASM sources
   # for different arduino-like boards.
@@ -1149,6 +1152,7 @@ ifeq "$(HAVE_CROSS_BUILD_TARGETS)" "t"
 	$(wildcard $(runtime.platform.path)/libraries/*))
 
     ALL_LIB_DIRS := $(call uniqify,$(USER_LIB_DIRS) $(STD_LIB_DIRS),libname)
+    CFLAGS += -Os -Wall
     CXXFLAGS += -Os -Wall
 
     # TODO: REMOVE THIS build.menu_selections = :$(shell dno_menu -f)
@@ -1167,7 +1171,7 @@ ifeq "$(HAVE_CROSS_BUILD_TARGETS)" "t"
     # standard Arduino header file as .ino files don't need to be
     # bothered with such trivial details.
     #
-    ino_compiler_flags = -x c++ --include Arduino.h
+    ino_compiler_flags = -x c++ --include Arduino.h $(CXXFLAGS)
 
     # Define the recipe for compiling .ino files as described above.
     #
@@ -1297,7 +1301,8 @@ ifeq "$(HAVE_TEST_TARGETS)" "t"
   # native compiler rather than a special cross-compiler.
 
   TEST_EXECUTABLE = $(BUILD_DIR)/$(notdir \
-	              $(basename $(wildcard $(TEST_CODE_DIR)/test_*cpp)))
+	              $(basename $(wildcard \
+				   $(TEST_CODE_DIR)/test_$(TEST_LIB).cpp)))
   PROJNAME = $(TEST_LIB)
 
   PROJ_LIB_DIRS = $(foreach dir,\
@@ -1323,9 +1328,14 @@ ifeq "$(HAVE_TEST_TARGETS)" "t"
 
   $(eval $(call ALL_BUILD_RULES,NATIVE_COMPILE_RULE,\
 	        $(BUILD_DIR),$(TEST_CODE_DIR),$(ALL_LIB_DIRS)))
+
   TEST_OBJECTS := $(patsubst %.d, %.o, $(ALL_DEPS))
   MAIN_TEST_OBJECT = $(TEST_EXECUTABLE).o
   SECONDARY_TEST_OBJECTS = $(call minus,$(TEST_OBJECTS),$(MAIN_TEST_OBJECT))
+  $(call debug,ALL_LIB_DIRS)
+  $(call debug,TEST_OBJECTS)
+  $(call debug,MAIN_TEST_OBJECT)
+  $(call debug,SECONDARY_TEST_OBJECTS)
 endif
 
 ifeq "$(DEFAULT_BUILD_TYPE)" "lib"
@@ -1335,7 +1345,9 @@ ifeq "$(DEFAULT_BUILD_TYPE)" "lib"
 		     $(filter %/tests,${dir}),\
 		     $(filter %/unit,${dir}))))
   ifneq "$(DOING_DOCS_BUILD)" ""
-    DOC_SOURCES = $(call matching_files,\
+    DOC_SOURCES = $(wildcard *.md) \
+		  $(wildcard docs/*.md) \
+		  $(call matching_files,\
 		    *.h *.cpp *.c *.S,\
 		    $(shell find . -maxdepth 1 -type d \
                                  -a \! -name 'unit' -a \! -name 'tests' \
@@ -1626,18 +1638,27 @@ lib:
 	 fi
 
 ifeq "$(DIR_TYPE)" "test"
-  unit_test test tests unit: $(TEST_EXECUTABLE)
+  ifneq "$(HAVE_TEST_MAKEFILE)" ""
+    unit_test test tests unit:
+	$(TARGET)
+	$(FEEDBACK) RUN local make
+	$(AT) $(call indent,$(REAL_MAKE) --no-print-directory 2>&1)
+	$(FEEDBACK) "...DONE ($(notdir $<))"
+	@echo
+  else
+    unit_test test tests unit: $(TEST_EXECUTABLE) 
 	$(TARGET)
 	$(FEEDBACK) RUN $(notdir $<)...
 	$(AT) $(call indent,$(TEST_EXECUTABLE))
 	$(FEEDBACK) "...DONE ($(notdir $<))"
 	@echo
 
-  $(TEST_EXECUTABLE): $(TEST_OBJECTS) $(TAGFILES) 
+    $(TEST_EXECUTABLE): $(TEST_OBJECTS) 
 	$(TARGET) $(TEST_OBJECTS)
 	$(FEEDBACK)  LD [$(notdir $@)]
 	$(AT) g++ $(LDFLAGS) -o $@ $(MAIN_TEST_OBJECT) \
 		$(SECONDARY_TEST_OBJECTS)
+  endif
 else 
   # Identify possible unit test directories
   #
