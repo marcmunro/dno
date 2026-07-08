@@ -10,13 +10,6 @@
 #  
 #
 
-# TODOs:
-# Test cleanup
-#  - esp32 tests should be conditional
-#  - can we make conditional upload, etc tests?
-# Check indentation in conditional sections
-# deb package build
-
 # Version and configuration stuff
 #
 DNO_VERSION = @DNO_VERSION@
