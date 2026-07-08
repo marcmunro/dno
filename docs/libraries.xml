@@ -643,11 +643,41 @@ pro.8MHzatmega328$
       unlikely to be triggered.  As a bonus the tests also become
       automated and repeatable.
     </para>
-    <section xml:id="unit_tests">
-      <title xml:id="unit_tests.title">Unit Testing With Dno</title>
+    <para>
+      Dno provides support for unit testing in 2 ways:
+      <orderedlist>
+	<listitem>
+	  <para>
+	    By running a recursive <literal>make</literal> if a
+	    <literal>Makefile</literal> is present.
+	  </para>
+	  </listitem>
+	<listitem>
+	  <para>
+	    By compiling and running a test executable if a
+	    <literal>test_&lt;LIBNAME>.cpp</literal> file can be found.
+	  </para>
+	</listitem>
+      </orderedlist>
+    </para>
+    <section xml:id="recursive_unit_tests">
+      <title>Unit Testing Via <literal>make</literal></title>
       <para>
-	When run in a library or its tests subdirectory, dno will
-	attempt to create a file called
+	If your library contains a test sudirectory containing a
+	makefile, invoking dno in the main library directory or its
+	test subdirectory will directly invoke <literal>make</literal>
+	to perform the unit tests.
+      </para>
+    </section>
+    <section xml:id="unit_tests">
+      <title xml:id="unit_tests.title">Direct Unit Testing With Dno</title>
+      <para>
+	If your library does not provide a makefile for running unit
+	tests, dno will attempt to compile and execute a test
+	executable directly.
+      </para>
+      <para>
+	Dno will attempt to create a file called
 	<literal>test_&lt;LIBNAME&gt;</literal>.  This will be created
 	by compiling the file
 	<literal>test_&lt;LIBNAME&gt;.cpp</literal> or

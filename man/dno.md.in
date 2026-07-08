@@ -82,7 +82,7 @@ options will do the right thing.  Specifically, running **dno** in:
 
   - a lib sub-directory
 
-    will result in unit tests for that library being runX;
+    will result in unit tests for that library being run;
 
   - the project root directory;
 
@@ -190,14 +190,32 @@ directory name does not contain the board and option information, you
 will need to define the BOARD variable on the command line, just as
 for the BOARD_TYPE target.
 
+**boot**
+
+Attempt to build a bootloader image.  This target should only be used
+in a boot subdirectory, and is the default target for such directories.
+
 **build**
 
 Attempt to compile and link your projects source code and libraries
 into an uploadable image for the Arduino specified in
-**BOARD_TYPE**, or the directory name, or explicitly using the
+BOARD_TYPE, or the directory name, or explicitly using the
 BOARD variable.  Note that this is the default target in the
 project root directory if it contains a **BOARD_TYPE** file, and in
 any board directory.
+
+**burn**
+
+Burn a bootloader image to an Arduino via a connected External
+Programmer.  If this is run from a boot directory, the boot image can
+be a custom one, otherwise it will be the standard boot image for the
+current board type.
+
+**cat**
+
+Send the output from the connected arduino device to standard output.
+As with monitor target you may want to set BAUD_RATE and/or
+DEVICE_PATH.
 
 **clean**
 
@@ -207,6 +225,11 @@ backup and temp files.  If you have changed the name of any headers or
 libraries, it is a good idea to invoke this target, as make can get
 confused about its dependencies in this case.
 
+**ctags**
+
+Build a ctags **tags** file from all sources.  Once created this will
+automatically be kept up to date by subsequent builds.
+
 **devices**
 
 Identify all connected devices that appear to be Arduinos.  This is
@@ -214,11 +237,6 @@ particularly useful when your host is connected to multiple Arduino
 devices, as targets like upload will not be able to guess which device
 you want to upload your image to.  This can be used to confirm that
 your Arduino device has been seen by your usb/serial subsystem.
-
-**ctags**
-
-Build a ctags **tags** file from all sources.  Once created this will
-automatically be kept up to date by subsequent builds.
 
 **epprom**
     
@@ -257,6 +275,11 @@ appropriate boards.txt file.
 List all explicit, non-pattern based targets.  You shouldn't need
 this, it's intended for debugging dno.
 
+**list-progammers**
+
+List the set of available external programmers, as used by the uploadp
+and burn targets.
+
 **menu**
 
 Allow the user to view and update select board-specific build options
@@ -282,6 +305,11 @@ define KILLSCREEN, eg:
 
 DEVICE_PATH may be provided if there is more than one attached Arduino
 device.
+
+**PROGRAMMER**
+
+Create a PROGRAMMER file, for identifying an external programmer.
+This is needed for the burn and uploadp targets.
 
 **pristine**
 
@@ -320,6 +348,12 @@ emacs.
 
 Upload the built Arduino image to a connected Arduino.  This will
 build the image first, if necessary.  You may need to define
+DEVICE_PATH.
+
+**uploadp*
+
+Upload the built Arduino image via a connected External Programmer.
+This will build the image first, if necessary.  You may need to define
 DEVICE_PATH.
 
 # VARIABLES
@@ -380,6 +414,12 @@ no screen is attached.  See the screen target for more.
 
 Define the baud rate to use for connections to the Arduino.
 Typically this is discovered for itself by dno.
+
+**PROGRAMMER**
+
+Define the type of external programmer that you will be using, for the
+burn or uploadp targets.  To see the set of available programmers use
+the list-programmers target.
 
 **REPORT**
 

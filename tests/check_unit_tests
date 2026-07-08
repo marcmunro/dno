@@ -31,7 +31,7 @@ check_unit_targets()
     grep -q "Ran.*checks" make.log || fail "Unit tests not run(4)"
     dno clean >/dev/null 2>&1
     run; dno unit >make.log || fail "dno unit fails(6)"
-    grep -q "C++" make.log || fail "Unit tests not built"
+    grep -q "g++" make.log || fail "Unit tests not built"
     grep -q "Ran.*checks" make.log || fail "Unit tests not run(5)"
 }
 
