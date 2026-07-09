@@ -4,8 +4,8 @@
 <title>Chapter 4. A Little Exploration</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno (0.9.3) User Guide">
-<link rel="up" href="index.html" title="Dno (0.9.3) User Guide">
+<link rel="home" href="index.html" title="Dno (0.9.4) User Guide">
+<link rel="up" href="index.html" title="Dno (0.9.4) User Guide">
 <link rel="prev" href="ch03.html" title="Chapter 3. Getting Started">
 <link rel="next" href="ch05.html" title="Chapter 5. The Dno Directory System">
 </head>
@@ -46,7 +46,7 @@
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id1688"></a>4.1.1. Components of Board-Specifiers</h3></div></div></div>
+<a name="id1689"></a>4.1.1. Components of Board-Specifiers</h3></div></div></div>
 <p>
 	A fully-specified Arduino board definition consists of 3
 	parts separated by dots.  These are:
@@ -237,7 +237,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id1775"></a>4.2.2. Dno Accepts All Make Options</h3></div></div></div>
+<a name="id1776"></a>4.2.2. Dno Accepts All Make Options</h3></div></div></div>
 <p>
 	Of particular interest here is the <code class="literal">-j N</code>
 	option.  This allows make to perform multiple actions ("jobs")
@@ -248,7 +248,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id1780"></a>4.2.3. Dno Variables</h3></div></div></div>
+<a name="id1781"></a>4.2.3. Dno Variables</h3></div></div></div>
 <p>
 	There are a number of variables that can be defined on the dno
 	command line that provide information to
@@ -433,7 +433,7 @@ blink$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id1853"></a>4.3. The Project Directory</h2></div></div></div>
+<a name="id1854"></a>4.3. The Project Directory</h2></div></div></div>
 <p>
       The name for a dno project comes from the name of the <a class="link" href="ch05.html#project_dir" title="5.1. The Project/Root Directory">project directory</a>. 
     </p>
@@ -582,7 +582,7 @@ pro.8MHzatmega328$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id1899"></a>4.5.1. <code class="literal">Tidy</code>
+<a name="id1900"></a>4.5.1. <code class="literal">Tidy</code>
 </h3></div></div></div>
 <p>
 	The <code class="literal">tidy</code> target removes all files that look
@@ -591,7 +591,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id1904"></a>4.5.2. <code class="literal">Clean</code>
+<a name="id1905"></a>4.5.2. <code class="literal">Clean</code>
 </h3></div></div></div>
 <p>
 	The <code class="literal">Clean</code> target does all that the
@@ -619,7 +619,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id1922"></a>4.6. The BOARD_INFO file</h2></div></div></div>
+<a name="id1923"></a>4.6. The BOARD_INFO file</h2></div></div></div>
 <p>
       The <code class="literal">BOARD_INFO</code> file is derived from the
       files:
@@ -653,7 +653,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id1938"></a>4.7. The BOARD_OPTIONS file</h2></div></div></div>
+<a name="id1939"></a>4.7. The BOARD_OPTIONS file</h2></div></div></div>
 <p>
       The <code class="literal">BOARD_OPTIONS</code> file describes selected,
       non-default, board-specific configuration values.
@@ -673,7 +673,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id1947"></a>4.8. Connecting to Physical Arduino Boards</h2></div></div></div>
+<a name="id1948"></a>4.8. Connecting to Physical Arduino Boards</h2></div></div></div>
 <p>
       Dno provides a number of commands for interfacing with Arduino
       boards.  It can upload compiled code to a board, modify a
@@ -682,7 +682,7 @@ pro.8MHzatmega328$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id1950"></a>4.8.1. Identifying Devices</h3></div></div></div>
+<a name="id1951"></a>4.8.1. Identifying Devices</h3></div></div></div>
 <p>
 	Generally, when a single Arduino board is connected to your
 	computer, dno is able to identify the serial device it is
@@ -708,7 +708,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id1958"></a>4.8.2. Uploading Software</h3></div></div></div>
+<a name="id1959"></a>4.8.2. Uploading Software</h3></div></div></div>
 <p>
 	Software is uploaded using dno's <code class="literal">upload</code>
 	target.  More can be found <a class="link" href="ch03.html#upload" title="3.5. Uploading To A Board">here</a>.
@@ -716,7 +716,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id1963"></a>4.8.3. Communicating With The Arduino</h3></div></div></div>
+<a name="id1964"></a>4.8.3. Communicating With The Arduino</h3></div></div></div>
 <p>
 	The equivalent to the Arduino IDE's Serial Monitor is invoked
 	by the <code class="literal">monitor</code> target.  More <a class="link" href="ch08.html#monitor" title="8.5. Serial Communication">here</a>.
@@ -724,7 +724,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id1968"></a>4.8.4. Writing EEPROM data</h3></div></div></div>
+<a name="id1969"></a>4.8.4. Writing EEPROM data</h3></div></div></div>
 <p>
 	Dno kind-of, mostly, supports writing to a devices eeprom.
 	This works for AVR-architecture boards and may work for others
@@ -733,7 +733,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id1972"></a>4.8.5. Building and burning bootloaders</h3></div></div></div>
+<a name="id1973"></a>4.8.5. Building and burning bootloaders</h3></div></div></div>
 <p>
 	If your board is connected to a programmer, you can burn a
 	board's standard bootloader by simply running <code class="literal">dno
@@ -752,7 +752,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id1980"></a>4.9. Performance</h2></div></div></div>
+<a name="id1981"></a>4.9. Performance</h2></div></div></div>
 <p>
       Generally speaking dno will easily outperform the Arduino IDE or
       CLI.  This is because dno:
@@ -817,7 +817,7 @@ pro.8MHzatmega328$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2003"></a>4.9.1. Quantified Performance Comparison</h3></div></div></div>
+<a name="id2004"></a>4.9.1. Quantified Performance Comparison</h3></div></div></div>
 <p>
 	A number of comparison benchmarks were performed between the
 	standard Arduino IDE and dno.  The details of these are captured
@@ -826,7 +826,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2007"></a>4.9.2. Benchmarking Observations</h3></div></div></div>
+<a name="id2008"></a>4.9.2. Benchmarking Observations</h3></div></div></div>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
 <p>
@@ -893,7 +893,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2027"></a>4.9.3. Final Conclusions</h3></div></div></div>
+<a name="id2028"></a>4.9.3. Final Conclusions</h3></div></div></div>
 <p>
 	Even in relatively simple comparisons with simple sketches,
 	dno easily outperforms the standard Arduino IDE.  For more

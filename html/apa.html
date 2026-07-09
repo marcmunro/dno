@@ -4,9 +4,9 @@
 <title>Appendix A. man page for dno(1)</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno (0.9.3) User Guide">
-<link rel="up" href="index.html" title="Dno (0.9.3) User Guide">
-<link rel="prev" href="ch11.html" title="Chapter 11. Why?">
+<link rel="home" href="index.html" title="Dno (0.9.4) User Guide">
+<link rel="up" href="index.html" title="Dno (0.9.4) User Guide">
+<link rel="prev" href="ch12.html" title="Chapter 12. Releases">
 <link rel="next" href="apb.html" title="Appendix B. man page for dno_bpp(1)">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -15,7 +15,7 @@
 <tr><th colspan="3" align="center">Appendix A. man page for dno(1)</th></tr>
 <tr>
 <td width="20%" align="left">
-<a accesskey="p" href="ch11.html">Prev</a> </td>
+<a accesskey="p" href="ch12.html">Prev</a> </td>
 <th width="60%" align="center"> </th>
 <td width="20%" align="right"> <a accesskey="n" href="apb.html">Next</a>
 </td>
@@ -26,7 +26,7 @@
 <div class="appendix">
 <div class="titlepage"><div>
 <div><h1 class="title">
-<a name="id1350"></a>man page for dno(1)</h1></div>
+<a name="id1351"></a>man page for dno(1)</h1></div>
 <div><div class="authorgroup"><div class="author"><h3 class="author">
 <span class="firstname">Marc</span> <span class="surname">Munro</span>
 </h3></div></div></div>
@@ -155,7 +155,7 @@ panel
           a lib sub-directory
         </p>
 <p>
-          will result in unit tests for that library being runX;
+          will result in unit tests for that library being run;
         </p>
 </li>
 <li class="listitem">
@@ -314,16 +314,41 @@ $ dno BOARD_TYPE BOARD=pro.8MHzatmega328
       the command line, just as for the BOARD_TYPE target.
     </p>
 <p>
+      <span class="strong"><strong>boot</strong></span>
+    </p>
+<p>
+      Attempt to build a bootloader image. This target should only be
+      used in a boot subdirectory, and is the default target for such
+      directories.
+    </p>
+<p>
       <span class="strong"><strong>build</strong></span>
     </p>
 <p>
       Attempt to compile and link your projects source code and
       libraries into an uploadable image for the Arduino specified in
-      <span class="strong"><strong>BOARD_TYPE</strong></span>, or the directory
-      name, or explicitly using the BOARD variable. Note that this is
-      the default target in the project root directory if it contains a
+      BOARD_TYPE, or the directory name, or explicitly using the BOARD
+      variable. Note that this is the default target in the project root
+      directory if it contains a
       <span class="strong"><strong>BOARD_TYPE</strong></span> file, and in any
       board directory.
+    </p>
+<p>
+      <span class="strong"><strong>burn</strong></span>
+    </p>
+<p>
+      Burn a bootloader image to an Arduino via a connected External
+      Programmer. If this is run from a boot directory, the boot image
+      can be a custom one, otherwise it will be the standard boot image
+      for the current board type.
+    </p>
+<p>
+      <span class="strong"><strong>cat</strong></span>
+    </p>
+<p>
+      Send the output from the connected arduino device to standard
+      output. As with monitor target you may want to set BAUD_RATE
+      and/or DEVICE_PATH.
     </p>
 <p>
       <span class="strong"><strong>clean</strong></span>
@@ -336,6 +361,14 @@ $ dno BOARD_TYPE BOARD=pro.8MHzatmega328
       make can get confused about its dependencies in this case.
     </p>
 <p>
+      <span class="strong"><strong>ctags</strong></span>
+    </p>
+<p>
+      Build a ctags <span class="strong"><strong>tags</strong></span> file from
+      all sources. Once created this will automatically be kept up to
+      date by subsequent builds.
+    </p>
+<p>
       <span class="strong"><strong>devices</strong></span>
     </p>
 <p>
@@ -345,14 +378,6 @@ $ dno BOARD_TYPE BOARD=pro.8MHzatmega328
       which device you want to upload your image to. This can be used to
       confirm that your Arduino device has been seen by your usb/serial
       subsystem.
-    </p>
-<p>
-      <span class="strong"><strong>ctags</strong></span>
-    </p>
-<p>
-      Build a ctags <span class="strong"><strong>tags</strong></span> file from
-      all sources. Once created this will automatically be kept up to
-      date by subsequent builds.
     </p>
 <p>
       <span class="strong"><strong>epprom</strong></span>
@@ -409,6 +434,13 @@ $ dno eeprom DEVICE_PATH=/dev/ttyUSB0
       this, it’s intended for debugging dno.
     </p>
 <p>
+      <span class="strong"><strong>list-progammers</strong></span>
+    </p>
+<p>
+      List the set of available external programmers, as used by the
+      uploadp and burn targets.
+    </p>
+<p>
       <span class="strong"><strong>menu</strong></span>
     </p>
 <p>
@@ -444,6 +476,13 @@ $ dno no_screen KILLSCREEN=y
 <p>
       DEVICE_PATH may be provided if there is more than one attached
       Arduino device.
+    </p>
+<p>
+      <span class="strong"><strong>PROGRAMMER</strong></span>
+    </p>
+<p>
+      Create a PROGRAMMER file, for identifying an external programmer.
+      This is needed for the burn and uploadp targets.
     </p>
 <p>
       <span class="strong"><strong>pristine</strong></span>
@@ -501,6 +540,14 @@ $ dno no_screen KILLSCREEN=y
       Upload the built Arduino image to a connected Arduino. This will
       build the image first, if necessary. You may need to define
       DEVICE_PATH.
+    </p>
+<p>
+      **uploadp*
+    </p>
+<p>
+      Upload the built Arduino image via a connected External
+      Programmer. This will build the image first, if necessary. You may
+      need to define DEVICE_PATH.
     </p>
 </div>
 <div class="section">
@@ -583,6 +630,14 @@ $ dno show_boards [OPTIONS=y] [BOARD=board-specifier]
 <p>
       Define the baud rate to use for connections to the Arduino.
       Typically this is discovered for itself by dno.
+    </p>
+<p>
+      <span class="strong"><strong>PROGRAMMER</strong></span>
+    </p>
+<p>
+      Define the type of external programmer that you will be using, for
+      the burn or uploadp targets. To see the set of available
+      programmers use the list-programmers target.
     </p>
 <p>
       <span class="strong"><strong>REPORT</strong></span>
@@ -720,13 +775,13 @@ $ dno show_boards BOARD=cpu
 <table width="100%" summary="Navigation footer">
 <tr>
 <td width="40%" align="left">
-<a accesskey="p" href="ch11.html">Prev</a> </td>
+<a accesskey="p" href="ch12.html">Prev</a> </td>
 <td width="20%" align="center"> </td>
 <td width="40%" align="right"> <a accesskey="n" href="apb.html">Next</a>
 </td>
 </tr>
 <tr>
-<td width="40%" align="left" valign="top">Chapter 11. Why? </td>
+<td width="40%" align="left" valign="top">Chapter 12. Releases </td>
 <td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
 <td width="40%" align="right" valign="top"> Appendix B. man page for dno_bpp(1)</td>
 </tr>

@@ -4,8 +4,8 @@
 <title>Chapter 8. Other Features and Capabilities</title>
 <link rel="stylesheet" type="text/css" href="dno.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.2">
-<link rel="home" href="index.html" title="Dno (0.9.3) User Guide">
-<link rel="up" href="index.html" title="Dno (0.9.3) User Guide">
+<link rel="home" href="index.html" title="Dno (0.9.4) User Guide">
+<link rel="up" href="index.html" title="Dno (0.9.4) User Guide">
 <link rel="prev" href="ch07.html" title="Chapter 7. Documentation with Doxygen">
 <link rel="next" href="ch09.html" title="Chapter 9. Benchmarks">
 </head>
@@ -28,7 +28,7 @@
 <a name="id1346"></a>Chapter 8. Other Features and Capabilities</h1></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id2311"></a>8.1. Revision Control</h2></div></div></div>
+<a name="id2327"></a>8.1. Revision Control</h2></div></div></div>
 <p>
       Dno projects are simply directory systems.  As such they are
       compatible with all known, sane, revision control systems.  <a class="link" href="https://git-scm.com" target="_top">Git</a> in
@@ -37,11 +37,11 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id2315"></a>8.2. Configuration Options</h2></div></div></div>
+<a name="id2331"></a>8.2. Configuration Options</h2></div></div></div>
 <p>
       Each Arduino board has a number of user-selectable configuration
-      options.  For some boards, like the esp32, there can be many,
-      many options.
+      options.  For some boards, like those in the esp32 family, there
+      can be many, many options.
     </p>
 <p>
       To view and modify the options for your selected Arduino board,
@@ -58,7 +58,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id2322"></a>8.3. <code class="literal">.ino</code> files</h2></div></div></div>
+<a name="id2338"></a>8.3. <code class="literal">.ino</code> files</h2></div></div></div>
 <p>
       Typically, Arduino sketches are presented as
       <code class="literal">.ino</code> files.  They need to contain only the
@@ -76,7 +76,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id2334"></a>8.4. Tags</h2></div></div></div>
+<a name="id2350"></a>8.4. Tags</h2></div></div></div>
 <p>
       Tag files are reference files that tell your favourite editor
       where various symbols can be found in your source code.  They
@@ -110,7 +110,7 @@
 <a name="monitor"></a>8.5. Serial Communication</h2></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2355"></a>8.5.1. Using screen (the <code class="literal">monitor</code> target)</h3></div></div></div>
+<a name="id2371"></a>8.5.1. Using screen (the <code class="literal">monitor</code> target)</h3></div></div></div>
 <p>
 	You can monitor and interact with your Arduino's serial
 	connection using <code class="literal">dno monitor</code>.
@@ -125,7 +125,7 @@
       </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2364"></a>8.5.1.1. Getting Out of <code class="literal">screen</code>
+<a name="id2380"></a>8.5.1.1. Getting Out of <code class="literal">screen</code>
 </h4></div></div></div>
 <p>
 	  If you are unfamiliar with <code class="literal">screen</code> you will
@@ -142,7 +142,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2373"></a>8.5.1.2. Why <code class="literal">screen</code>?</h4></div></div></div>
+<a name="id2389"></a>8.5.1.2. Why <code class="literal">screen</code>?</h4></div></div></div>
 <p>
 	  The screen utility provides multiplexed virtual terminals.
 	  This allows you to run multiple sessions from a single
@@ -157,7 +157,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2378"></a>8.5.2. Output to terminal (using the <code class="literal">cat</code> target)</h3></div></div></div>
+<a name="id2394"></a>8.5.2. Output to terminal (using the <code class="literal">cat</code> target)</h3></div></div></div>
 <p>
 	If you just to watch the output from your Arduino's serial
 	connection and do not need to provide input, you can use the
@@ -198,14 +198,14 @@
       If you need your definitions to be evaluated at the end of 
       makefile processing, after all other dependency files have been
       updated and evaluated, you can provide a definition for
-      <code class="literal">INO_FINAL</code>.  This will be evaluated after
+      <code class="literal">DNO_FINAL</code>.  This will be evaluated after
       everything else but before beginning the build process proper.
       Here is an example:
       </p>
 <pre class="programlisting">
 # The following will override the definition of upload.speed in
 # BOARD_INFO.
-define INO_FINAL
+define DNO_FINAL
   upload.speed=9600
 endef
       </pre>
@@ -223,7 +223,7 @@ endef
 <a name="using-programmers"></a>8.7. Using External Programmers</h2></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2407"></a>8.7.1. Limitations of Serial Uploading</h3></div></div></div>
+<a name="id2423"></a>8.7.1. Limitations of Serial Uploading</h3></div></div></div>
 <p>
 	Most Arduino programming can be done by simply uploading
 	sketches using the board's serial interface.  In this case,
@@ -305,11 +305,11 @@ endef
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2432"></a>8.7.2. External Programmer Options</h3></div></div></div>
+<a name="id2448"></a>8.7.2. External Programmer Options</h3></div></div></div>
 <p>
 	There are many options available for external programmers.
 	The file <code class="literal">programmers.txt</code> which can be
-	found, for each architecture, in the same installed arduino
+	found, for each architecture, in the same installed Arduino
 	platform directory as the <code class="literal">boards.txt</code> and
 	<code class="literal">platform.txt</code>files, lists and provides
 	parameters for driving each supported external programmer.
@@ -322,9 +322,9 @@ endef
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2440"></a>8.7.3. Using an Arduino as an External Programmer</h3></div></div></div>
+<a name="id2456"></a>8.7.3. Using an Arduino as an External Programmer</h3></div></div></div>
 <p>
-	If you are using an Arduino board and have a spare arduino,
+	If you are using an Arduino board and have a spare Arduino,
 	you can use that spare as an external programmer.
       </p>
 <p>
@@ -334,7 +334,7 @@ endef
       </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2445"></a>8.7.3.1. Uploading the ArduinoISP sketch using dno</h4></div></div></div>
+<a name="id2461"></a>8.7.3.1. Uploading the ArduinoISP sketch using dno</h4></div></div></div>
 <p>
 	  </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
@@ -486,7 +486,7 @@ ArduinoISP$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2475"></a>8.7.4. Uploading Sketches Using an External Programmer</h3></div></div></div>
+<a name="id2491"></a>8.7.4. Uploading Sketches Using an External Programmer</h3></div></div></div>
 <p>
 	Let's use our version of the <a class="link" href="ch06.html#blink_with_deferal">blink sketch</a> with the
 	Deferal library.  We'll create a board directory
@@ -586,7 +586,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2492"></a>8.7.5. Installing Bootloaders</h3></div></div></div>
+<a name="id2508"></a>8.7.5. Installing Bootloaders</h3></div></div></div>
 <p>
 	Typically you will want to install a new bootloader for one of
 	two reasons: your bootloader may have stopped working, in
@@ -806,7 +806,7 @@ boot$
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2524"></a>8.8.1. Building Custom Bootloaders With Dno</h3></div></div></div>
+<a name="id2540"></a>8.8.1. Building Custom Bootloaders With Dno</h3></div></div></div>
 <p>
 	Since there are many ways of putting together a custom
 	bootloader, dno cannot know them all.  Instead, it makes some,
@@ -824,7 +824,7 @@ boot$
       </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2529"></a>8.8.1.1. Default Bootloader Image Build Mechanism</h4></div></div></div>
+<a name="id2545"></a>8.8.1.1. Default Bootloader Image Build Mechanism</h4></div></div></div>
 <p>
 	  If you invoke <code class="literal">dno</code> with no target in a
 	  <code class="literal">boot</code> directory, it will assume you want
@@ -844,7 +844,7 @@ boot$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2537"></a>8.8.1.2. Bootloader Image File Identification</h4></div></div></div>
+<a name="id2553"></a>8.8.1.2. Bootloader Image File Identification</h4></div></div></div>
 <p>
 	  By default dno assumes that the first file it can find in
 	  the boot directory that is named
@@ -857,7 +857,7 @@ boot$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2543"></a>8.8.1.3. Customising Bootloader Image Handling Behaviour</h4></div></div></div>
+<a name="id2559"></a>8.8.1.3. Customising Bootloader Image Handling Behaviour</h4></div></div></div>
 <p>
 	  A number of <code class="literal">make</code> variables are used to
 	  allow customisation of dno's build process for bootloader
@@ -921,7 +921,7 @@ boot$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2583"></a>8.8.2. Worked Example: Building an <code class="literal">Optiboot</code>
+<a name="id2599"></a>8.8.2. Worked Example: Building an <code class="literal">Optiboot</code>
       Bootloader Image</h3></div></div></div>
 <p>
 	A number of pre-built bootloader images are available for many
@@ -960,7 +960,7 @@ boot$
       </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2594"></a>8.8.2.1. Getting a copy</h4></div></div></div>
+<a name="id2610"></a>8.8.2.1. Getting a copy</h4></div></div></div>
 <p>
 	  You can get the <a class="link" href="https://github.com/Optiboot/optiboot/tree/master" target="_top">latest
 	  optiboot</a> from github.
@@ -1025,14 +1025,14 @@ boot$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2613"></a>8.8.2.2. Burning It</h4></div></div></div>
+<a name="id2629"></a>8.8.2.2. Burning It</h4></div></div></div>
 <p>
 	  See <a class="link" href="ch08.html#burning_custom_bootloaders" title="8.7.5.2. Burning a Custom Bootloader">above</a>.
 	</p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2617"></a>8.8.2.3. Using It</h4></div></div></div>
+<a name="id2633"></a>8.8.2.3. Using It</h4></div></div></div>
 <p>
 	  Once you have installed a new bootloader, with new
 	  capabilities, you will have changed your board type: it
@@ -1047,7 +1047,7 @@ boot$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2623"></a>8.8.2.4. Installing Optiboot Configuration Files</h4></div></div></div>
+<a name="id2639"></a>8.8.2.4. Installing Optiboot Configuration Files</h4></div></div></div>
 <p>
 	  First, we must find the .json file that describes to the
 	  Arduino IDE, where to find information for boards with an
@@ -1075,7 +1075,7 @@ boot$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2633"></a>8.8.2.5. Add Optiboot boards to dno</h4></div></div></div>
+<a name="id2649"></a>8.8.2.5. Add Optiboot boards to dno</h4></div></div></div>
 <p>
 	  Now we need to find where the Arduino IDE installed the new
 	  board files.  We know that the IDE installs these under the
@@ -1124,7 +1124,7 @@ Optiboot.avr.optibootxmini328p:      Optiboot Xplained Mini 328p
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2642"></a>8.8.2.6. Renaming our board type directory</h4></div></div></div>
+<a name="id2658"></a>8.8.2.6. Renaming our board type directory</h4></div></div></div>
 <p>
 	  First, we need to identify the full board type for our 3.3v
 	  pro mini.  The basic type, from the list given above, will
@@ -1205,7 +1205,7 @@ optiboot32.8MHz,atmega328p$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2652"></a>8.8.2.7. Making it Work</h4></div></div></div>
+<a name="id2668"></a>8.8.2.7. Making it Work</h4></div></div></div>
 <p>
 	  We tried uploading our new sketch and were unable to make
 	  contact with the board.  Hmmm.
@@ -1464,7 +1464,7 @@ optiboot32.8MHz,atmega328p$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2683"></a>8.8.2.8. Some Final Cleanup</h4></div></div></div>
+<a name="id2699"></a>8.8.2.8. Some Final Cleanup</h4></div></div></div>
 <p>
 	  We noted <a class="link" href="ch08.html#shabby_make">above</a> that
 	  whenever we build the <code class="literal">burn</code> target, the
@@ -1577,7 +1577,7 @@ BURN_DEPS = $(TARGET_IMAGE)
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2724"></a>8.9.1. Coding For EEPROMs</h3></div></div></div>
+<a name="id2740"></a>8.9.1. Coding For EEPROMs</h3></div></div></div>
 <p>
 	There is much online documentation about using Arduino
 	EEPROMs.  Little of it seems to cover how to create eeprom
@@ -1588,7 +1588,7 @@ BURN_DEPS = $(TARGET_IMAGE)
       </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2728"></a>8.9.1.1. Include the <code class="literal">eeprom</code> Header</h4></div></div></div>
+<a name="id2744"></a>8.9.1.1. Include the <code class="literal">eeprom</code> Header</h4></div></div></div>
 <p>
 	  Add <code class="literal">#include &lt;avr/eeprom.h&gt;</code>.
 	  Something like this:
@@ -1606,7 +1606,7 @@ BURN_DEPS = $(TARGET_IMAGE)
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2734"></a>8.9.1.2. Create a Struct Representing the EEPROM Contents</h4></div></div></div>
+<a name="id2750"></a>8.9.1.2. Create a Struct Representing the EEPROM Contents</h4></div></div></div>
 <p>
 	  We add a struct definition, with some initialisation.  Note
 	  the use of the EEMEM directive.  This is the crucial
@@ -1642,7 +1642,7 @@ struct {
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2739"></a>8.9.1.3. Using the EEPROM Contents</h4></div></div></div>
+<a name="id2755"></a>8.9.1.3. Using the EEPROM Contents</h4></div></div></div>
 <p>
 	  Now, we need to make use of the contents.  We will read the
 	  eeprom structure, and write the values we have found to our
@@ -1753,7 +1753,7 @@ void loop()
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2745"></a>8.9.1.4. Build and Test</h4></div></div></div>
+<a name="id2761"></a>8.9.1.4. Build and Test</h4></div></div></div>
 <p>
 	  Let's compile and upload:
 	  </p>
@@ -1819,7 +1819,7 @@ eeprom not initialised
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2753"></a>8.9.1.5. Burn the Eeprom</h4></div></div></div>
+<a name="id2769"></a>8.9.1.5. Burn the Eeprom</h4></div></div></div>
 <p>
 	  Please note again that this operation is only supported
 	  under the AVR architecture.  It may be possible to do
@@ -1888,7 +1888,7 @@ pro.8MHzatmega328$
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2765"></a>8.9.1.6. Are We There Yet?</h4></div></div></div>
+<a name="id2781"></a>8.9.1.6. Are We There Yet?</h4></div></div></div>
 <p>
 	  Well, let's try the monitor again:
 	  </p>
@@ -1909,7 +1909,7 @@ Node 554 says Here, put this fish in your ear
 	  The <code class="literal">node_id</code> value is usually wrong but
 	  sometimes ok.  Whether this is a hardware problem (tired
 	  eeprom), or something else is difficult to say
-	  <a href="#ftn.id2771" class="footnote" name="id2771"><sup class="footnote">[2]</sup></a>
+	  <a href="#ftn.id2787" class="footnote" name="id2787"><sup class="footnote">[2]</sup></a>
 	  .  Either way, writing to the eeprom achieved something at least.
 	</p>
 </div>
@@ -1917,7 +1917,7 @@ Node 554 says Here, put this fish in your ear
 </div>
 <div class="footnotes">
 <br><hr style="width:100; text-align:left;margin-left: 0">
-<div id="ftn.id2771" class="footnote"><p><a href="#id2771" class="para"><sup class="para">[2] </sup></a>
+<div id="ftn.id2787" class="footnote"><p><a href="#id2787" class="para"><sup class="para">[2] </sup></a>
 	      It turns out the eeprom in my board was faulty.  Running
 	      with a different board solved the problem.  
 	    </p></div>
